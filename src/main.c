@@ -3,13 +3,7 @@
 #include "../include/entities/player.h"
 #include "../include/maps/mapa1.h"
 #include "../include/utils/utils.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include "gemini.h"
-#include <curl/curl.h>
-#include "cJSON.h"
-
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
