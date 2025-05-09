@@ -3,12 +3,14 @@
 #include "../include/entities/player.h"
 #include "../include/maps/mapa1.h"
 #include "../include/utils/utils.h"
+#include "gemini.h"
 #include <string.h>
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
+#define MAX_INPUT 256
+#define MAX_RESPOSTA 1024
 
-// Estrutura para controle de diálogo
 typedef struct {
     char text[256];
     int currentChar;
@@ -31,15 +33,14 @@ void UpdateDialogue(DialogueSystem *dialogue) {
     if (!dialogue->isActive || dialogue->isFinished) return;
 
     dialogue->timer += GetFrameTime();
-    const float charSpeed = 0.05f; // Velocidade entre caracteres
+    const float charSpeed = 0.05f;
 
     if (dialogue->timer >= charSpeed) {
         dialogue->timer = 0;
         dialogue->currentChar++;
 
-        // Toca som apenas para caracteres visíveis (não espaços)
         if (dialogue->currentChar < (int)strlen(dialogue->text) &&
-            dialogue->text[dialogue->currentChar-1] != ' ') {
+            dialogue->text[dialogue->currentChar - 1] != ' ') {
             PlaySound(dialogue->typeSound);
         }
 
@@ -59,16 +60,13 @@ void DrawDialogue(DialogueSystem *dialogue) {
     const int textX = boxX + 20;
     const int textY = boxY + 40;
 
-    // Fundo da caixa de diálogo
     DrawRectangle(boxX, boxY, boxWidth, boxHeight, Fade(BLACK, 0.8f));
     DrawRectangleLines(boxX, boxY, boxWidth, boxHeight, WHITE);
 
-    // Texto com efeito de digitação
     char displayedText[256] = {0};
     strncpy(displayedText, dialogue->text, dialogue->currentChar);
     DrawText(displayedText, textX, textY, 20, WHITE);
 
-    // Indicador para continuar
     if (dialogue->isFinished) {
         DrawText("Press ENTER to continue...",
                  boxX + boxWidth - 200,
@@ -85,67 +83,103 @@ int main(void) {
         ToggleFullscreen();
     }
 
-    // Inicialização
     Player player;
     InitPlayer(&player);
-    player.frozen = false; // Garante que começa não congelado
+    player.frozen = false;
 
     MapData map;
     InitMap(&map);
 
-    // Sistema de diálogo
     DialogueSystem dialogue;
     Sound typeSound = LoadSound("assets/sounds/type_sound.wav");
-    InitDialogue(&dialogue, "Olá Joseph! Você parece mais novo...", typeSound);
+
+    char inputText[MAX_INPUT] = "";
+    char respostaIA[MAX_RESPOSTA] = "";
+    bool typingQuestion = false;
+    bool waitingResponse = false;
+    bool showingAnswer = false;
 
     while (!WindowShouldClose()) {
-        // Atualização
-        UpdatePlayer(&player);
+        if (!player.frozen) {
+            UpdatePlayer(&player);
+        }
         UpdatePolnareff(&map.polnareff);
         UpdateDialogue(&dialogue);
 
-        // Verifica distância para interação
         float distance = Vector2Distance(player.position, map.polnareff.position);
         bool showPrompt = distance < 200.0f;
 
-        // Lógica de interação
-        if (showPrompt && IsKeyPressed(KEY_P) && !dialogue.isActive) {
-            dialogue.isActive = true;
-            player.frozen = true; // Congela o player
+        if (showPrompt && IsKeyPressed(KEY_P) && !dialogue.isActive && !typingQuestion && !waitingResponse && !showingAnswer) {
+            typingQuestion = true;
+            player.frozen = true;
+            inputText[0] = '\0';
         }
 
-        // Finaliza diálogo
+        if (typingQuestion) {
+            int key = GetCharPressed();
+            while (key > 0) {
+                if ((key >= 32) && (key <= 125) && strlen(inputText) < MAX_INPUT - 1) {
+                    int len = strlen(inputText);
+                    inputText[len] = (char)key;
+                    inputText[len + 1] = '\0';
+                }
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE) && strlen(inputText) > 0) {
+                inputText[strlen(inputText) - 1] = '\0';
+            }
+
+            if (IsKeyPressed(KEY_ENTER)) {
+                typingQuestion = false;
+                waitingResponse = true;
+            }
+        }
+
+        if (waitingResponse) {
+            respt(inputText, respostaIA);
+            InitDialogue(&dialogue, respostaIA, typeSound);
+            dialogue.isActive = true;
+            waitingResponse = false;
+            showingAnswer = true;
+        }
+
         if (dialogue.isActive && dialogue.isFinished && IsKeyPressed(KEY_ENTER)) {
             dialogue.isActive = false;
-            player.frozen = false; // Libera o player
+            if (showingAnswer) {
+                showingAnswer = false;
+                player.frozen = false;
+            }
         }
 
-        // Desenho
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
         DrawMap(&map);
         DrawPlayer(&player);
 
-        // Mostra prompt de interação
-        if (showPrompt && !dialogue.isActive) {
+        if (showPrompt && !dialogue.isActive && !typingQuestion) {
             DrawText("PRESS P!",
                      map.polnareff.position.x + 55,
                      map.polnareff.position.y + 30,
                      20, YELLOW);
         }
 
-        // Desenha diálogo se ativo
+        if (typingQuestion) {
+            DrawRectangle(460, SCREEN_HEIGHT - 160, 1000, 80, Fade(BLACK, 0.8f));
+            DrawRectangleLines(460, SCREEN_HEIGHT - 160, 1000, 80, WHITE);
+            DrawText("Digite sua pergunta:", 480, SCREEN_HEIGHT - 150, 20, YELLOW);
+            DrawText(inputText, 480, SCREEN_HEIGHT - 120, 20, WHITE);
+        }
+
         DrawDialogue(&dialogue);
 
-        // Debug info
         DrawText(TextFormat("Posição Player: (%.0f, %.0f)", player.position.x, player.position.y),
                  10, 10, 20, DARKGRAY);
         DrawText("Use as setas para mover", 10, 40, 20, DARKGRAY);
         EndDrawing();
     }
 
-    // Limpeza
     UnloadTexture(player.spriteSheet);
     UnloadTexture(map.polnareff.spriteSheet);
     if (map.background.id != 0) UnloadTexture(map.background);
