@@ -1,19 +1,23 @@
 TARGET = app
-
 SRC_DIR = src
-INCLUDE_DIR = include
-LIB_DIR = lib_raylib
 RELEASE_DIR = bin
+LIB_DIR = lib_raylib
 
-SOURCES = $(wildcard $(SRC_DIR)/*.c)
+SOURCES = $(SRC_DIR)/main.c
 
-CFLAGS = -Wall -std=c99 -I$(INCLUDE_DIR) -Icurl/include
-LIBS = -L$(LIB_DIR) -Lcurl/lib -lraylib -lcurl -lopengl32 -lgdi32 -lwinmm
-BIN_TARGET = $(RELEASE_DIR)/$(TARGET).exe
+CFLAGS = -Wall -std=c99 -I$(LIB_DIR)
+LIBS = -L$(LIB_DIR) -lraylib -lopengl32 -lgdi32 -lwinmm
 
-$(BIN_TARGET): $(SOURCES)
+$(RELEASE_DIR)/$(TARGET).exe: $(SOURCES)
 	@mkdir -p $(RELEASE_DIR)
-	gcc $(CFLAGS) $(SOURCES) -o $@ $(LIBS)
+	gcc $(CFLAGS) $^ -o $@ $(LIBS)
+	@cp $(LIB_DIR)/raylib.dll $(RELEASE_DIR)/
+	@echo "Compilação concluída. DLL copiada para bin/"
 
-run: $(BIN_TARGET)
-	./$<
+run: $(RELEASE_DIR)/$(TARGET).exe
+	@cd $(RELEASE_DIR) && start $(TARGET).exe
+
+clean:
+	rm -rf $(RELEASE_DIR)
+
+.PHONY: run clean
