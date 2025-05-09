@@ -1,0 +1,32 @@
+# Diretório da IDE CLion (JetBrains)
+.idea/
+
+# Diretórios de build do CMake (CLion geralmente usa cmake-build-debug, cmake-build-release, etc.)
+cmake-build-*/
+build/
+
+# Arquivos de cache do CMake
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+CTestTestfile.cmake
+install_manifest.txt
+
+# Binários gerados
+*.exe
+*.out
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.lib
+
+# Arquivos de log ou temporários
+*.log
+*.tmp
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
