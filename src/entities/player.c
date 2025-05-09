@@ -17,6 +17,10 @@ void InitPlayer(Player *player) {
 }
 
 void UpdatePlayer(Player *player) {
+    if (player->frozen) {
+        player->state = STATE_IDLE; // Força estado idle
+        return;
+    }
     Vector2 movement = {0};
     if (IsKeyDown(KEY_RIGHT)) {
         movement.x = 1;

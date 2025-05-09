@@ -24,6 +24,7 @@ typedef struct {
     int frameCounter;
     bool facingRight;
     PlayerState state;
+    bool frozen;
 } Player;
 
 void InitPlayer(Player *player);
