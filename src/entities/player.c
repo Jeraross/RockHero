@@ -1,6 +1,6 @@
-#include "../include/player.h"
-#include "raylib.h"
-#include "../include/utils/utils.h"
+#include "../../include/entities/player.h"
+#include "../../include_raylib/raylib.h"
+#include "../../include/utils/utils.h"
 
 void InitPlayer(Player *player) {
     player->position = (Vector2){GetScreenWidth() / 2.0f, (720 + 1080) / 2.0f};

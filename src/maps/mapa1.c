@@ -1,15 +1,16 @@
 #include "../../include/maps/mapa1.h"
-#include "../../include_raylib/raylib.h"
+#include "../../include/entities/polnareff.h"
 #include "../../include/utils/utils.h"
 
 void InitMap(MapData *map) {
     map->background = LoadTexture("assets/maps/PNG/City2/Bright/City2.png");
 
-    map->polnareff.spriteSheet = LoadTexture("assets/sprites/polnareff.png");
-    map->polnareff.position = (Vector2){GetScreenWidth() * 0.75f, (1080 - 200) - POLNAREFF_FRAME_HEIGHT * POLNAREFF_SCALE};
-    map->polnareff.currentFrame = 1;
-    map->polnareff.frameCounter = 0;
-    map->polnareff.scale = POLNAREFF_SCALE;
+    Vector2 polnareffPos = {
+            GetScreenWidth() * 0.75f,
+            (1080 - 200) - POLNAREFF_FRAME_HEIGHT * POLNAREFF_SCALE
+    };
+
+    InitPolnareff(&map->polnareff, polnareffPos);
 }
 
 void UpdatePolnareff(Polnareff *polnareff) {

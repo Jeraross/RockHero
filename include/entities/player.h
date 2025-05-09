@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "../include_raylib/raylib.h"
+#include "../../include_raylib/raylib.h"
 
 #define NUM_FRAMES 13
 #define PLAYER_SPEED 8.0f

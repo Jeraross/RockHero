@@ -1,7 +1,8 @@
 #include "raylib.h"
-#include "../include/player.h"
+#include "../include/entities/player.h"
 #include "../include/maps/mapa1.h"
 #include "../include/utils/utils.h"
+#include "../include/entities/polnareff.h"
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
@@ -36,7 +37,7 @@ int main(void) {
     }
 
     UnloadTexture(player.spriteSheet);
-    UnloadTexture(map.polnareff.spriteSheet);
+    UnloadPolnareff(&map.polnareff);
     if (map.background.id != 0) UnloadTexture(map.background);
     CloseWindow();
 
