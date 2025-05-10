@@ -7,6 +7,7 @@ SOURCES = \
 	$(SRC_DIR)/main.c \
 	$(SRC_DIR)/entities/player.c \
 	$(SRC_DIR)/maps/mapa1.c \
+	$(SRC_DIR)/maps/mapa2.c \
 	$(SRC_DIR)/entities/polnareff.c \
 	$(SRC_DIR)/gemini.c \
 	$(SRC_DIR)/utils.c \
