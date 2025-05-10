@@ -22,7 +22,7 @@ int main(void) {
     player.frozen = false;
 
     MapData map1;
-    InitMap(&map1);  // Mapa 1 carregado inicialmente
+    InitMap1(&map1);  // Mapa 1 carregado inicialmente
 
     MapData map2;
     InitMap2(&map2); // Mapa 2 carregado, mas não usado ainda
@@ -41,7 +41,7 @@ int main(void) {
 
         // Atualiza o mapa atual
         if (currentMap == MAPA1) {
-            UpdateMap(&map1, &player);  // Atualiza o mapa 1
+            UpdateMap1(&map1, &player);  // Atualiza o mapa 1
         } else {
             UpdateMap2(&map2, &player); // Atualiza o mapa 2
         }
@@ -51,7 +51,7 @@ int main(void) {
 
         // Desenha o mapa atual
         if (currentMap == MAPA1) {
-            DrawMap(&map1, &player);  // Desenha o mapa 1
+            DrawMap1(&map1, &player);  // Desenha o mapa 1
         } else {
             DrawMap2(&map2, &player); // Desenha o mapa 2
         }
@@ -77,11 +77,11 @@ int main(void) {
     // Limpeza dos recursos
     UnloadTexture(player.spriteSheet);
     if (currentMap == MAPA1) {
-        UnloadTexture(map1.polnareff.spriteSheet);
+        UnloadTexture(map1.npc.spriteSheet);
         if (map1.background.id != 0) UnloadTexture(map1.background);
         UnloadSound(map1.typeSound);
     } else {
-        UnloadTexture(map2.polnareff.spriteSheet);
+        UnloadTexture(map2.npc.spriteSheet);
         if (map2.background.id != 0) UnloadTexture(map2.background);
         UnloadSound(map2.typeSound);
     }

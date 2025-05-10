@@ -1,66 +1,53 @@
 #include "../../include/maps/mapa2.h"
-#include "../../include/entities/polnareff.h"
 #include "../../include/utils/utils.h"
-#include <string.h>
 #include "../../lib_raylib/raymath.h"
-#include "../gemini.h"
 #include "../../include/utils/constants.h"
-#include "../../include/entities/player.h"
+#include "../../include/entities/npc.h"
+#include "../gemini.h"
+#include <string.h>
 
-// src/maps/mapa2.c
 void InitMap2(MapData *map) {
-    // Carrega a textura de fundo do mapa 2
     map->background = LoadTexture("assets/maps/PNG/City3/Bright/City3.png");
 
-    // Define a posição do Polnareff no novo mapa
-    Vector2 polnareffPos = {
-            GetScreenWidth() * 0.75f,
-            (1080 - 200) - POLNAREFF_FRAME_HEIGHT * POLNAREFF_SCALE
+    Vector2 npcPos = {
+            660,
+            (1080 - 200) - 130 * 2.0f  // altura do sprite * escala
     };
 
-    // Inicializa o Polnareff
-    InitPolnareff(&map->polnareff, polnareffPos);
+    InitNpc(&map->npc, npcPos, "assets/sprites/avdol (1).png",
+            7, 5, -164, 124, 213, 2.0f);
 
-    // Inicializa os parâmetros específicos do mapa
     map->typingQuestion = false;
     map->waitingResponse = false;
     map->showingAnswer = false;
     map->inputText[0] = '\0';
     map->respostaIA[0] = '\0';
-
-    // Carrega o som de digitação
     map->typeSound = LoadSound("assets/sounds/type_sound.wav");
 
-    // Inicializa o sistema de diálogo
     InitDialogue(&map->dialogue, "", map->typeSound);
 }
 
 void UpdateMap2(MapData *map, Player *player) {
-    // Verifica se o jogador está descongelado
     if (!player->frozen) {
-        UpdatePlayer(player); // O jogador só pode se mover se não estiver congelado
+        UpdatePlayer(player);
     }
 
-    // Atualiza o Polnareff e o sistema de diálogo
-    UpdatePolnareff(&map->polnareff);
+    UpdateNpc(&map->npc);
     UpdateDialogue(&map->dialogue);
 
-    // Calcula a distância entre o jogador e o Polnareff
-    float distance = Vector2Distance(player->position, map->polnareff.position);
+    float distance = Vector2Distance(player->position, map->npc.position);
     bool showPrompt = distance < 200.0f;
 
-    // Verifica se o jogador deve interagir com o Polnareff
     if (showPrompt && IsKeyPressed(KEY_P) && !map->dialogue.isActive && !map->typingQuestion && !map->waitingResponse && !map->showingAnswer) {
         map->typingQuestion = true;
-        player->frozen = true; // Congela o jogador quando ele começa a digitar
+        player->frozen = true;
         map->inputText[0] = '\0';
     }
 
-    // Lógica de digitação da pergunta
     if (map->typingQuestion) {
         int key = GetCharPressed();
         while (key > 0) {
-            if ((key >= 32) && (key <= 125) && strlen(map->inputText) < MAX_INPUT - 1) {
+            if ((key >= 32) && (key <= 125) && strlen(map->inputText) < 255) {
                 int len = strlen(map->inputText);
                 map->inputText[len] = (char)key;
                 map->inputText[len + 1] = '\0';
@@ -78,7 +65,6 @@ void UpdateMap2(MapData *map, Player *player) {
         }
     }
 
-    // Resposta à pergunta do jogador
     if (map->waitingResponse) {
         respt(map->inputText, map->respostaIA);
         InitDialogue(&map->dialogue, map->respostaIA, map->typeSound);
@@ -87,47 +73,39 @@ void UpdateMap2(MapData *map, Player *player) {
         map->showingAnswer = true;
     }
 
-    // Finaliza o diálogo e libera o jogador para se mover novamente
     if (map->dialogue.isActive && map->dialogue.isFinished && IsKeyPressed(KEY_ENTER)) {
         map->dialogue.isActive = false;
         if (map->showingAnswer) {
             map->showingAnswer = false;
-            player->frozen = false; // Descongela o jogador após a resposta ser mostrada
+            player->frozen = false;
         }
     }
 }
 
 void DrawMap2(MapData *map, Player *player) {
-    if (map->background.id != 0) {
-        DrawTexture(map->background, 0, 0, WHITE);
-    } else {
-        ClearBackground(RAYWHITE);
-    }
+    DrawTexture(map->background, 0, 0, WHITE);
 
-    // Desenha o Polnareff
-    Rectangle polnareffSource = {
-            map->polnareff.currentFrame * POLNAREFF_FRAME_DISTANCE,
+    Rectangle src = {
+            map->npc.currentFrame * map->npc.frameDistance,
             0,
-            POLNAREFF_FRAME_WIDTH,
-            POLNAREFF_FRAME_HEIGHT
+            map->npc.frameWidth,
+            map->npc.frameHeight
     };
 
-    Rectangle polnareffDest = {
-            map->polnareff.position.x,
-            map->polnareff.position.y,
-            POLNAREFF_FRAME_WIDTH * map->polnareff.scale,
-            POLNAREFF_FRAME_HEIGHT * map->polnareff.scale
+    Rectangle dst = {
+            map->npc.position.x,
+            map->npc.position.y,
+            map->npc.frameWidth * map->npc.scale,
+            map->npc.frameHeight * map->npc.scale
     };
 
-    DrawTexturePro(map->polnareff.spriteSheet, polnareffSource, polnareffDest, (Vector2){0, 0}, 0.0f, WHITE);
+    DrawTexturePro(map->npc.spriteSheet, src, dst, (Vector2){0, 0}, 0.0f, WHITE);
 
-    // Verifica a distância entre o jogador e o Polnareff para mostrar a interação
-    float distance = Vector2Distance(map->polnareff.position, player->position);
+    float distance = Vector2Distance(map->npc.position, player->position);
     if (distance < 200.0f && !map->dialogue.isActive && !map->typingQuestion) {
-        DrawText("PRESS P!", map->polnareff.position.x + 55, map->polnareff.position.y + 30, 20, YELLOW);
+        DrawText("PRESS P!", map->npc.position.x + 55, map->npc.position.y + 30, 20, YELLOW);
     }
 
-    // Se estiver digitando a pergunta
     if (map->typingQuestion) {
         DrawRectangle(460, SCREEN_HEIGHT - 160, 1000, 80, Fade(BLACK, 0.8f));
         DrawRectangleLines(460, SCREEN_HEIGHT - 160, 1000, 80, WHITE);
@@ -135,6 +113,5 @@ void DrawMap2(MapData *map, Player *player) {
         DrawText(map->inputText, 480, SCREEN_HEIGHT - 120, 20, WHITE);
     }
 
-    // Desenha o diálogo
     DrawDialogue(&map->dialogue);
 }

@@ -2,18 +2,21 @@
 #define MAPA_H
 
 #include "../../include_raylib/raylib.h"
-#include "../entities/polnareff.h"
 #include "../dialogue.h"
-#include "../entities/player.h"  // Necessário para o Player
+#include "../entities/player.h"
+#include "../entities/npc.h"  // Adiciona o novo NPC genérico
 
 typedef struct {
     Texture2D background;
-    Polnareff polnareff;
+    Npc npc;  // Substitui o antigo Polnareff
+
     bool typingQuestion;
     bool waitingResponse;
     bool showingAnswer;
+
     char inputText[256];
     char respostaIA[1024];
+
     DialogueSystem dialogue;
     Sound typeSound;
 } MapData;

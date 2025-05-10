@@ -2,10 +2,11 @@
 #define MAPA1_H
 
 #include "mapa.h"  // Inclui a definição de MapData
+#include "../entities/npc.h"
 
 // Funções específicas para o mapa 1
-void InitMap(MapData *map);
-void UpdateMap(MapData *map, Player *player);
-void DrawMap(MapData *map, Player *player);
+void InitMap1(MapData *map);
+void UpdateMap1(MapData *map, Player *player);
+void DrawMap1(MapData *map, Player *player);
 
 #endif
