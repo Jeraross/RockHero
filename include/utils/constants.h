@@ -1,0 +1,9 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+#define SCREEN_WIDTH 1920
+#define SCREEN_HEIGHT 1080
+#define MAX_INPUT 256
+#define MAX_RESPOSTA 1024
+
+#endif

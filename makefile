@@ -10,7 +10,8 @@ SOURCES = \
 	$(SRC_DIR)/entities/polnareff.c \
 	$(SRC_DIR)/gemini.c \
 	$(SRC_DIR)/utils.c \
-	$(SRC_DIR)/cJSON.c
+	$(SRC_DIR)/cJSON.c \
+	$(SRC_DIR)/dialogue.c
 
 CFLAGS = -Wall -std=c99 -I$(LIB_DIR) -I$(SRC_DIR) -Icurl/include
 LIBS = -L$(LIB_DIR) -Lcurl/lib -lraylib -lcurl -lopengl32 -lgdi32 -lwinmm
@@ -26,6 +27,6 @@ run: $(RELEASE_DIR)/$(TARGET).exe
 	@cd $(RELEASE_DIR) && start $(TARGET).exe
 
 clean:
-	rm -rf $(RELEASE_DIR)
+	rm -rf $(RELEASE_DIR)/app.exe
 
 .PHONY: run clean

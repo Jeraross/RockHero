@@ -20,5 +20,6 @@ typedef struct {
 
 void InitPolnareff(Polnareff *polnareff, Vector2 position);
 void UnloadPolnareff(Polnareff *polnareff);
+void UpdatePolnareff(Polnareff *polnareff); // ← Adicionada esta linha
 
 #endif

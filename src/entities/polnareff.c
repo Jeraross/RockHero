@@ -13,3 +13,17 @@ void UnloadPolnareff(Polnareff *polnareff) {
         UnloadTexture(polnareff->spriteSheet);
     }
 }
+
+void UpdatePolnareff(Polnareff *polnareff) {
+    polnareff->frameCounter++;
+
+    if (polnareff->frameCounter >= (60 / POLNAREFF_ANIM_SPEED)) {
+        polnareff->frameCounter = 1;
+        polnareff->currentFrame++;
+
+        if (polnareff->currentFrame >= POLNAREFF_FRAMES) {
+            polnareff->currentFrame = 1;
+        }
+    }
+}
+
