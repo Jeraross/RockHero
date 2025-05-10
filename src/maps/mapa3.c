@@ -1,4 +1,4 @@
-#include "../../include/maps/mapa2.h"
+#include "../../include/maps/mapa3.h"
 #include "../../include/utils/utils.h"
 #include "../../lib_raylib/raymath.h"
 #include "../../include/utils/constants.h"
@@ -6,16 +6,16 @@
 #include "../gemini.h"
 #include <string.h>
 
-void InitMap2(MapData *map) {
-    map->background = LoadTexture("assets/maps/PNG/City3/Bright/City3.png");
+void InitMap3(MapData *map) {
+    map->background = LoadTexture("assets/maps/PNG/City4/Bright/City4.png");
 
     Vector2 npcPos = {
-            660,
+            1190,
             (1080 - 200) - 130 * 2.0f  // altura do sprite * escala
     };
 
-    InitNpc(&map->npc, npcPos, "assets/sprites/avdol.png",
-            7, 5, -164, 124, 213, 2.0f);
+    InitNpc(&map->npc, npcPos, "assets/sprites/jotaro.png",
+            4, 7, 112, 129, 153, 2.0f);
 
     map->typingQuestion = false;
     map->waitingResponse = false;
@@ -27,7 +27,7 @@ void InitMap2(MapData *map) {
     InitDialogue(&map->dialogue, "", map->typeSound);
 }
 
-void UpdateMap2(MapData *map, Player *player) {
+void UpdateMap3(MapData *map, Player *player) {
     if (!player->frozen) {
         UpdatePlayer(player);
     }
@@ -82,7 +82,7 @@ void UpdateMap2(MapData *map, Player *player) {
     }
 }
 
-void DrawMap2(MapData *map, Player *player) {
+void DrawMap3(MapData *map, Player *player) {
     DrawTexture(map->background, 0, 0, WHITE);
 
     Rectangle src = {
@@ -103,7 +103,7 @@ void DrawMap2(MapData *map, Player *player) {
 
     float distance = Vector2Distance(map->npc.position, player->position);
     if (distance < 200.0f && !map->dialogue.isActive && !map->typingQuestion) {
-        DrawText("PRESS P!", map->npc.position.x + 55, map->npc.position.y + 30, 20, YELLOW);
+        DrawText("PRESS P!", map->npc.position.x - 70, map->npc.position.y + 30, 20, GREEN);
     }
 
     if (map->typingQuestion) {

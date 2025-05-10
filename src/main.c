@@ -2,12 +2,13 @@
 #include "../include/entities/player.h"
 #include "../include/maps/mapa1.h"
 #include "../include/maps/mapa2.h"
+#include "../include/maps/mapa3.h"
 #include "../include/utils/utils.h"
 #include "gemini.h"
 #include <string.h>
 #include "../include/utils/constants.h"
 
-typedef enum { MAPA1, MAPA2 } CurrentMap; // Enum para controlar o mapa atual
+typedef enum { MAPA1, MAPA2, MAPA3 } CurrentMap; // Enum para controlar o mapa atual
 
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Jogo com Player e Polnareff");
@@ -25,15 +26,20 @@ int main(void) {
     InitMap1(&map1);  // Mapa 1 carregado inicialmente
 
     MapData map2;
-    InitMap2(&map2); // Mapa 2 carregado, mas não usado ainda
+    InitMap2(&map2); // Mapa 2 carregado
+
+    MapData map3;
+    InitMap3(&map3); // Mapa 3 carregado
 
     CurrentMap currentMap = MAPA1; // Começa com o mapa 1
 
     while (!WindowShouldClose()) {
-        // Verifica se a tecla "G" foi pressionada para alternar o mapa
+        // Verifica se a tecla "G" foi pressionada para alternar entre os mapas
         if (IsKeyPressed(KEY_G)) {
             if (currentMap == MAPA1) {
                 currentMap = MAPA2;
+            } else if (currentMap == MAPA2) {
+                currentMap = MAPA3;
             } else {
                 currentMap = MAPA1;
             }
@@ -42,8 +48,10 @@ int main(void) {
         // Atualiza o mapa atual
         if (currentMap == MAPA1) {
             UpdateMap1(&map1, &player);  // Atualiza o mapa 1
-        } else {
+        } else if (currentMap == MAPA2) {
             UpdateMap2(&map2, &player); // Atualiza o mapa 2
+        } else {
+            UpdateMap3(&map3, &player); // Atualiza o mapa 3
         }
 
         BeginDrawing();
@@ -52,8 +60,10 @@ int main(void) {
         // Desenha o mapa atual
         if (currentMap == MAPA1) {
             DrawMap1(&map1, &player);  // Desenha o mapa 1
-        } else {
+        } else if (currentMap == MAPA2) {
             DrawMap2(&map2, &player); // Desenha o mapa 2
+        } else {
+            DrawMap3(&map3, &player); // Desenha o mapa 3
         }
 
         // Desenha o player
@@ -67,8 +77,10 @@ int main(void) {
         // Texto informativo sobre o mapa atual
         if (currentMap == MAPA1) {
             DrawText("Mapa 1 Carregado", 10, 70, 20, GREEN);
-        } else {
+        } else if (currentMap == MAPA2) {
             DrawText("Mapa 2 Carregado", 10, 70, 20, GREEN);
+        } else {
+            DrawText("Mapa 3 Carregado", 10, 70, 20, GREEN);
         }
 
         EndDrawing();
@@ -80,10 +92,14 @@ int main(void) {
         UnloadTexture(map1.npc.spriteSheet);
         if (map1.background.id != 0) UnloadTexture(map1.background);
         UnloadSound(map1.typeSound);
-    } else {
+    } else if (currentMap == MAPA2) {
         UnloadTexture(map2.npc.spriteSheet);
         if (map2.background.id != 0) UnloadTexture(map2.background);
         UnloadSound(map2.typeSound);
+    } else {
+        UnloadTexture(map3.npc.spriteSheet);
+        if (map3.background.id != 0) UnloadTexture(map3.background);
+        UnloadSound(map3.typeSound);
     }
 
     CloseWindow();

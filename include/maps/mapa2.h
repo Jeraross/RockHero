@@ -1,7 +1,7 @@
 #ifndef MAPA2_H
 #define MAPA2_H
 
-#include "mapa.h"  // Inclui a definição de MapData
+#include "mapa.h"
 #include "../entities/npc.h"
 
 void InitMap2(MapData *map);

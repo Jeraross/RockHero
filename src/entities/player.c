@@ -33,7 +33,6 @@ void UpdatePlayer(Player *player) {
     if (IsKeyDown(KEY_UP)) movement.y = -1;
     if (IsKeyDown(KEY_DOWN)) movement.y = 1;
 
-    // Normalizar diagonal
     if (movement.x != 0 && movement.y != 0) {
         movement.x *= 0.7071f;
         movement.y *= 0.7071f;
@@ -42,11 +41,9 @@ void UpdatePlayer(Player *player) {
     player->position.x += movement.x * PLAYER_SPEED;
     player->position.y += movement.y * PLAYER_SPEED;
 
-    // Limita o movimento
     player->position.x = clamp(player->position.x, 0, GetScreenWidth() - FRAME_WIDTH * PLAYER_SCALE);
     player->position.y = clamp(player->position.y, 720, 1080 - FRAME_HEIGHT * PLAYER_SCALE);
 
-    // Atualiza animação
     bool isMoving = (movement.x != 0 || movement.y != 0);
     player->state = isMoving ? STATE_WALK : STATE_IDLE;
 

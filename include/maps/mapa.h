@@ -8,7 +8,7 @@
 
 typedef struct {
     Texture2D background;
-    Npc npc;  // Substitui o antigo Polnareff
+    Npc npc;
 
     bool typingQuestion;
     bool waitingResponse;

@@ -9,6 +9,7 @@ SOURCES = \
 	$(SRC_DIR)/entities/npc.c \
 	$(SRC_DIR)/maps/mapa1.c \
 	$(SRC_DIR)/maps/mapa2.c \
+	$(SRC_DIR)/maps/mapa3.c \
 	$(SRC_DIR)/gemini.c \
 	$(SRC_DIR)/utils.c \
 	$(SRC_DIR)/cJSON.c \

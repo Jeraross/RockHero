@@ -10,7 +10,6 @@ typedef struct {
     int frameCounter;
     float scale;
 
-    // Configurações do NPC (individuais por personagem)
     int frameCount;
     int animSpeed;
     int frameWidth;
