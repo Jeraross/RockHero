@@ -12,10 +12,9 @@
 #include <string.h>
 #include "../include/utils/constants.h"
 
-
-#define NOTE_SPEED 400.0f
-#define NOTE_WIDTH 80
-#define NOTE_HEIGHT 20
+#define NOTE_SPEED 500.0f
+#define NOTE_WIDTH 125
+#define NOTE_HEIGHT 40
 #define NUM_LANES 5
 #define HIT_WINDOW 0.15f // Seconds
 #define COMBO_FADE_TIME 1.0f
@@ -54,7 +53,6 @@ typedef struct {
     char artist[50];
     Note charts[200];
     char musicFile[100];
-    Texture2D albumArt;
     float duration;
     int difficulty;
 } Song;
@@ -74,11 +72,11 @@ typedef enum {
 } CurrentMap; // Enum para controlar o mapa atual
 
 Song songs[MAX_SONGS] = {
-        {"Skyfall", "Adele", {0}, "assets/musics/skyfall.mp3", (Texture2D){0}, 283.0f, 3},
-        {"Thunderstruck", "AC/DC", {0}, "assets/musics/thunderstruck.mp3", (Texture2D){0}, 292.0f, 4},
-        {"Sweet Child O'Mine", "Guns N' Roses", {0}, "assets/musics/sweet_child.mp3", (Texture2D){0}, 356.0f, 3},
-        {"Smoke on the Water", "Deep Purple", {0}, "assets/musics/smoke.mp3", (Texture2D){0}, 340.0f, 2},
-        {"Enter Sandman", "Metallica", {0}, "assets/musics/sandman.mp3", (Texture2D){0}, 331.0f, 4}
+        {"Skyfall", "Adele", {0}, "assets/musics/skyfall.mp3", 283.0f, 3},
+        {"Thunderstruck", "AC/DC", {0}, "assets/musics/thunderstruck.mp3", 292.0f, 4},
+        {"Sweet Child O'Mine", "Guns N' Roses", {0}, "assets/musics/sweet_child.mp3", 356.0f, 3},
+        {"Smoke on the Water", "Deep Purple", {0}, "assets/musics/smoke.mp3", 340.0f, 2},
+        {"Enter Sandman", "Metallica", {0}, "assets/musics/sandman.mp3", 331.0f, 4}
 };
 
 void initSongs() {
@@ -256,7 +254,7 @@ int main(void) {
             case MAIN_MENU: {
                 if (IsKeyPressed(KEY_ENTER)) {
                     PlaySound(menuSelectSound);
-                    gameState = MAPAS;
+                    gameState = SONG_SELECT;
                 }
                 if (IsKeyPressed(KEY_ESCAPE)) {
                     break; // Exit game
@@ -602,9 +600,6 @@ int main(void) {
                     float alpha = stats.streakFxTimer / COMBO_FADE_TIME * 255;
                     char comboText[20];
                     sprintf(comboText, "%d COMBO!", stats.combo);
-
-                    // Scale effect
-                    float scale = 1.0f + (1.0f - stats.streakFxTimer / COMBO_FADE_TIME) * 0.5f;
 
                     // Draw text with outline
                     int fontSize = 30 + (int)(10 * (1.0f - stats.streakFxTimer / COMBO_FADE_TIME));
