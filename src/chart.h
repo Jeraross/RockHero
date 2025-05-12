@@ -8,6 +8,7 @@
 #include "raylib.h"
 
 #define SKYFALL_CHART_SIZE 23
+#define THUNDER_CHART_SIZE 500
 
 typedef struct {
     Rectangle rect;
@@ -19,5 +20,6 @@ typedef struct {
 } Note;
 
 extern Note skyfallChart[SKYFALL_CHART_SIZE];
+extern Note thunderChart[THUNDER_CHART_SIZE];
 
 #endif //CHART_H

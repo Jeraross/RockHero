@@ -28,8 +28,8 @@
 // Adjust target position
 #define TARGET_Y (SCREEN_HEIGHT - 200)
 // Make rock meter more forgiving
-#define ROCK_METER_HIT_GAIN 0.1f  // Increased from 0.083f
-#define ROCK_METER_MISS_PENALTY 0.15f  // Reduced from 0.25f
+#define ROCK_METER_HIT_GAIN 0.1f
+#define ROCK_METER_MISS_PENALTY 0.05f
 
 typedef struct {
     int score;
@@ -51,7 +51,7 @@ typedef struct {
 typedef struct {
     char title[50];
     char artist[50];
-    Note charts[200];
+    Note charts[500];
     char musicFile[100];
     float duration;
     int difficulty;
@@ -81,6 +81,7 @@ Song songs[MAX_SONGS] = {
 
 void initSongs() {
     memcpy(songs[0].charts, skyfallChart, sizeof(skyfallChart));
+    memcpy(songs[1].charts, thunderChart, sizeof(thunderChart));
 }
 
 float Lerp2(float start, float end, float amount) {
@@ -270,7 +271,7 @@ int main(void) {
                     gameMusic = LoadMusicStream(songs[selectedSong].musicFile);
 
                     // Set up chart (in a real game, you'd load this from file)
-                    currentChart = skyfallChart;
+                    currentChart = songs[selectedSong].charts;
 
                     // Reset game state
                     memset(notes, 0, sizeof(notes));
@@ -464,28 +465,29 @@ int main(void) {
         switch (gameState) {
             case MAIN_MENU: {
                 // Draw animated background
-                for (int i = 0; i < 50; i++) {
-                    float x = sin(GetTime() + i) * 100 + screenWidth/2;
-                    float y = cos(GetTime() * 0.5f + i) * 100 + screenHeight/2;
-                    DrawCircle(x, y, 2, Fade(laneColors[i%NUM_LANES], 0.5f));
+                for (int i = 0; i < 100; i++) {  // Mais partículas
+                    float x = sin(GetTime() + i) * 200 + screenWidth/2;
+                    float y = cos(GetTime() * 0.5f + i) * 200 + screenHeight/2;
+                    DrawCircle(x, y, 3, Fade(laneColors[i%NUM_LANES], 0.5f));
                 }
 
-                // Draw title
+                // Draw title (maior)
                 const char *titleText = "ROCK HERO";
-                Vector2 titleSize = MeasureTextEx(titleFont, titleText, 72, 0);
-                Vector2 titlePos = {screenWidth/2 - titleSize.x/2, 150};
-                DrawTextEx(titleFont, titleText, titlePos, 72, 0, WHITE);
+                Vector2 titleSize = MeasureTextEx(titleFont, titleText, 180, 0);
+                Vector2 titlePos = {screenWidth/2 - titleSize.x/2, 50};
+                DrawTextEx(titleFont, titleText, titlePos, 180, 0, WHITE);
 
-                // Draw menu options
+                // Draw menu options (maiores)
                 const char *playText = "PLAY";
-                Vector2 playSize = MeasureTextEx(mainFont, playText, 36, 0);
-                Vector2 playPos = {screenWidth/2 - playSize.x/2, 350};
-                DrawTextEx(mainFont, playText, playPos, 36, 0, WHITE);
+                Vector2 playSize = MeasureTextEx(mainFont, playText, 60, 0);
+                Vector2 playPos = {screenWidth/2 - playSize.x/2, 400};
+                DrawTextEx(mainFont, playText, playPos, 60, 0, WHITE);
 
-                // Draw instructions
+                // Draw instructions (maiores)
                 const char *instructionText = "Press ENTER to select";
-                int instructionWidth = MeasureText(instructionText, 20);
-                DrawText(instructionText, screenWidth/2 - instructionWidth/2, screenHeight - 100, 20, GRAY);
+                DrawTextEx(mainFont, instructionText,
+                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, instructionText, 30, 2).x/2,
+                          screenHeight - 150}, 30, 2, GRAY);
             } break;
 
             case SONG_SELECT: {
@@ -493,7 +495,7 @@ int main(void) {
                 DrawRectangleGradientV(0, 0, screenWidth, screenHeight, (Color){20, 20, 40, 255}, (Color){10, 10, 20, 255});
 
                 // Draw title
-                DrawTextEx(titleFont, "SELECT SONG", (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "SELECT SONG", 60, 0).x/2, 50}, 60, 0, WHITE);
+                DrawTextEx(titleFont, "SELECT SONG", (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "SELECT SONG", 80, 0).x/2, 50}, 80, 0, WHITE);
 
                 // Draw song list
                 int startY = 150 - scrollOffset;
@@ -570,43 +572,41 @@ int main(void) {
                     }
                 }
 
-
-                // Draw star power meter with improved visuals (top left)
+                // Star power meter (top left - aumentado)
                 if (stats.starPower < 10.0f) {
-                    DrawRectangle(20, 20, 200, 20, Fade(DARKGRAY, 0.7f));
-                    DrawRectangle(20, 20, 200 * (stats.starPower / 10.0f), 20, Fade(SKYBLUE, 0.7f));
-                    DrawRectangleLines(20, 20, 200, 20, WHITE);
-                    DrawTextEx(mainFont, "STAR POWER", (Vector2){20, 45}, 15, 2, WHITE);
+                    DrawRectangle(50, 50, 300, 30, Fade(DARKGRAY, 0.7f));
+                    DrawRectangle(50, 50, 300 * (stats.starPower / 10.0f), 30, Fade(SKYBLUE, 0.7f));
+                    DrawRectangleLines(50, 50, 300, 30, WHITE);
+                    DrawTextEx(mainFont, "STAR POWER", (Vector2){50, 85}, 25, 2, WHITE);
                 } else {
                     // Flash when ready
                     float flash = sin(GetTime() * 10) * 0.5f + 0.5f;
-                    DrawTextEx(mainFont, "STAR POWER READY!", (Vector2){20, 45}, 15, 2, (Color){255, 255, 0, (unsigned char)(flash * 255)});
+                    DrawTextEx(mainFont, "STAR POWER READY!", (Vector2){50, 85}, 25, 2, (Color){255, 255, 0, (unsigned char)(flash * 255)});
                 }
 
-                // Star power effect
-                if (stats.starPowerActive) {
-                    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(SKYBLUE, 0.1f));
+                // Score display (top right - maior e mais destacado)
+                DrawTextEx(mainFont, TextFormat("%08d", stats.score), (Vector2){screenWidth - 400, 50}, 40, 2, WHITE);
 
-                    // Draw star particles
-                    for (int i = 0; i < 20; i++) {
-                        float x = sin(GetTime() * 2 + i) * 100 + screenWidth/2;
-                        float y = cos(GetTime() * 3 + i) * 100 + screenHeight/2;
-                        DrawCircle(x, y, 3, Fade(YELLOW, 0.5f));
-                    }
-                }
+                // Multiplier (ao lado do score)
+                DrawTextEx(mainFont, TextFormat("x%d", stats.multiplierLevel), (Vector2){screenWidth - 150, 50}, 40, 2,
+                           stats.multiplierLevel >= 4 ? YELLOW : WHITE);
 
-                // Combo effect with improved visuals
+                // Rock Meter (centro inferior - maior)
+                DrawRockMeter(stats.rockMeter, screenWidth/2 - 200, screenHeight - 80, 400, 30);
+                DrawTextEx(mainFont, "ROCK METER", (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "ROCK METER", 25, 2).x/2, screenHeight - 110}, 25, 2, WHITE);
+
+                // Combo effect (maior e mais centralizado)
                 if (stats.streakFxTimer > 0 && stats.combo >= 10) {
                     float alpha = stats.streakFxTimer / COMBO_FADE_TIME * 255;
                     char comboText[20];
                     sprintf(comboText, "%d COMBO!", stats.combo);
 
-                    // Draw text with outline
-                    int fontSize = 30 + (int)(10 * (1.0f - stats.streakFxTimer / COMBO_FADE_TIME));
+                    int fontSize = 50 + (int)(20 * (1.0f - stats.streakFxTimer / COMBO_FADE_TIME));
                     Color textColor = (Color){255, 255, 255, (unsigned char)alpha};
                     Color outlineColor = (Color){0, 0, 0, (unsigned char)(alpha * 0.7f)};
 
-                    Vector2 textPos = {screenWidth/2 - MeasureText(comboText, fontSize)/2, screenHeight/2 - 100};
+                    Vector2 textPos = {screenWidth/2 - MeasureTextEx(mainFont, comboText, fontSize, 2).x/2,
+                                      screenHeight/2 - 150};
 
                     // Draw outline
                     for (int i = -2; i <= 2; i++) {
@@ -617,23 +617,20 @@ int main(void) {
                         }
                     }
 
-                    // Draw main text
                     DrawTextEx(mainFont, comboText, textPos, fontSize, 2, textColor);
                 }
 
-                // Draw HUD - Simplified like Guitar Hero (top right)
+                // Star power effect (mais visível)
+                if (stats.starPowerActive) {
+                    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(SKYBLUE, 0.15f));
 
-                // Score display
-                DrawTextEx(mainFont, TextFormat("%08d", stats.score), (Vector2){screenWidth - 220, 20}, 30, 2, WHITE);
-
-                // Multiplier
-                DrawTextEx(mainFont, TextFormat(" x%d", stats.multiplierLevel), (Vector2){screenWidth - 80, 20}, 30, 2,
-                           stats.multiplierLevel >= 4 ? YELLOW : WHITE);
-
-                // Rock Meter (bottom right)
-                DrawRockMeter(stats.rockMeter, screenWidth - 220, screenHeight - 100, 200, 20);
-                DrawTextEx(mainFont, "ROCK METER", (Vector2){screenWidth - 220, screenHeight - 120}, 15, 2, WHITE);
-
+                    // Draw star particles (mais partículas)
+                    for (int i = 0; i < 50; i++) {
+                        float x = sin(GetTime() * 2 + i) * 200 + screenWidth/2;
+                        float y = cos(GetTime() * 3 + i) * 200 + screenHeight/2;
+                        DrawCircle(x, y, 4, Fade(YELLOW, 0.7f));
+                    }
+                }
             } break;
 
             case MAPAS: {
@@ -696,58 +693,57 @@ int main(void) {
                     ratingColor = GRAY;
                 }
 
-                // Draw title
+                // Draw title (maior)
                 DrawTextEx(titleFont, stats.songFailed ? "SONG FAILED!" : "SONG COMPLETE!",
-                           (Vector2){screenWidth/2 - MeasureTextEx(titleFont, stats.songFailed ? "SONG FAILED!" : "SONG COMPLETE!", 60, 0).x/2, 80},
-                           60, 0, WHITE);
+                           (Vector2){screenWidth/2 - MeasureTextEx(titleFont, stats.songFailed ? "SONG FAILED!" : "SONG COMPLETE!", 80, 0).x/2, 100},
+                           80, 0, WHITE);
 
-                // Draw rating
+                // Draw rating (maior)
                 DrawTextEx(titleFont, rating,
-                           (Vector2){screenWidth/2 - MeasureTextEx(titleFont, rating, 50, 0).x/2, 150},
-                           50, 0, ratingColor);
+                           (Vector2){screenWidth/2 - MeasureTextEx(titleFont, rating, 70, 0).x/2, 200},
+                           70, 0, ratingColor);
 
-                // Draw stats
-                int startY = 250;
-                int spacing = 40;
+                // Draw stats (maiores e melhor espaçados)
+                int startY = 300;
+                int spacing = 50;
 
                 DrawTextEx(mainFont, TextFormat("FINAL SCORE: %08d", stats.score),
-                           (Vector2){screenWidth/2 - 250, (float)startY}, 30, 0, WHITE);
+                           (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, WHITE);
                 startY += spacing;
 
                 DrawTextEx(mainFont, TextFormat("ACCURACY: %.2f%%", accuracy),
-                           (Vector2){screenWidth/2 - 250, (float)startY}, 30, 0, WHITE);
+                           (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, WHITE);
                 startY += spacing;
 
                 DrawTextEx(mainFont, TextFormat("MAX COMBO: %d", stats.maxCombo),
-                           (Vector2){screenWidth/2 - 250, (float)startY}, 30, 0, WHITE);
+                           (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, WHITE);
                 startY += spacing;
 
                 DrawTextEx(mainFont, TextFormat("PERFECT: %d", stats.hits[0]),
-                           (Vector2){screenWidth/2 - 250, (float)startY}, 30, 0, hitColors[0]);
+                           (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, hitColors[0]);
                 startY += spacing;
 
                 DrawTextEx(mainFont, TextFormat("GREAT: %d", stats.hits[1]),
-                           (Vector2){screenWidth/2 - 250, (float)startY}, 30, 0, hitColors[1]);
+                           (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, hitColors[1]);
                 startY += spacing;
 
                 DrawTextEx(mainFont, TextFormat("GOOD: %d", stats.hits[2]),
-                           (Vector2){screenWidth/2 - 250, (float)startY}, 30, 0, hitColors[2]);
+                           (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, hitColors[2]);
                 startY += spacing;
 
                 DrawTextEx(mainFont, TextFormat("OK: %d", stats.hits[3]),
-                           (Vector2){screenWidth/2 - 250, (float)startY}, 30, 0, hitColors[3]);
+                           (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, hitColors[3]);
                 startY += spacing;
 
                 DrawTextEx(mainFont, TextFormat("MISS: %d", stats.misses),
-                           (Vector2){screenWidth/2 - 250, (float)startY}, 30, 0, RED);
+                           (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, RED);
 
-                // Draw continue prompt
-                DrawText("Press ENTER to Continue", screenWidth/2 - MeasureText("Press ENTER to Continue", 20)/2,
-                         screenHeight - 50, 20, GRAY);
+                // Draw continue prompt (maior)
+                DrawTextEx(mainFont, "Press ENTER to Continue",
+                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Press ENTER to Continue", 30, 2).x/2,
+                          screenHeight - 100}, 30, 2, GRAY);
             } break;
         }
-
-
 
         EndDrawing();
     }
