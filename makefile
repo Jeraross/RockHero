@@ -13,6 +13,7 @@ SOURCES = \
 	$(SRC_DIR)/gemini.c \
 	$(SRC_DIR)/utils.c \
 	$(SRC_DIR)/cJSON.c \
+	$(SRC_DIR)/chart.c \
 	$(SRC_DIR)/dialogue.c
 
 CFLAGS = -Wall -std=c99 -I$(LIB_DIR) -I$(SRC_DIR) -Icurl/include
@@ -22,11 +23,11 @@ $(RELEASE_DIR)/$(TARGET).exe: $(SOURCES)
 	@mkdir -p $(RELEASE_DIR)
 	gcc $(CFLAGS) $^ -o $@ $(LIBS)
 	@cp $(LIB_DIR)/raylib.dll $(RELEASE_DIR)/
-	@cp curl/bin/libcurl.dll $(RELEASE_DIR)/  # <- Adicione isso se necessário
+	@cp curl/bin/libcurl.dll $(RELEASE_DIR)/
 	@echo "Compilação concluída. DLLs copiadas para bin/"
 
 run: $(RELEASE_DIR)/$(TARGET).exe
-	@cd $(RELEASE_DIR) && start $(TARGET).exe
+	./bin/app.exe
 
 clean:
 	rm -rf $(RELEASE_DIR)/app.exe
