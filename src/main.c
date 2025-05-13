@@ -66,6 +66,14 @@ typedef enum {
 } GameState;
 
 typedef enum {
+    MENU_STORY,
+    MENU_QUICKPLAY,
+    MENU_CONTROLS,
+    MENU_CREDITS,
+    MENU_EXIT
+} MenuOption;
+
+typedef enum {
     MAPA1,
     MAPA2,
     MAPA3
@@ -82,16 +90,6 @@ Song songs[MAX_SONGS] = {
 void initSongs() {
     memcpy(songs[0].charts, skyfallChart, sizeof(skyfallChart));
     memcpy(songs[1].charts, thunderChart, sizeof(thunderChart));
-}
-
-float Lerp2(float start, float end, float amount) {
-    return start + amount * (end - start);
-}
-
-int Clamp2(int value, int min, int max) {
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
 }
 
 void DrawRockMeter(float value, int x, int y, int width, int height) {
@@ -120,6 +118,81 @@ void DrawRockMeter(float value, int x, int y, int width, int height) {
     DrawLine(x + width * 0.25f, y, x + width * 0.25f, y + height, WHITE);
 }
 
+void DrawControlsScreen(int screenWidth, int screenHeight, Font titleFont, Font mainFont) {
+    // Fundo
+    DrawRectangleGradientV(0, 0, screenWidth, screenHeight, (Color){20, 20, 40, 255}, (Color){10, 10, 20, 255});
+
+    // Título
+    DrawTextEx(titleFont, "CONTROLS",
+              (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "CONTROLS", 80, 0).x/2, 100},
+              80, 0, WHITE);
+
+    // Conteúdo
+    int startY = 250;
+    int spacing = 40;
+
+    DrawTextEx(mainFont, "NOTES GAMEPLAY:", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, YELLOW);
+    startY += spacing;
+
+    DrawTextEx(mainFont, "LANE 1 (RED):    A KEY", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
+    startY += spacing;
+    DrawTextEx(mainFont, "LANE 2 (ORANGE): S KEY", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
+    startY += spacing;
+    DrawTextEx(mainFont, "LANE 3 (GREEN):  J KEY", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
+    startY += spacing;
+    DrawTextEx(mainFont, "LANE 4 (BLUE):   K KEY", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
+    startY += spacing;
+    DrawTextEx(mainFont, "LANE 5 (PURPLE): L KEY", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
+    startY += spacing*2;
+
+    DrawTextEx(mainFont, "MENU CONTROLS:", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, YELLOW);
+    startY += spacing;
+
+    DrawTextEx(mainFont, "UP/DOWN:    Navigate menu", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
+    startY += spacing;
+    DrawTextEx(mainFont, "ENTER:      Select option", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
+    startY += spacing;
+    DrawTextEx(mainFont, "ESCAPE:     Back/Exit", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
+
+    // Voltar
+    DrawTextEx(mainFont, "Press ENTER to return",
+              (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Press ENTER to return", 25, 2).x/2,
+              screenHeight - 100}, 25, 2, GRAY);
+}
+
+void DrawCreditsScreen(int screenWidth, int screenHeight, Font titleFont, Font mainFont) {
+    // Fundo
+    DrawRectangleGradientV(0, 0, screenWidth, screenHeight, (Color){20, 20, 40, 255}, (Color){10, 10, 20, 255});
+
+    // Título
+    DrawTextEx(titleFont, "CREDITS",
+              (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "CREDITS", 80, 0).x/2, 100},
+              80, 0, WHITE);
+
+    // Conteúdo
+    int startY = 250;
+    int spacing = 40;
+
+    DrawTextEx(mainFont, "ROCK HERO", (Vector2){screenWidth/2 - 100, (float)startY}, 40, 0, YELLOW);
+    startY += spacing*2;
+
+    DrawTextEx(mainFont, "Developed by:", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
+    startY += spacing;
+    DrawTextEx(mainFont, "Your Name or Team Name", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, SKYBLUE);
+    startY += spacing*2;
+
+    DrawTextEx(mainFont, "Special thanks to:", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
+    startY += spacing;
+    DrawTextEx(mainFont, "Raylib - Simple and easy-to-use library", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, GRAY);
+    startY += spacing;
+    DrawTextEx(mainFont, "All the artists for the music", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, GRAY);
+
+    // Voltar
+    DrawTextEx(mainFont, "Press ENTER to return",
+              (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Press ENTER to return", 25, 2).x/2,
+              screenHeight - 100}, 25, 2, GRAY);
+}
+
 int main(void) {
     SetConfigFlags(FLAG_FULLSCREEN_MODE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ROCK HERO");
@@ -143,10 +216,13 @@ int main(void) {
     Font mainFont = LoadFontEx("assets/font/Vampire Wars.ttf", 36, 0, 0);
 
     // Game state
+    MenuOption currentMenuOption = MENU_STORY;
+    bool inSubMenu = false;
     Note notes[MAX_NOTES] = {0};
     GameStats stats = {0};
     float musicPosition = 0;
     GameState gameState = MAIN_MENU;
+    GameState prevGameState = gameState;
     bool keysPressed[NUM_LANES] = {false};
     bool keysDown[NUM_LANES] = {false};
     int nextChartNote = 0;
@@ -202,6 +278,13 @@ int main(void) {
     while (!WindowShouldClose()) {
         float deltaTime = GetFrameTime();
 
+        // Resetar a seleção de música quando voltar ao menu principal
+        if (gameState == MAIN_MENU && prevGameState != MAIN_MENU) {
+            selectedSong = 0;
+            scrollOffset = 0.0f;
+            scrollSpeed = 0.0f;
+        }
+
         // Update music stream if playing
         if (gameState == PLAYING) {
             UpdateMusicStream(gameMusic);
@@ -251,14 +334,56 @@ int main(void) {
             }
         }
 
+        if (inSubMenu) {
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            switch(currentMenuOption) {
+            case MENU_CONTROLS:
+                DrawControlsScreen(screenWidth, screenHeight, titleFont, mainFont);
+                break;
+
+            case MENU_CREDITS:
+                DrawCreditsScreen(screenWidth, screenHeight, titleFont, mainFont);
+                break;
+
+            default:
+                inSubMenu = false;
+                break;
+            }
+
+            if (IsKeyPressed(KEY_ENTER)) {
+                inSubMenu = false;
+                PlaySound(menuSelectSound);
+            }
+
+            EndDrawing();
+            continue; // Pula o resto do loop para ficar na tela atual
+        }
+
         switch (gameState) {
             case MAIN_MENU: {
                 if (IsKeyPressed(KEY_ENTER)) {
                     PlaySound(menuSelectSound);
-                    gameState = SONG_SELECT;
-                }
-                if (IsKeyPressed(KEY_ESCAPE)) {
-                    break; // Exit game
+
+                    switch (currentMenuOption) {
+                    case MENU_STORY:
+                        gameState = MAPAS;
+                        break;
+
+                    case MENU_QUICKPLAY:
+                        gameState = SONG_SELECT;
+                        break;
+
+                    case MENU_CONTROLS:
+                    case MENU_CREDITS:
+                        inSubMenu = true;
+                        break;
+
+                    case MENU_EXIT:
+                        CloseWindow();
+                        break;
+                    }
                 }
             } break;
 
@@ -455,6 +580,7 @@ int main(void) {
             case RESULTS: {
                 if (IsKeyPressed(KEY_ENTER)) {
                     gameState = MAIN_MENU;
+                    currentMenuOption = MENU_QUICKPLAY; // Resetar para a primeira opção
                 }
             } break;
         }
@@ -465,29 +591,94 @@ int main(void) {
         switch (gameState) {
             case MAIN_MENU: {
                 // Draw animated background
-                for (int i = 0; i < 100; i++) {  // Mais partículas
+                for (int i = 0; i < 100; i++) {
                     float x = sin(GetTime() + i) * 200 + screenWidth/2;
                     float y = cos(GetTime() * 0.5f + i) * 200 + screenHeight/2;
                     DrawCircle(x, y, 3, Fade(laneColors[i%NUM_LANES], 0.5f));
                 }
 
-                // Draw title (maior)
+                // Draw title
                 const char *titleText = "ROCK HERO";
-                Vector2 titleSize = MeasureTextEx(titleFont, titleText, 180, 0);
-                Vector2 titlePos = {screenWidth/2 - titleSize.x/2, 50};
-                DrawTextEx(titleFont, titleText, titlePos, 180, 0, WHITE);
+                Vector2 titleSize = MeasureTextEx(titleFont, titleText, 120, 0);
+                Vector2 titlePos = {screenWidth/2 - titleSize.x/2, 100};
+                DrawTextEx(titleFont, titleText, titlePos, 120, 0, WHITE);
 
-                // Draw menu options (maiores)
-                const char *playText = "PLAY";
-                Vector2 playSize = MeasureTextEx(mainFont, playText, 60, 0);
-                Vector2 playPos = {screenWidth/2 - playSize.x/2, 400};
-                DrawTextEx(mainFont, playText, playPos, 60, 0, WHITE);
+                // Menu options
+                const char* menuOptions[] = {"STORY", "QUICKPLAY", "CONTROLS", "CREDITS", "EXIT"};
+                int numOptions = sizeof(menuOptions)/sizeof(menuOptions[0]);
 
-                // Draw instructions (maiores)
-                const char *instructionText = "Press ENTER to select";
+                int startY = 300;
+                int optionSpacing = 70;
+
+                for (int i = 0; i < numOptions; i++) {
+                    Color color = (i == currentMenuOption) ? YELLOW : WHITE;
+                    float scale = (i == currentMenuOption) ? 1.1f : 1.0f;
+
+                    Vector2 textSize = MeasureTextEx(mainFont, menuOptions[i], 40 * scale, 0);
+                    Vector2 textPos = {
+                        screenWidth/2 - textSize.x/2,
+                        startY + i * optionSpacing
+                    };
+
+                    DrawTextEx(mainFont, menuOptions[i], textPos, 40 * scale, 0, color);
+
+                    // Draw indicator for selected option
+                    if (i == currentMenuOption) {
+                        DrawCircle(textPos.x - 30, textPos.y + textSize.y/2, 10, YELLOW);
+                        DrawCircle(textPos.x + textSize.x + 30, textPos.y + textSize.y/2, 10, YELLOW);
+                    }
+                }
+
+                // Navigation
+                if (IsKeyPressed(KEY_DOWN)) {
+                    currentMenuOption = (currentMenuOption + 1) % numOptions;
+                    PlaySound(menuScrollSound);
+                }
+                if (IsKeyPressed(KEY_UP)) {
+                    currentMenuOption = (currentMenuOption - 1 + numOptions) % numOptions;
+                    PlaySound(menuScrollSound);
+                }
+
+                if (IsKeyPressed(KEY_ENTER)) {
+                    PlaySound(menuSelectSound);
+
+                    switch (currentMenuOption) {
+                        case MENU_STORY:
+                            // Implementar lógica para Story Mode
+                            gameState = MAPAS;
+                            break;
+
+                        case MENU_QUICKPLAY:
+                            gameState = SONG_SELECT;
+                            break;
+
+                        case MENU_CONTROLS:
+                            // Implementar tela de controles
+                            break;
+
+                        case MENU_CREDITS:
+                            // Implementar tela de créditos
+                            break;
+
+                        case MENU_EXIT:
+                            CloseWindow();
+                            break;
+                    }
+                }
+
+                if (IsKeyPressed(KEY_ESCAPE)) {
+                    if (inSubMenu) {
+                        inSubMenu = false;
+                    } else {
+                        CloseWindow();
+                    }
+                }
+
+                // Draw instructions
+                const char *instructionText = "Use ARROWS to navigate | ENTER to select";
                 DrawTextEx(mainFont, instructionText,
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, instructionText, 30, 2).x/2,
-                          screenHeight - 150}, 30, 2, GRAY);
+                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, instructionText, 25, 2).x/2,
+                          screenHeight - 50}, 25, 2, GRAY);
             } break;
 
             case SONG_SELECT: {
