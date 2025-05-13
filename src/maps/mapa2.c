@@ -25,6 +25,9 @@ void InitMap2(MapData *map) {
     map->typeSound = LoadSound("assets/sounds/type_sound.wav");
 
     InitDialogue(&map->dialogue, "", map->typeSound);
+    map->seta = LoadTexture("assets/sprites/seta.png");
+    map->font = LoadFont("assets/font/Vampire Wars.ttf");
+
 }
 
 void UpdateMap2(MapData *map, Player *player) {
@@ -114,4 +117,53 @@ void DrawMap2(MapData *map, Player *player) {
     }
 
     DrawDialogue(&map->dialogue);
+
+    float distance2 = fabs(SCREEN_WIDTH - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
+
+    float time = GetTime();
+    float offset = sinf(time * 4.0f) * 10.0f;
+    if (distance2 < 200.0f) {
+        DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
+        DrawTextEx(
+                map->font,
+                "PRESS G!",
+                (Vector2){SCREEN_WIDTH - 195 + offset - 20, 710},
+                20.0f,
+                2.0f,
+                WHITE
+        );
+    }
+    else if (player->position.x < 20) {
+        float scale = 0.5f;
+
+        DrawTexturePro(
+                map->seta,
+                (Rectangle){0, 0, map->seta.width, map->seta.height},
+                (Rectangle){
+                        150 + offset,
+                        740,
+                        map->seta.width * scale,
+                        map->seta.height * scale
+                },
+                (Vector2){
+                        (map->seta.width * scale) / 2,
+                        (map->seta.height * scale) / 2
+                },
+                180.0f,
+                WHITE
+        );
+
+        // Texto acima da seta da esquerda
+        DrawTextEx(
+                map->font,
+                "PRESS G!",
+                (Vector2){140 + offset - 20, 725},  // ajuste posição conforme necessário
+                20.0f,
+                2.0f,
+                WHITE
+        );
+    }
+
+
+
 }

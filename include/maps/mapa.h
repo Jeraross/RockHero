@@ -8,7 +8,9 @@
 
 typedef struct {
     Texture2D background;
+    Texture seta;
     Npc npc;
+    Font font;
 
     bool typingQuestion;
     bool waitingResponse;
