@@ -222,7 +222,6 @@ int main(void) {
     GameStats stats = {0};
     float musicPosition = 0;
     GameState gameState = MAIN_MENU;
-    GameState prevGameState = gameState;
     bool keysPressed[NUM_LANES] = {false};
     bool keysDown[NUM_LANES] = {false};
     int nextChartNote = 0;
@@ -277,13 +276,6 @@ int main(void) {
 
     while (!WindowShouldClose()) {
         float deltaTime = GetFrameTime();
-
-        // Resetar a seleção de música quando voltar ao menu principal
-        if (gameState == MAIN_MENU && prevGameState != MAIN_MENU) {
-            selectedSong = 0;
-            scrollOffset = 0.0f;
-            scrollSpeed = 0.0f;
-        }
 
         // Update music stream if playing
         if (gameState == PLAYING) {
@@ -578,9 +570,8 @@ int main(void) {
             } break;
 
             case RESULTS: {
-                if (IsKeyPressed(KEY_ENTER)) {
+                if (IsKeyPressed(KEY_SPACE)) {
                     gameState = MAIN_MENU;
-                    currentMenuOption = MENU_QUICKPLAY; // Resetar para a primeira opção
                 }
             } break;
         }
@@ -644,7 +635,6 @@ int main(void) {
 
                     switch (currentMenuOption) {
                         case MENU_STORY:
-                            // Implementar lógica para Story Mode
                             gameState = MAPAS;
                             break;
 
@@ -653,11 +643,9 @@ int main(void) {
                             break;
 
                         case MENU_CONTROLS:
-                            // Implementar tela de controles
                             break;
 
                         case MENU_CREDITS:
-                            // Implementar tela de créditos
                             break;
 
                         case MENU_EXIT:
@@ -930,8 +918,8 @@ int main(void) {
                            (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, RED);
 
                 // Draw continue prompt (maior)
-                DrawTextEx(mainFont, "Press ENTER to Continue",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Press ENTER to Continue", 30, 2).x/2,
+                DrawTextEx(mainFont, "Press SPACE to Continue",
+                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Press SPACE to Continue", 30, 2).x/2,
                           screenHeight - 100}, 30, 2, GRAY);
             } break;
         }
