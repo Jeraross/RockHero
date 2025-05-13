@@ -157,4 +157,25 @@ void DrawMap1(MapData *map, Player *player) {
                 WHITE   // cor
         );
     }
+
+    float distance3 = fabs(790 - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
+    if (distance3 < 150.0f){
+        float scale = 0.25f;
+        DrawTexturePro(
+                map->seta,
+                (Rectangle){0, 0, map->seta.width, map->seta.height},
+                (Rectangle){
+                        735,
+                        790 + offset,
+                        map->seta.width * scale,
+                        map->seta.height * scale
+                },
+                (Vector2){
+                        (map->seta.width * scale) / 2,
+                        (map->seta.height * scale) / 2
+                },
+                270.0f,
+                WHITE
+        );
+    }
 }

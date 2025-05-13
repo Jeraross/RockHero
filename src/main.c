@@ -344,6 +344,31 @@ int main(void) {
                     }
                 }
             }
+
+            if (currentMap == MAPA1){
+                float distance2 = fabs(790 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
+                if (distance2 < 150.0f){
+                    if (IsKeyPressed(KEY_M)){
+                       gameState = SONG_SELECT;
+                    }
+                }
+            }
+            else if (currentMap == MAPA2){
+                float distance2 = fabs(1550 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
+                if (distance2 < 150.0f){
+                    if (IsKeyPressed(KEY_M)){
+                        gameState = SONG_SELECT;
+                    }
+                }
+            }
+            else if (currentMap == MAPA3){
+                float distance2 = fabs(590 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
+                if (distance2 < 150.0f){
+                    if (IsKeyPressed(KEY_M)){
+                        gameState = SONG_SELECT;
+                    }
+                }
+            }
         }
 
         if (inSubMenu) {
