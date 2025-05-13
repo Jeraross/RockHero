@@ -94,8 +94,7 @@ Song songs[MAX_SONGS] = {
 };
 
 void initSongs() {
-    memcpy(songs[0].charts, skyfallChart, sizeof(skyfallChart));
-    memcpy(songs[1].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[0].charts, thunderChart, sizeof(thunderChart));
 }
 
 void DrawRockMeter(float value, int x, int y, int width, int height) {
