@@ -7,7 +7,6 @@
 
 #include "raylib.h"
 
-#define SKYFALL_CHART_SIZE 23
 #define THUNDER_CHART_SIZE 500
 
 typedef struct {
@@ -19,7 +18,6 @@ typedef struct {
     bool hit;
 } Note;
 
-extern Note skyfallChart[SKYFALL_CHART_SIZE];
 extern Note thunderChart[THUNDER_CHART_SIZE];
 
 #endif //CHART_H
