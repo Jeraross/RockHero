@@ -27,7 +27,7 @@ void InitMap2(MapData *map) {
     InitDialogue(&map->dialogue, "", map->typeSound);
     map->seta = LoadTexture("assets/sprites/seta.png");
     map->font = LoadFont("assets/font/Vampire Wars.ttf");
-
+    map->keyPrompt = LoadTexture("assets/sprites/individual sprites/keyboard/P.png");
 }
 
 void UpdateMap2(MapData *map, Player *player) {
@@ -105,8 +105,31 @@ void DrawMap2(MapData *map, Player *player) {
     DrawTexturePro(map->npc.spriteSheet, src, dst, (Vector2){0, 0}, 0.0f, WHITE);
 
     float distance = Vector2Distance(map->npc.position, player->position);
+
+    // Efeito de pulsação da tecla
+    static float pulseScale = 1.0f;
+    static float pulseDirection = 1.0f;
+    float pulseSpeed = 0.01f; // Controle de velocidade da pulsação
+
+    pulseScale += pulseSpeed * pulseDirection;  // Modifica a escala para o efeito
+    if (pulseScale >= 1.2f) pulseDirection = -1.0f; // Quando chega no limite superior, inverte a direção
+    if (pulseScale <= 0.8f) pulseDirection = 1.0f; // Quando chega no limite inferior, inverte a direção
+
     if (distance < 200.0f && !map->dialogue.isActive && !map->typingQuestion) {
-        DrawText("PRESS P!", map->npc.position.x + 55, map->npc.position.y + 30, 20, YELLOW);
+        // Desenha a tecla "P" com efeito de pulsação
+        DrawTexturePro(
+                map->keyPrompt,
+                (Rectangle){0, 0, map->keyPrompt.width, map->keyPrompt.height},
+                (Rectangle){
+                        map->npc.position.x + 75,
+                        map->npc.position.y + 30,
+                        map->keyPrompt.width * pulseScale, // Aplica a escala pulsante
+                        map->keyPrompt.height * pulseScale // Aplica a escala pulsante
+                },
+                (Vector2){(map->keyPrompt.width * pulseScale) / 2, (map->keyPrompt.height * pulseScale) / 2}, // Origem
+                0.0f, // Sem rotação
+                WHITE
+        );
     }
 
     if (map->typingQuestion) {
