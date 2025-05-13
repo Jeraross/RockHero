@@ -590,15 +590,15 @@ int main(void) {
 
                 // Draw title
                 const char *titleText = "ROCK HERO";
-                Vector2 titleSize = MeasureTextEx(titleFont, titleText, 120, 0);
-                Vector2 titlePos = {screenWidth/2 - titleSize.x/2, 100};
-                DrawTextEx(titleFont, titleText, titlePos, 120, 0, WHITE);
+                Vector2 titleSize = MeasureTextEx(titleFont, titleText, 200, 0);
+                Vector2 titlePos = {screenWidth/2 - titleSize.x/2, 50};
+                DrawTextEx(titleFont, titleText, titlePos, 200, 0, WHITE);
 
                 // Menu options
                 const char* menuOptions[] = {"STORY", "QUICKPLAY", "CONTROLS", "CREDITS", "EXIT"};
                 int numOptions = sizeof(menuOptions)/sizeof(menuOptions[0]);
 
-                int startY = 300;
+                int startY = 380;
                 int optionSpacing = 70;
 
                 for (int i = 0; i < numOptions; i++) {
@@ -612,12 +612,6 @@ int main(void) {
                     };
 
                     DrawTextEx(mainFont, menuOptions[i], textPos, 40 * scale, 0, color);
-
-                    // Draw indicator for selected option
-                    if (i == currentMenuOption) {
-                        DrawCircle(textPos.x - 30, textPos.y + textSize.y/2, 10, YELLOW);
-                        DrawCircle(textPos.x + textSize.x + 30, textPos.y + textSize.y/2, 10, YELLOW);
-                    }
                 }
 
                 // Navigation
@@ -677,7 +671,7 @@ int main(void) {
                 DrawTextEx(titleFont, "SELECT SONG", (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "SELECT SONG", 80, 0).x/2, 50}, 80, 0, WHITE);
 
                 // Draw song list
-                int startY = 150 - scrollOffset;
+                int startY = 200 - scrollOffset;
                 for (int i = 0; i < MAX_SONGS; i++) {
                     float yPos = startY + i * 100;
 
@@ -751,7 +745,7 @@ int main(void) {
                     }
                 }
 
-                // Star power meter (top left - aumentado)
+                // Star power meter
                 if (stats.starPower < 10.0f) {
                     DrawRectangle(50, 50, 300, 30, Fade(DARKGRAY, 0.7f));
                     DrawRectangle(50, 50, 300 * (stats.starPower / 10.0f), 30, Fade(SKYBLUE, 0.7f));
@@ -799,9 +793,8 @@ int main(void) {
                     DrawTextEx(mainFont, comboText, textPos, fontSize, 2, textColor);
                 }
 
-                // Star power effect (mais visível)
                 if (stats.starPowerActive) {
-                    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(SKYBLUE, 0.15f));
+                    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(SKYBLUE, 0.05f));
 
                     // Draw star particles (mais partículas)
                     for (int i = 0; i < 50; i++) {
