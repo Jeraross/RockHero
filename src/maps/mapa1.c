@@ -25,6 +25,7 @@ void InitMap1(MapData *map) {
     map->typeSound = LoadSound("assets/sounds/type_sound.wav");
 
     InitDialogue(&map->dialogue, "", map->typeSound);
+    map->seta = LoadTexture("assets/sprites/seta.png");
 }
 
 void UpdateMap1(MapData *map, Player *player) {
@@ -114,4 +115,9 @@ void DrawMap1(MapData *map, Player *player) {
     }
 
     DrawDialogue(&map->dialogue);
+
+    float distance2 = fabs(SCREEN_WIDTH - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
+    if (distance2 < 200.0f) {
+        DrawTexture(map->seta, SCREEN_WIDTH - 350, 650, WHITE);
+    }
 }

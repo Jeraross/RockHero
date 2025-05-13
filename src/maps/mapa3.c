@@ -25,6 +25,7 @@ void InitMap3(MapData *map) {
     map->typeSound = LoadSound("assets/sounds/type_sound.wav");
 
     InitDialogue(&map->dialogue, "", map->typeSound);
+    map->seta = LoadTexture("assets/sprites/seta.png");
 }
 
 void UpdateMap3(MapData *map, Player *player) {
@@ -114,4 +115,15 @@ void DrawMap3(MapData *map, Player *player) {
     }
 
     DrawDialogue(&map->dialogue);
+
+    float distance2 = fabs(SCREEN_WIDTH - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
+    if (distance2 < 200.0f) {
+        DrawTexture(map->seta, SCREEN_WIDTH - 350, 650, WHITE);
+    }
+    else if (player->position.x < 20){
+        DrawTexturePro(map->seta, (Rectangle){0, 0, map->seta.width, map->seta.height},
+                       (Rectangle){250, 920, map->seta.width, map->seta.height},
+                       (Vector2){map->seta.width / 2, map->seta.height / 2},  // Definindo a origem da seta
+                       180.0f, WHITE); // Não rotaciona, apenas inverte pela origem
+    }
 }

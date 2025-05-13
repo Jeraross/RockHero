@@ -314,14 +314,28 @@ int main(void) {
         }
 
         if (gameState == MAPAS) {
-            // Verifica se a tecla "G" foi pressionada para alternar entre os mapas
-            if (IsKeyPressed(KEY_G)) {
-                if (currentMap == MAPA1) {
-                    currentMap = MAPA2;
-                } else if (currentMap == MAPA2) {
-                    currentMap = MAPA3;
-                } else {
-                    currentMap = MAPA1;
+            float distance = fabs(SCREEN_WIDTH - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
+            if (distance < 200.0f) {
+                if (IsKeyPressed(KEY_G)) {
+                    if (currentMap == MAPA1) {
+                        currentMap = MAPA2;
+                        player.position.x = 0;
+                    } else if (currentMap == MAPA2) {
+                        currentMap = MAPA3;
+                        player.position.x = 0;
+                    }
+                }
+            }
+
+            else if (player.position.x <= 10) {
+                if (IsKeyPressed(KEY_G)) {
+                    if (currentMap == MAPA2) {
+                        currentMap = MAPA1;
+                        player.position.x = SCREEN_WIDTH - FRAME_WIDTH * PLAYER_SCALE;
+                    } else if (currentMap == MAPA3) {
+                        currentMap = MAPA2;
+                        player.position.x = SCREEN_WIDTH - FRAME_WIDTH * PLAYER_SCALE;
+                    }
                 }
             }
         }
