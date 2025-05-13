@@ -20,7 +20,7 @@
 #define COMBO_FADE_TIME 1.0f
 #define MAX_NOTES 500
 #define MAX_CHART_NOTES 1000
-#define MAX_SONGS 5
+#define MAX_SONGS 11
 // Define the note highway dimensions (1/3 of screen width centered)
 #define HIGHWAY_WIDTH (SCREEN_WIDTH / 3)
 #define HIGHWAY_LEFT ((SCREEN_WIDTH - HIGHWAY_WIDTH) / 2)
@@ -80,11 +80,17 @@ typedef enum {
 } CurrentMap; // Enum para controlar o mapa atual
 
 Song songs[MAX_SONGS] = {
-        {"Skyfall", "Adele", {0}, "assets/musics/skyfall.mp3", 283.0f, 3},
-        {"Thunderstruck", "AC/DC", {0}, "assets/musics/thunderstruck.mp3", 292.0f, 4},
-        {"Sweet Child O'Mine", "Guns N' Roses", {0}, "assets/musics/sweet_child.mp3", 356.0f, 3},
-        {"Smoke on the Water", "Deep Purple", {0}, "assets/musics/smoke.mp3", 340.0f, 2},
-        {"Enter Sandman", "Metallica", {0}, "assets/musics/sandman.mp3", 331.0f, 4}
+    {"Thunderstruck", "AC/DC", {0}, "assets/musics/thunderstruck.mp3", 292.0f, 4},
+    {"Sweet Child O'Mine", "Guns N' Roses", {0}, "assets/musics/sweet_child.mp3", 356.0f, 3},
+    {"In The End", "Linkin Park", {0}, "assets/musics/in_the_end.mp3", 216.0f, 3},
+    {"Killer Queen", "Queen", {0}, "assets/musics/killer_queen.mp3", 179.0f, 1},
+    {"Smells Like Teen Spirit", "Nirvana", {0}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
+    {"Enter Sandman", "Metallica", {0}, "assets/musics/sandman.mp3", 331.0f, 4},
+    {"Paranoid", "Black Sabbath", {0}, "assets/musics/paranoid.mp3", 171.0f, 3},
+    {"The Trooper", "Iron Maiden", {0}, "assets/musics/the_trooper.mp3", 243.0f, 5},
+    {"Livin' on a Prayer", "Bon Jovi", {0}, "assets/musics/livin_prayer.mp3", 250.0f, 2},
+    {"Dream On", "Aerosmith", {0}, "assets/musics/dream_on.mp3", 270.0f, 3},
+    {"Toxicity", "System of a Down", {0}, "assets/musics/toxicity.mp3", 214.0f, 4}
 };
 
 void initSongs() {
@@ -178,7 +184,7 @@ void DrawCreditsScreen(int screenWidth, int screenHeight, Font titleFont, Font m
 
     DrawTextEx(mainFont, "Developed by:", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
     startY += spacing;
-    DrawTextEx(mainFont, "Your Name or Team Name", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, SKYBLUE);
+    DrawTextEx(mainFont, "JJ - JERAROSS AND JP", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, SKYBLUE);
     startY += spacing*2;
 
     DrawTextEx(mainFont, "Special thanks to:", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
@@ -299,17 +305,17 @@ int main(void) {
             if (IsKeyPressed(KEY_DOWN) && selectedSong < MAX_SONGS - 1) {
                 selectedSong++;
                 PlaySound(menuScrollSound);
-                scrollSpeed = 100.0f;
+                scrollSpeed = 220.0f;
             }
             if (IsKeyPressed(KEY_UP) && selectedSong > 0) {
                 selectedSong--;
                 PlaySound(menuScrollSound);
-                scrollSpeed = -100.0f;
+                scrollSpeed = -220.0f;
             }
 
-            // Smooth scrolling
+            // Scroll suave
             scrollOffset += scrollSpeed * deltaTime;
-            scrollSpeed *= 0.9f;
+            scrollSpeed *= 0.91f;
             if (fabs(scrollSpeed) < 1.0f) scrollSpeed = 0.0f;
         }
 
@@ -664,39 +670,48 @@ int main(void) {
             } break;
 
             case SONG_SELECT: {
-                // Draw background
-                DrawRectangleGradientV(0, 0, screenWidth, screenHeight, (Color){20, 20, 40, 255}, (Color){10, 10, 20, 255});
+                    // Desenhar fundo com gradiente
+                    DrawRectangleGradientV(0, 0, screenWidth, screenHeight, (Color){20, 20, 40, 255}, (Color){10, 10, 20, 255});
 
-                // Draw title
-                DrawTextEx(titleFont, "SELECT SONG", (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "SELECT SONG", 80, 0).x/2, 50}, 80, 0, WHITE);
+                    // Título
+                    const char *title = "SELECT SONG";
+                    Vector2 titleSize = MeasureTextEx(titleFont, title, 80, 0);
+                    DrawTextEx(titleFont, title, (Vector2){screenWidth / 2 - titleSize.x / 2, 50}, 80, 0, WHITE);
 
-                // Draw song list
-                int startY = 200 - scrollOffset;
-                for (int i = 0; i < MAX_SONGS; i++) {
-                    float yPos = startY + i * 100;
+                    // Scissor: delimita a área rolável para a lista de músicas
+                    int listStartY = 150; // onde começa a lista (abaixo do título)
+                    int listHeight = screenHeight - listStartY - 100; // altura da área rolável
+                    BeginScissorMode(0, listStartY, screenWidth, listHeight);
 
-                    // Only draw if visible
-                    if (yPos > -100 && yPos < screenHeight) {
-                        // Background for selected song
-                        if (i == selectedSong) {
-                            DrawRectangle(screenWidth/2 - 300, yPos, 600, 80, (Color){50, 50, 80, 255});
-                        }
+                    // Lista de músicas
+                    int startY = listStartY + 50 - scrollOffset; // scrollOffset ajusta rolagem
+                    for (int i = 0; i < MAX_SONGS; i++) {
+                        float yPos = startY + i * 100;
 
-                        // Song info
-                        DrawTextEx(mainFont, TextFormat("%s - %s", songs[i].artist, songs[i].title),
-                                   (Vector2){screenWidth/2 - 280, yPos + 20}, 24, 0, WHITE);
+                        // Verifica se está visível dentro da área
+                        if (yPos > -100 && yPos < screenHeight) {
+                            // Destaque da música selecionada
+                            if (i == selectedSong) {
+                                DrawRectangle(screenWidth / 2 - 300, yPos, 600, 80, (Color){50, 50, 80, 255});
+                            }
 
-                        // Difficulty stars
-                        for (int j = 0; j < 5; j++) {
-                            DrawCircle(screenWidth/2 + 200 + j * 20, yPos + 40, 5,
-                                       j < songs[i].difficulty ? YELLOW : (Color){50, 50, 50, 255});
+                            // Texto da música
+                            DrawTextEx(mainFont, TextFormat("%s - %s", songs[i].artist, songs[i].title),
+                                       (Vector2){screenWidth / 2 - 280, yPos + 20}, 24, 0, WHITE);
+
+                            // Estrelas de dificuldade
+                            for (int j = 0; j < 5; j++) {
+                                DrawCircle(screenWidth / 2 + 200 + j * 20, yPos + 40, 5,
+                                           j < songs[i].difficulty ? YELLOW : (Color){50, 50, 50, 255});
+                            }
                         }
                     }
-                }
 
-                // Draw instructions
-                DrawText("Press ENTER to play", screenWidth/2 - MeasureText("Press ENTER to play", 20)/2, screenHeight - 50, 20, GRAY);
-                DrawText("UP/DOWN to select song", 50, screenHeight - 50, 20, GRAY);
+                    EndScissorMode(); // Finaliza área rolável
+
+                    // Instruções na parte inferior
+                    DrawText("Press ENTER to play", screenWidth / 2 - MeasureText("Press ENTER to play", 20) / 2, screenHeight - 40, 20, GRAY);
+                    DrawText("UP/DOWN to select song", 50, screenHeight - 40, 20, GRAY);
             } break;
 
             case PLAYING: {
