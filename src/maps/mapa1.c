@@ -26,6 +26,7 @@ void InitMap1(MapData *map) {
 
     InitDialogue(&map->dialogue, "", map->typeSound);
     map->seta = LoadTexture("assets/sprites/seta.png");
+    map->font = LoadFont("assets/font/Vampire Wars.ttf");
 }
 
 void UpdateMap1(MapData *map, Player *player) {
@@ -117,7 +118,19 @@ void DrawMap1(MapData *map, Player *player) {
     DrawDialogue(&map->dialogue);
 
     float distance2 = fabs(SCREEN_WIDTH - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
+    float time = GetTime();
+    float offset = sinf(time * 4.0f) * 10.0f;
+
     if (distance2 < 200.0f) {
-        DrawTexture(map->seta, SCREEN_WIDTH - 350, 650, WHITE);
+        DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
+        // Desenha o texto acima da seta
+        DrawTextEx(
+                map->font,
+                "PRESS G!",
+                (Vector2){SCREEN_WIDTH - 195 + offset - 20, 710},  // posição (ajuste -20 se centralizar)
+                20.0f,  // tamanho da fonte
+                2.0f,   // espaçamento
+                WHITE   // cor
+        );
     }
 }

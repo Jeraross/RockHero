@@ -26,6 +26,8 @@ void InitMap3(MapData *map) {
 
     InitDialogue(&map->dialogue, "", map->typeSound);
     map->seta = LoadTexture("assets/sprites/seta.png");
+    map->font = LoadFont("assets/font/Vampire Wars.ttf");
+
 }
 
 void UpdateMap3(MapData *map, Player *player) {
@@ -116,14 +118,36 @@ void DrawMap3(MapData *map, Player *player) {
 
     DrawDialogue(&map->dialogue);
 
-    float distance2 = fabs(SCREEN_WIDTH - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
-    if (distance2 < 200.0f) {
-        DrawTexture(map->seta, SCREEN_WIDTH - 350, 650, WHITE);
-    }
-    else if (player->position.x < 20){
-        DrawTexturePro(map->seta, (Rectangle){0, 0, map->seta.width, map->seta.height},
-                       (Rectangle){250, 920, map->seta.width, map->seta.height},
-                       (Vector2){map->seta.width / 2, map->seta.height / 2},  // Definindo a origem da seta
-                       180.0f, WHITE); // Não rotaciona, apenas inverte pela origem
+    float time = GetTime();
+    float offset = sinf(time * 4.0f) * 10.0f;  // 4.0f = velocidade, 10.0f = quanto mexe
+    if (player->position.x < 20) {
+        float scale = 0.5f;
+
+        DrawTexturePro(
+                map->seta,
+                (Rectangle){0, 0, map->seta.width, map->seta.height},
+                (Rectangle){
+                        150 + offset,
+                        740,
+                        map->seta.width * scale,
+                        map->seta.height * scale
+                },
+                (Vector2){
+                        (map->seta.width * scale) / 2,
+                        (map->seta.height * scale) / 2
+                },
+                180.0f,
+                WHITE
+        );
+
+        // Texto acima da seta da esquerda
+        DrawTextEx(
+                map->font,
+                "PRESS G!",
+                (Vector2){140 + offset - 20, 725},  // ajuste posição conforme necessário
+                20.0f,
+                2.0f,
+                WHITE
+        );
     }
 }
