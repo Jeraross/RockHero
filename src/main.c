@@ -95,6 +95,16 @@ Song songs[MAX_SONGS] = {
 
 void initSongs() {
     memcpy(songs[0].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[1].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[2].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[3].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[4].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[5].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[6].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[7].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[8].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[9].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[10].charts, thunderChart, sizeof(thunderChart));
 }
 
 void DrawRockMeter(float value, int x, int y, int width, int height) {
