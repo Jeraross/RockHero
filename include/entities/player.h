@@ -25,6 +25,7 @@ typedef struct {
     bool facingRight;
     PlayerState state;
     bool frozen;
+    int fama;
 } Player;
 
 void InitPlayer(Player *player);

@@ -7,7 +7,7 @@ void DrawWrappedText(const char *text, int x, int y, int maxWidth, int fontSize,
 
     const char *start = text;
 
-    while (*start) {
+    while (*start) {  // Removi a verificação de maxHeight
         int length = 0;
         int lastSpace = -1;
         char buffer[512];
@@ -33,9 +33,10 @@ void DrawWrappedText(const char *text, int x, int y, int maxWidth, int fontSize,
         offsetY += lineHeight;
 
         start += length;
-        while (*start == ' ') start++;  // pula espaços extras
+        while (*start == ' ') start++;
     }
 }
+
 
 void InitDialogue(DialogueSystem *dialogue, const char *text, Sound sound) {
     strncpy(dialogue->text, text, sizeof(dialogue->text));
@@ -70,8 +71,8 @@ void UpdateDialogue(DialogueSystem *dialogue) {
 void DrawDialogue(DialogueSystem *dialogue) {
     if (!dialogue->isActive) return;
 
-    const int boxWidth = 750;
-    const int boxHeight = 180;
+    const int boxWidth = 1100;
+    const int boxHeight = 175;
     const int boxX = (1920 - boxWidth) / 2;
     const int boxY = 1080 - boxHeight - 50;
     const int textX = boxX + 20;
@@ -80,9 +81,31 @@ void DrawDialogue(DialogueSystem *dialogue) {
     DrawRectangle(boxX, boxY, boxWidth, boxHeight, Fade(BLACK, 0.8f));
     DrawRectangleLines(boxX, boxY, boxWidth, boxHeight, WHITE);
 
-    char displayedText[256] = {0};
-    strncpy(displayedText, dialogue->text, dialogue->currentChar);
-    displayedText[dialogue->currentChar] = '\0';
+    // Buffer grande para texto exibido gradualmente
+    char displayedText[1024] = {0};
+
+    // Copia apenas caracteres completos em UTF-8
+    int byteIndex = 0;
+    int charCount = 0;
+
+    while (dialogue->text[byteIndex] != '\0' && charCount < dialogue->currentChar) {
+        unsigned char c = (unsigned char)dialogue->text[byteIndex];
+        int charSize = 1;
+
+        if (c >= 0xF0) charSize = 4;       // 4-byte UTF-8
+        else if (c >= 0xE0) charSize = 3;  // 3-byte UTF-8
+        else if (c >= 0xC0) charSize = 2;  // 2-byte UTF-8
+
+        for (int i = 0; i < charSize; i++) {
+            displayedText[byteIndex + i] = dialogue->text[byteIndex + i];
+        }
+
+        byteIndex += charSize;
+        charCount++;
+    }
+
+    displayedText[byteIndex] = '\0';  // Finaliza a string corretamente
+
     DrawWrappedText(displayedText, textX, textY, boxWidth - 40, 20, WHITE);
 
     if (dialogue->isFinished) {
@@ -92,3 +115,5 @@ void DrawDialogue(DialogueSystem *dialogue) {
                  15, YELLOW);
     }
 }
+
+
