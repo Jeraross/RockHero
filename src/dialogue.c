@@ -1,6 +1,42 @@
 #include "../include/dialogue.h"
 #include <string.h>
 
+void DrawWrappedText(const char *text, int x, int y, int maxWidth, int fontSize, Color color) {
+    int lineHeight = fontSize + 5;
+    int offsetY = 0;
+
+    const char *start = text;
+
+    while (*start) {
+        int length = 0;
+        int lastSpace = -1;
+        char buffer[512];
+
+        while (start[length] && length < (int)(sizeof(buffer) - 1)) {
+            if (start[length] == ' ') lastSpace = length;
+
+            buffer[length] = start[length];
+            buffer[length + 1] = '\0';
+
+            if (MeasureText(buffer, fontSize) > maxWidth) break;
+            length++;
+        }
+
+        if (MeasureText(buffer, fontSize) > maxWidth && lastSpace != -1) {
+            length = lastSpace;
+        }
+
+        strncpy(buffer, start, length);
+        buffer[length] = '\0';
+
+        DrawText(buffer, x, y + offsetY, fontSize, color);
+        offsetY += lineHeight;
+
+        start += length;
+        while (*start == ' ') start++;  // pula espaços extras
+    }
+}
+
 void InitDialogue(DialogueSystem *dialogue, const char *text, Sound sound) {
     strncpy(dialogue->text, text, sizeof(dialogue->text));
     dialogue->currentChar = 0;
@@ -34,8 +70,8 @@ void UpdateDialogue(DialogueSystem *dialogue) {
 void DrawDialogue(DialogueSystem *dialogue) {
     if (!dialogue->isActive) return;
 
-    const int boxWidth = 600;
-    const int boxHeight = 120;
+    const int boxWidth = 750;
+    const int boxHeight = 180;
     const int boxX = (1920 - boxWidth) / 2;
     const int boxY = 1080 - boxHeight - 50;
     const int textX = boxX + 20;
@@ -46,7 +82,8 @@ void DrawDialogue(DialogueSystem *dialogue) {
 
     char displayedText[256] = {0};
     strncpy(displayedText, dialogue->text, dialogue->currentChar);
-    DrawText(displayedText, textX, textY, 20, WHITE);
+    displayedText[dialogue->currentChar] = '\0';
+    DrawWrappedText(displayedText, textX, textY, boxWidth - 40, 20, WHITE);
 
     if (dialogue->isFinished) {
         DrawText("Press ENTER to continue...",

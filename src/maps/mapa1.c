@@ -132,14 +132,13 @@ void DrawMap1(MapData *map, Player *player) {
         );
     }
 
-    if (map->typingQuestion) {
-        DrawRectangle(460, SCREEN_HEIGHT - 160, 1000, 80, Fade(BLACK, 0.8f));
-        DrawRectangleLines(460, SCREEN_HEIGHT - 160, 1000, 80, WHITE);
-        DrawText("Digite sua pergunta:", 480, SCREEN_HEIGHT - 150, 20, YELLOW);
-        DrawText(map->inputText, 480, SCREEN_HEIGHT - 120, 20, WHITE);
-    }
+        if (map->typingQuestion) {
+            DrawRectangle(550, SCREEN_HEIGHT - 160, 650, 120, Fade(BLACK, 0.8f));
+            DrawRectangleLines(550, SCREEN_HEIGHT - 160, 650, 120, WHITE);
+            DrawText("Digite sua pergunta:", 570, SCREEN_HEIGHT - 150, 20, YELLOW);
+            DrawText(map->inputText, 570, SCREEN_HEIGHT - 120, 20, WHITE);
+        }
 
-    DrawDialogue(&map->dialogue);
 
     float distance2 = fabs(SCREEN_WIDTH - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
     float time = GetTime();
