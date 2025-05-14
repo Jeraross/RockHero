@@ -133,8 +133,8 @@ void DrawMap3(MapData *map, Player *player) {
     }
 
     if (map->typingQuestion) {
-        DrawRectangle(460, SCREEN_HEIGHT - 160, 1000, 80, Fade(BLACK, 0.8f));
-        DrawRectangleLines(460, SCREEN_HEIGHT - 160, 1000, 80, WHITE);
+        DrawRectangle(460, SCREEN_HEIGHT - 160, 650, 120, Fade(BLACK, 0.8f));
+        DrawRectangleLines(460, SCREEN_HEIGHT - 160, 650, 120, WHITE);
         DrawText("Digite sua pergunta:", 480, SCREEN_HEIGHT - 150, 20, YELLOW);
         DrawText(map->inputText, 480, SCREEN_HEIGHT - 120, 20, WHITE);
     }

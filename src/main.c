@@ -89,17 +89,17 @@ typedef struct {
 } HitEffect;
 
 Song songs[MAX_SONGS] = {
-    {"Thunderstruck", "AC/DC", {0}, "assets/musics/thunderstruck.mp3", 292.0f, 4},
-    {"Sweet Child O'Mine", "Guns N' Roses", {0}, "assets/musics/sweet_child.mp3", 356.0f, 3},
-    {"In The End", "Linkin Park", {0}, "assets/musics/in_the_end.mp3", 216.0f, 3},
-    {"Killer Queen", "Queen", {0}, "assets/musics/killer_queen.mp3", 179.0f, 1},
-    {"Smells Like Teen Spirit", "Nirvana", {0}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
-    {"Enter Sandman", "Metallica", {0}, "assets/musics/sandman.mp3", 331.0f, 4},
-    {"Paranoid", "Black Sabbath", {0}, "assets/musics/paranoid.mp3", 171.0f, 3},
-    {"The Trooper", "Iron Maiden", {0}, "assets/musics/the_trooper.mp3", 243.0f, 5},
-    {"Livin' on a Prayer", "Bon Jovi", {0}, "assets/musics/livin_prayer.mp3", 250.0f, 2},
-    {"Dream On", "Aerosmith", {0}, "assets/musics/dream_on.mp3", 270.0f, 3},
-    {"Toxicity", "System of a Down", {0}, "assets/musics/toxicity.mp3", 214.0f, 4}
+    {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 292.0f, 4},
+    {"Sweet Child O'Mine", "Guns N' Roses", {}, "assets/musics/sweet_child.mp3", 356.0f, 3},
+    {"In The End", "Linkin Park", {}, "assets/musics/in_the_end.mp3", 216.0f, 3},
+    {"Killer Queen", "Queen", {}, "assets/musics/killer_queen.mp3", 179.0f, 1},
+    {"Smells Like Teen Spirit", "Nirvana", {}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
+    {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 331.0f, 4},
+    {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},
+    {"The Trooper", "Iron Maiden", {}, "assets/musics/the_trooper.mp3", 243.0f, 5},
+    {"Livin' on a Prayer", "Bon Jovi", {}, "assets/musics/livin_prayer.mp3", 250.0f, 2},
+    {"Dream On", "Aerosmith", {}, "assets/musics/dream_on.mp3", 270.0f, 3},
+    {"Toxicity", "System of a Down", {}, "assets/musics/toxicity.mp3", 214.0f, 4}
 };
 
 HitEffect hitEffects[MAX_HIT_EFFECTS];
@@ -971,10 +971,13 @@ int main(void) {
                 // Texto informativo sobre o mapa atual
                 if (currentMap == MAPA1) {
                     DrawText("Mapa 1 Carregado", 10, 70, 20, GREEN);
+                    DrawDialogue(&map1.dialogue);
                 } else if (currentMap == MAPA2) {
                     DrawText("Mapa 2 Carregado", 10, 70, 20, GREEN);
+                    DrawDialogue(&map2.dialogue);
                 } else {
                     DrawText("Mapa 3 Carregado", 10, 70, 20, GREEN);
+                    DrawDialogue(&map3.dialogue);
                 }
             } break;
 

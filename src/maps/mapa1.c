@@ -5,6 +5,7 @@
 #include "../../include/entities/npc.h"
 #include "../gemini.h"
 #include <string.h>
+#include <stdio.h>
 
 void InitMap1(MapData *map) {
     map->background = LoadTexture("assets/maps/PNG/City2/Bright/City2.png");
@@ -41,12 +42,14 @@ void UpdateMap1(MapData *map, Player *player) {
     float distance = Vector2Distance(player->position, map->npc.position);
     bool showPrompt = distance < 200.0f;
 
+    // Se o jogador apertar 'P' e estiver perto de Polnareff, permite que ele comece a digitar a pergunta
     if (showPrompt && IsKeyPressed(KEY_P) && !map->dialogue.isActive && !map->typingQuestion && !map->waitingResponse && !map->showingAnswer) {
         map->typingQuestion = true;
         player->frozen = true;
-        map->inputText[0] = '\0';
+        map->inputText[0] = '\0'; // Limpa a pergunta anterior
     }
 
+    // Lógica para digitar a pergunta
     if (map->typingQuestion) {
         int key = GetCharPressed();
         while (key > 0) {
@@ -62,20 +65,45 @@ void UpdateMap1(MapData *map, Player *player) {
             map->inputText[strlen(map->inputText) - 1] = '\0';
         }
 
+        // Quando pressionar Enter, o NPC vai responder à pergunta
         if (IsKeyPressed(KEY_ENTER)) {
             map->typingQuestion = false;
             map->waitingResponse = true;
         }
     }
 
+    // Quando o NPC estiver esperando a resposta, ele processa a pergunta
     if (map->waitingResponse) {
-        respt(map->inputText, map->respostaIA);
-        InitDialogue(&map->dialogue, map->respostaIA, map->typeSound);
+        // Exemplo de valor de fama (isso será dinamicamente ajustado no futuro)
+        int famaJogador = 65; // Suponha que esse valor virá de algum outro lugar no jogo
+
+        // Gera o prompt completo para a IA assumir o papel do NPC
+        char promptFinal[1024];
+        snprintf(promptFinal, sizeof(promptFinal),
+                 "Você é um NPC chamado Polnareff, um ex-guitarrista francês aposentado, que agora fica encostado em um beco do mapa 1. "
+                 "Você é bem-humorado, irônico e gosta de dar respostas engraçadas. "
+                 "O jogador está tentando se tornar uma estrela do rock e a fama dele atualmente é %d (de 0 a 100). "
+                 "Quanto maior a fama, mais você deve tratá-lo com admiração ou bajulação; quanto menor a fama, mais debochado, sarcástico ou até desdenhoso você pode ser. "
+                 "Você sabe uma informação importante: a melhor música para tocar neste mapa é 'Thunderstruck', da banda AC/DC. Mas você só vai revelar se o jogador tiver mais de 40 de fama. "
+                 "Mas você não deve dizer isso diretamente. Em vez disso, dê pistas ou responda de forma enigmática — talvez fazendo piadas ou citações, ou provocando o jogador a pensar. "
+                 "Responda agora como o Polnareff à pergunta do jogador, com personalidade, como se estivesse realmente falando com ele (responda com menos de 240 caracteres):\n\nJogador: \"%s\"",
+                 famaJogador, map->inputText
+        );
+
+        // Envia esse prompt para a IA
+        respt(promptFinal, map->respostaIA);
+
+        // Adiciona prefixo para indicar que é fala do NPC
+        char respostaFinal[512];
+        snprintf(respostaFinal, sizeof(respostaFinal), "Polnareff: %s", map->respostaIA);
+
+        InitDialogue(&map->dialogue, respostaFinal, map->typeSound);
         map->dialogue.isActive = true;
         map->waitingResponse = false;
         map->showingAnswer = true;
     }
 
+    // Quando a resposta é exibida, o jogador pode continuar a conversa
     if (map->dialogue.isActive && map->dialogue.isFinished && IsKeyPressed(KEY_ENTER)) {
         map->dialogue.isActive = false;
         if (map->showingAnswer) {
@@ -84,6 +112,8 @@ void UpdateMap1(MapData *map, Player *player) {
         }
     }
 }
+
+
 
 void DrawMap1(MapData *map, Player *player) {
     DrawTexture(map->background, 0, 0, WHITE);
@@ -132,14 +162,13 @@ void DrawMap1(MapData *map, Player *player) {
         );
     }
 
-    if (map->typingQuestion) {
-        DrawRectangle(460, SCREEN_HEIGHT - 160, 1000, 80, Fade(BLACK, 0.8f));
-        DrawRectangleLines(460, SCREEN_HEIGHT - 160, 1000, 80, WHITE);
-        DrawText("Digite sua pergunta:", 480, SCREEN_HEIGHT - 150, 20, YELLOW);
-        DrawText(map->inputText, 480, SCREEN_HEIGHT - 120, 20, WHITE);
-    }
+        if (map->typingQuestion) {
+            DrawRectangle(550, SCREEN_HEIGHT - 160, 650, 120, Fade(BLACK, 0.8f));
+            DrawRectangleLines(550, SCREEN_HEIGHT - 160, 650, 120, WHITE);
+            DrawText("Pergunte algo ao NPC:", 570, SCREEN_HEIGHT - 150, 20, YELLOW);
+            DrawText(map->inputText, 570, SCREEN_HEIGHT - 120, 20, WHITE);
+        }
 
-    DrawDialogue(&map->dialogue);
 
     float distance2 = fabs(SCREEN_WIDTH - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
     float time = GetTime();

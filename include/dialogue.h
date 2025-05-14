@@ -15,6 +15,7 @@ typedef struct {
     Sound typeSound;
 } DialogueSystem;
 
+void DrawWrappedText(const char *text, int x, int y, int maxWidth, int fontSize, Color color);
 void InitDialogue(DialogueSystem *dialogue, const char *text, Sound sound);
 void UpdateDialogue(DialogueSystem *dialogue);
 void DrawDialogue(DialogueSystem *dialogue);
