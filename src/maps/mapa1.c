@@ -80,21 +80,21 @@ void UpdateMap1(MapData *map, Player *player) {
         // Gera o prompt completo para a IA assumir o papel do NPC
         char promptFinal[1024];
         snprintf(promptFinal, sizeof(promptFinal),
-                 "Você é um NPC chamado Polnareff, um ex-guitarrista francês aposentado, que agora fica encostado em um beco do mapa 1. "
-                 "Você é bem-humorado, irônico e gosta de dar respostas engraçadas. "
+                 "Você é um NPC chamado Polnareff, um ex-guitarrista francês aposentado. Você é bem-humorado, sarcástico e exagerado. "
                  "O jogador está tentando se tornar uma estrela do rock e a fama dele atualmente é %d (de 0 a 100). "
-                 "Quanto maior a fama, mais você deve tratá-lo com admiração ou bajulação; quanto menor a fama, mais debochado, sarcástico ou até desdenhoso você pode ser. "
-                 "Você sabe uma informação importante: a melhor música para tocar neste mapa é 'Thunderstruck', da banda AC/DC. Mas você só vai revelar se o jogador tiver mais de 40 de fama. "
-                 "Mas você não deve dizer isso diretamente. Em vez disso, dê pistas ou responda de forma enigmática — talvez fazendo piadas ou citações, ou provocando o jogador a pensar. "
-                 "Responda agora como o Polnareff à pergunta do jogador, com personalidade, como se estivesse realmente falando com ele (responda com menos de 240 caracteres):\n\nJogador: \"%s\"",
+                 "Quanto maior a fama, mais você o admira e bajula; quanto menor, mais debochado e desdenhoso você se torna. "
+                 "Você sabe uma informação importante: a melhor música para tocar neste mapa é 'Thunderstruck', da banda AC/DC. "
+                 "Mas você **nunca deve revelar isso diretamente**. Dê dicas de forma criativa, com piadas, trocadilhos ou provocações. "
+                 "Responda como Polnareff, em primeira pessoa. Sua resposta deve ter no máximo 240 caracteres (não use caracteres especiais). Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
                  famaJogador, map->inputText
         );
+
 
         // Envia esse prompt para a IA
         respt(promptFinal, map->respostaIA);
 
         // Adiciona prefixo para indicar que é fala do NPC
-        char respostaFinal[512];
+        char respostaFinal[1024];
         snprintf(respostaFinal, sizeof(respostaFinal), "Polnareff: %s", map->respostaIA);
 
         InitDialogue(&map->dialogue, respostaFinal, map->typeSound);

@@ -5,6 +5,7 @@
 #include "../../include/entities/npc.h"
 #include "../gemini.h"
 #include <string.h>
+#include <stdio.h>
 
 void InitMap3(MapData *map) {
     map->background = LoadTexture("assets/maps/PNG/City4/Bright/City4.png");
@@ -41,12 +42,14 @@ void UpdateMap3(MapData *map, Player *player) {
     float distance = Vector2Distance(player->position, map->npc.position);
     bool showPrompt = distance < 200.0f;
 
+    // Se o jogador apertar 'P' e estiver perto de Polnareff, permite que ele comece a digitar a pergunta
     if (showPrompt && IsKeyPressed(KEY_P) && !map->dialogue.isActive && !map->typingQuestion && !map->waitingResponse && !map->showingAnswer) {
         map->typingQuestion = true;
         player->frozen = true;
-        map->inputText[0] = '\0';
+        map->inputText[0] = '\0'; // Limpa a pergunta anterior
     }
 
+    // Lógica para digitar a pergunta
     if (map->typingQuestion) {
         int key = GetCharPressed();
         while (key > 0) {
@@ -62,20 +65,43 @@ void UpdateMap3(MapData *map, Player *player) {
             map->inputText[strlen(map->inputText) - 1] = '\0';
         }
 
+        // Quando pressionar Enter, o NPC vai responder à pergunta
         if (IsKeyPressed(KEY_ENTER)) {
             map->typingQuestion = false;
             map->waitingResponse = true;
         }
     }
 
+    // Quando o NPC estiver esperando a resposta, ele processa a pergunta
     if (map->waitingResponse) {
-        respt(map->inputText, map->respostaIA);
-        InitDialogue(&map->dialogue, map->respostaIA, map->typeSound);
+        // Exemplo de valor de fama (isso será dinamicamente ajustado no futuro)
+        int famaJogador = 65; // Suponha que esse valor virá de algum outro lugar no jogo
+
+        char promptFinal[1024];
+        snprintf(promptFinal, sizeof(promptFinal),
+                 "Você é Jotaro, um NPC reservado, sério e direto. Ex-roqueiro que viu o auge e o declínio da fama. Raramente sorri, mas fala com verdade. "
+                 "O jogador quer ser um astro do rock. A fama dele é %d. Se for alta (>60), você o reconhece com relutância. Se for média (40–60), responde friamente. Se for baixa (<40), quase ignora. "
+                 "Você sabe algo importante: a música ideal neste mapa é 'Livin’ on a Prayer', do Bon Jovi. "
+                 "Mas **nunca revele isso diretamente**. Dê pistas discretas, frases de superação, fé ou dificuldades. "
+                 "Responda como Jotaro, de forma lacônica e firme. No máximo 240 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
+                 famaJogador, map->inputText
+        );
+
+
+        // Envia esse prompt para a IA
+        respt(promptFinal, map->respostaIA);
+
+        // Adiciona prefixo para indicar que é fala do NPC
+        char respostaFinal[1024];
+        snprintf(respostaFinal, sizeof(respostaFinal), "Jotaro: %s", map->respostaIA);
+
+        InitDialogue(&map->dialogue, respostaFinal, map->typeSound);
         map->dialogue.isActive = true;
         map->waitingResponse = false;
         map->showingAnswer = true;
     }
 
+    // Quando a resposta é exibida, o jogador pode continuar a conversa
     if (map->dialogue.isActive && map->dialogue.isFinished && IsKeyPressed(KEY_ENTER)) {
         map->dialogue.isActive = false;
         if (map->showingAnswer) {

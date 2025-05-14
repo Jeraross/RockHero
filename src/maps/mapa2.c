@@ -5,6 +5,7 @@
 #include "../../include/entities/npc.h"
 #include "../gemini.h"
 #include <string.h>
+#include <stdio.h>
 
 void InitMap2(MapData *map) {
     map->background = LoadTexture("assets/maps/PNG/City3/Bright/City3.png");
@@ -29,7 +30,6 @@ void InitMap2(MapData *map) {
     map->font = LoadFont("assets/font/Vampire Wars.ttf");
     map->keyPrompt = LoadTexture("assets/sprites/individual sprites/keyboard/P.png");
 }
-
 void UpdateMap2(MapData *map, Player *player) {
     if (!player->frozen) {
         UpdatePlayer(player);
@@ -41,12 +41,14 @@ void UpdateMap2(MapData *map, Player *player) {
     float distance = Vector2Distance(player->position, map->npc.position);
     bool showPrompt = distance < 200.0f;
 
+    // Se o jogador apertar 'P' e estiver perto de Polnareff, permite que ele comece a digitar a pergunta
     if (showPrompt && IsKeyPressed(KEY_P) && !map->dialogue.isActive && !map->typingQuestion && !map->waitingResponse && !map->showingAnswer) {
         map->typingQuestion = true;
         player->frozen = true;
-        map->inputText[0] = '\0';
+        map->inputText[0] = '\0'; // Limpa a pergunta anterior
     }
 
+    // Lógica para digitar a pergunta
     if (map->typingQuestion) {
         int key = GetCharPressed();
         while (key > 0) {
@@ -62,20 +64,43 @@ void UpdateMap2(MapData *map, Player *player) {
             map->inputText[strlen(map->inputText) - 1] = '\0';
         }
 
+        // Quando pressionar Enter, o NPC vai responder à pergunta
         if (IsKeyPressed(KEY_ENTER)) {
             map->typingQuestion = false;
             map->waitingResponse = true;
         }
     }
 
+    // Quando o NPC estiver esperando a resposta, ele processa a pergunta
     if (map->waitingResponse) {
-        respt(map->inputText, map->respostaIA);
-        InitDialogue(&map->dialogue, map->respostaIA, map->typeSound);
+        // Exemplo de valor de fama (isso será dinamicamente ajustado no futuro)
+        int famaJogador = 65; // Suponha que esse valor virá de algum outro lugar no jogo
+
+        char promptFinal[1024];
+        snprintf(promptFinal, sizeof(promptFinal),
+                 "Você é Avdol, um ex-produtor musical egípcio, sério e místico. Você fala como um sábio e valoriza autenticidade e alma musical. "
+                 "A fama do jogador é %d. Se for alta (>60), trate-o com respeito. Se for média (40–60), seja neutro. Se for baixa (<40), seja frio e exigente. "
+                 "Você sabe uma verdade oculta: a melhor música para tocar neste mapa é 'Sweet Child O' Mine', do Guns N' Roses. "
+                 "Mas **nunca diga isso diretamente**. Use metáforas, pistas filosóficas, ou referências sutis como 'doçura', 'infância', 'guitarra que chora', etc. "
+                 "Fale como Avdol. Sua resposta deve ter no máximo 240 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
+                 famaJogador, map->inputText
+        );
+
+
+        // Envia esse prompt para a IA
+        respt(promptFinal, map->respostaIA);
+
+        // Adiciona prefixo para indicar que é fala do NPC
+        char respostaFinal[1024];
+        snprintf(respostaFinal, sizeof(respostaFinal), "Avdol: %s", map->respostaIA);
+
+        InitDialogue(&map->dialogue, respostaFinal, map->typeSound);
         map->dialogue.isActive = true;
         map->waitingResponse = false;
         map->showingAnswer = true;
     }
 
+    // Quando a resposta é exibida, o jogador pode continuar a conversa
     if (map->dialogue.isActive && map->dialogue.isFinished && IsKeyPressed(KEY_ENTER)) {
         map->dialogue.isActive = false;
         if (map->showingAnswer) {
