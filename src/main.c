@@ -389,6 +389,7 @@ int main(void) {
 
         // Update scrolling for song select
         if (gameState == SONG_SELECT) {
+            // Handle selection change
             if (IsKeyPressed(KEY_DOWN) && selectedSong < MAX_SONGS - 1) {
                 selectedSong++;
                 PlaySound(menuScrollSound);
@@ -400,10 +401,15 @@ int main(void) {
                 scrollSpeed = -220.0f;
             }
 
-            // Scroll suave
+            // Smooth scroll
             scrollOffset += scrollSpeed * deltaTime;
-            scrollSpeed *= 0.91f;
-            if (fabs(scrollSpeed) < 1.0f) scrollSpeed = 0.0f;
+            scrollSpeed *= 0.9f;
+
+            // Snap to correct position when almost stopped
+            if (fabs(scrollSpeed) < 1.0f) {
+                scrollSpeed = 0.0f;
+                scrollOffset = selectedSong * 37.5; // Ajusta para a posição exata
+            }
         }
 
         if (gameState == MAPAS) {
