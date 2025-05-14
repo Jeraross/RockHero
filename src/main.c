@@ -30,6 +30,8 @@
 // Make rock meter more forgiving
 #define ROCK_METER_HIT_GAIN 0.1f
 #define ROCK_METER_MISS_PENALTY 0.05f
+#define MAX_HIT_EFFECTS 20
+#define HIT_EFFECT_DURATION 0.15f
 
 typedef struct {
     int score;
@@ -79,6 +81,13 @@ typedef enum {
     MAPA3
 } CurrentMap; // Enum para controlar o mapa atual
 
+typedef struct {
+    int lane;
+    float timer;
+    bool active;
+    bool isStart; // Se é a animação inicial (burning_start) ou final (burning_end)
+} HitEffect;
+
 Song songs[MAX_SONGS] = {
     {"Thunderstruck", "AC/DC", {0}, "assets/musics/thunderstruck.mp3", 292.0f, 4},
     {"Sweet Child O'Mine", "Guns N' Roses", {0}, "assets/musics/sweet_child.mp3", 356.0f, 3},
@@ -92,6 +101,10 @@ Song songs[MAX_SONGS] = {
     {"Dream On", "Aerosmith", {0}, "assets/musics/dream_on.mp3", 270.0f, 3},
     {"Toxicity", "System of a Down", {0}, "assets/musics/toxicity.mp3", 214.0f, 4}
 };
+
+HitEffect hitEffects[MAX_HIT_EFFECTS];
+Texture2D burningStartTex;
+Texture2D burningEndTex;
 
 void initSongs() {
     memcpy(songs[0].charts, thunderChart, sizeof(thunderChart));
@@ -208,6 +221,62 @@ void DrawCreditsScreen(int screenWidth, int screenHeight, Font titleFont, Font m
               screenHeight - 100}, 25, 2, GRAY);
 }
 
+void SpawnHitEffect(int lane) {
+    for (int i = 0; i < MAX_HIT_EFFECTS; i++) {
+        if (!hitEffects[i].active) {
+            hitEffects[i].lane = lane;
+            hitEffects[i].timer = HIT_EFFECT_DURATION;
+            hitEffects[i].active = true;
+            hitEffects[i].isStart = true;
+            break;
+        }
+    }
+}
+
+void UpdateHitEffects(float deltaTime) {
+    for (int i = 0; i < MAX_HIT_EFFECTS; i++) {
+        if (hitEffects[i].active) {
+            hitEffects[i].timer -= deltaTime;
+
+            // Quando a animação inicial terminar, começa a final
+            if (hitEffects[i].isStart && hitEffects[i].timer <= HIT_EFFECT_DURATION/2) {
+                hitEffects[i].isStart = false;
+                hitEffects[i].timer = HIT_EFFECT_DURATION/2;
+            }
+
+            if (hitEffects[i].timer <= 0) {
+                hitEffects[i].active = false;
+            }
+        }
+    }
+}
+
+void DrawHitEffects() {
+    for (int i = 0; i < MAX_HIT_EFFECTS; i++) {
+        if (hitEffects[i].active) {
+            int lane = hitEffects[i].lane;
+            float progress = hitEffects[i].timer / (hitEffects[i].isStart ? HIT_EFFECT_DURATION : HIT_EFFECT_DURATION/2);
+            float xPos = HIGHWAY_LEFT + lane * LANE_WIDTH;
+            float yPos = TARGET_Y - 55; // Ajustado para aparecer mais acima
+            if (hitEffects[i].isStart) {
+                // burning_start_1.png (96x32 com 4 frames)
+                int frame = (int)((1.0f - progress) * 4);
+                frame = clamp(frame, 0, 3);
+                Rectangle src = {frame * 24.0f, 0, 24.0f, 32.0f};
+                Rectangle dest = {xPos, yPos, 96.0f, 48.0f}; // Ajustado para tamanho real
+                DrawTexturePro(burningStartTex, src, dest, (Vector2){0}, 0, WHITE);
+            } else {
+                // burning_end_1.png (120x32 com 5 frames)
+                int frame = (int)((1.0f - progress) * 5);
+                frame = clamp(frame, 0, 4);
+                Rectangle src = {frame * 24.0f, 0, 24.0f, 32.0f};
+                Rectangle dest = {xPos, yPos, 120.0f, 48.0f}; // Ajustado para tamanho real
+                DrawTexturePro(burningEndTex, src, dest, (Vector2){0}, 0, WHITE);
+            }
+        }
+    }
+}
+
 int main(void) {
     SetConfigFlags(FLAG_FULLSCREEN_MODE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ROCK HERO");
@@ -226,9 +295,17 @@ int main(void) {
     Sound menuSelectSound = LoadSound("assets/sounds/select.wav");
     Sound menuScrollSound = LoadSound("assets/sounds/scroll.wav");
 
+
     // Load fonts
     Font titleFont = LoadFontEx("assets/font/Vampire Wars.ttf", 72, 0, 0);
     Font mainFont = LoadFontEx("assets/font/Vampire Wars.ttf", 36, 0, 0);
+
+    burningStartTex = LoadTexture("assets/sprites/burning_start_1.png");
+	burningEndTex = LoadTexture("assets/sprites/burning_end_1.png");
+
+    for (int i = 0; i < MAX_HIT_EFFECTS; i++) {
+        hitEffects[i].active = false;
+    }
 
     // Game state
     MenuOption currentMenuOption = MENU_STORY;
@@ -295,6 +372,7 @@ int main(void) {
         // Update music stream if playing
         if (gameState == PLAYING) {
             UpdateMusicStream(gameMusic);
+            UpdateHitEffects(deltaTime);
             musicPosition = GetMusicTimePlayed(gameMusic);
 
             // Check if song ended (fixed bug by using musicPosition >= duration)
@@ -466,6 +544,7 @@ int main(void) {
             } break;
 
             case PLAYING: {
+
                 // Spawn notes from chart
                 while (nextChartNote < MAX_CHART_NOTES &&
                        currentChart[nextChartNote].lane != -1 &&
@@ -563,6 +642,7 @@ int main(void) {
                                     stats.hits[hitQuality]++;
                                     stats.combo++;
                                     if (stats.combo > stats.maxCombo) stats.maxCombo = stats.combo;
+                                    SpawnHitEffect(notes[i].lane);
 
                                     // Calculate score
                                     int baseScore = 50 * (4 - hitQuality);
@@ -866,6 +946,8 @@ int main(void) {
                         DrawCircle(x, y, 4, Fade(YELLOW, 0.7f));
                     }
                 }
+
+                DrawHitEffects();
             } break;
 
             case MAPAS: {
@@ -985,6 +1067,8 @@ int main(void) {
 
     // Limpeza dos recursos
     UnloadTexture(player.spriteSheet);
+    UnloadTexture(burningStartTex);
+    UnloadTexture(burningEndTex);
     UnloadSound(noteMissSound);
     UnloadSound(starPowerSound);
     UnloadSound(menuSelectSound);
