@@ -7,7 +7,7 @@
 #define MAX_RESPOSTA 1024
 
 typedef struct {
-    char text[256];
+    char text[512];
     int currentChar;
     float timer;
     bool isActive;
