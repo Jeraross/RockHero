@@ -85,7 +85,7 @@ void UpdateMap1(MapData *map, Player *player) {
                  "Quanto maior a fama, mais você o admira e bajula; quanto menor, mais debochado e desdenhoso você se torna. "
                  "Você sabe uma informação importante: a melhor música para tocar neste mapa é 'Thunderstruck', da banda AC/DC. "
                  "Mas você **nunca deve revelar isso diretamente**. Dê dicas de forma criativa, com piadas, trocadilhos ou provocações. "
-                 "Responda como Polnareff, em primeira pessoa. Sua resposta deve ter no máximo 240 caracteres (não use caracteres especiais). Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
+                 "Responda como Polnareff, em primeira pessoa. Sua resposta deve ter no máximo 300 caracteres (não use caracteres especiais). Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
                  famaJogador, map->inputText
         );
 

@@ -83,7 +83,7 @@ void UpdateMap3(MapData *map, Player *player) {
                  "O jogador quer ser um astro do rock. A fama dele é %d. Se for alta (>60), você o reconhece com relutância. Se for média (40–60), responde friamente. Se for baixa (<40), quase ignora. "
                  "Você sabe algo importante: a música ideal neste mapa é 'Livin’ on a Prayer', do Bon Jovi. "
                  "Mas **nunca revele isso diretamente**. Dê pistas discretas, frases de superação, fé ou dificuldades. "
-                 "Responda como Jotaro, de forma lacônica e firme. No máximo 240 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
+                 "Responda como Jotaro, de forma lacônica e firme. No máximo 300 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
                  famaJogador, map->inputText
         );
 

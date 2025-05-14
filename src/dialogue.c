@@ -106,21 +106,20 @@ void DrawDialogue(DialogueSystem *dialogue) {
     DrawRectangle(boxX, boxY, boxWidth, boxHeight, Fade(BLACK, 0.8f));
     DrawRectangleLines(boxX, boxY, boxWidth, boxHeight, WHITE);
 
-    // Prepara o texto a ser exibido (com efeito de digitação)
     char displayedText[1024] = {0};
     int byteIndex = 0;
     int charCount = 0;
 
-    while (dialogue->text[byteIndex] != '\0' && charCount < dialogue->currentChar) {
+    while (dialogue->text[byteIndex] != '\0') {
         unsigned char c = (unsigned char)dialogue->text[byteIndex];
         int charSize = 1;
 
-        // Detecta caracteres UTF-8 multibyte
         if (c >= 0xF0) charSize = 4;
         else if (c >= 0xE0) charSize = 3;
         else if (c >= 0xC0) charSize = 2;
 
-        // Copia todos os bytes do caractere
+        if (charCount + 1 > dialogue->currentChar) break;
+
         for (int i = 0; i < charSize; i++) {
             displayedText[byteIndex + i] = dialogue->text[byteIndex + i];
         }
@@ -129,6 +128,7 @@ void DrawDialogue(DialogueSystem *dialogue) {
         charCount++;
     }
     displayedText[byteIndex] = '\0';
+
 
     // Desenha o texto com quebra de linha
     DrawWrappedText(displayedText, textX, textY, textWidth, 20, WHITE);

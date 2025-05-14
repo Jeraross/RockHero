@@ -82,7 +82,7 @@ void UpdateMap2(MapData *map, Player *player) {
                  "A fama do jogador é %d. Se for alta (>60), trate-o com respeito. Se for média (40–60), seja neutro. Se for baixa (<40), seja frio e exigente. "
                  "Você sabe uma verdade oculta: a melhor música para tocar neste mapa é 'Sweet Child O' Mine', do Guns N' Roses. "
                  "Mas **nunca diga isso diretamente**. Use metáforas, pistas filosóficas, ou referências sutis como 'doçura', 'infância', 'guitarra que chora', etc. "
-                 "Fale como Avdol. Sua resposta deve ter no máximo 240 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
+                 "Fale como Avdol. Sua resposta deve ter no máximo 300 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
                  famaJogador, map->inputText
         );
 
