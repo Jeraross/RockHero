@@ -17,6 +17,23 @@ typedef enum {
     STATE_WALK
 } PlayerState;
 
+// Tipos de bênçãos do rock
+typedef enum {
+    BLESS_NONE,
+    BLESS_ROCK_METER,    // Rock meter desce mais devagar
+    BLESS_STAR_POWER,    // Star power recarrega mais rápido
+    BLESS_SCORE_BOOST,   // Multiplicador de pontuação
+    BLESS_FORGIVENESS,   // Menos penalidade por erros
+    BLESS_COMBO,         // Combos maiores dão mais pontos
+    BLESS_RHYTHM_SHIELD  // Escudo
+} RockBlessing;
+
+// Estrutura para armazenar as bênçãos ativas
+typedef struct {
+    RockBlessing blessings[3]; // Máximo de 3 bênçãos (25%, 50%, 75%)
+    int count;
+} PlayerBlessings;
+
 typedef struct {
     Texture2D spriteSheet;
     Vector2 position;
@@ -26,6 +43,7 @@ typedef struct {
     PlayerState state;
     bool frozen;
     int fama;
+    PlayerBlessings blessings;
 } Player;
 
 void InitPlayer(Player *player);
