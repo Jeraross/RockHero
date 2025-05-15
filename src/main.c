@@ -725,12 +725,12 @@ int main(void) {
                         else if (accuracy >= 70.0f) stars = 2;
                         else stars = 1;
 
-                        bool isFavorite = IsFavoriteSong(selectedSong, currentMap + 1); // +1 porque currentMap começa em 0
+                        bool isFavorite = IsFavoriteSong(selectedSong, currentMap->mapId); // +1 porque currentMap começa em 0
 
                         // Redução de fama ao falhar a música
                         if (stats.songFailed) {
                             int fameLoss = 0;
-                            switch (currentMap + 1) {
+                            switch (currentMap->mapId) {
                                 case 1: fameLoss = 5; break;
                                 case 2: fameLoss = 10; break;
                                 case 3: fameLoss = 15; break;
@@ -743,7 +743,7 @@ int main(void) {
                         else {
                             bool canGainFame = true;
 
-                            switch (currentMap + 1) {
+                            switch (currentMap->mapId) {
                                 case 1: {
                                         if (player.fama >= 40) canGainFame = false;
                                 } break;
@@ -1038,12 +1038,12 @@ int main(void) {
                 DrawFameMeter(&player, screenWidth, mainFont);
 
                 // Texto informativo sobre o mapa atual
-                if (currentMap == MAPA1) {
-                    DrawDialogue(&map1.dialogue);
-                } else if (currentMap == MAPA2) {
-                    DrawDialogue(&map2.dialogue);
+                if (currentMap->mapId == 1) {
+                    DrawDialogue(&currentMap->data.dialogue);
+                } else if (currentMap->mapId == 2) {
+                    DrawDialogue(&currentMap->data.dialogue);
                 } else {
-                    DrawDialogue(&map3.dialogue);
+                    DrawDialogue(&currentMap->data.dialogue);
                 }
             } break;
 
