@@ -515,6 +515,7 @@ int main(void) {
                     stats.multiplier = 1.0f;
                 }
 
+
                 for (int lane = 0; lane < NUM_LANES; lane++) {
                     keysPressed[lane] = IsKeyPressed(laneKeys[lane]);
                     keysDown[lane] = IsKeyDown(laneKeys[lane]);

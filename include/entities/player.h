@@ -17,7 +17,7 @@ typedef enum {
     STATE_WALK
 } PlayerState;
 
-// Tipos de bênçãos do rock
+// Tipos de bênçãos
 typedef enum {
     BLESS_NONE,
     BLESS_ROCK_METER,    // Rock meter desce mais devagar
