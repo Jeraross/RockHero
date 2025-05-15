@@ -264,14 +264,14 @@ void DrawHitEffects() {
                 int frame = (int)((1.0f - progress) * 4);
                 frame = clamp(frame, 0, 3);
                 Rectangle src = {frame * 24.0f, 0, 24.0f, 32.0f};
-                Rectangle dest = {xPos, yPos, 96.0f, 48.0f}; // Ajustado para tamanho real
+                Rectangle dest = {xPos, yPos, 96.0f, 54.0f}; // Ajustado para tamanho real
                 DrawTexturePro(burningStartTex, src, dest, (Vector2){0}, 0, WHITE);
             } else {
                 // burning_end_1.png (120x32 com 5 frames)
                 int frame = (int)((1.0f - progress) * 5);
                 frame = clamp(frame, 0, 4);
                 Rectangle src = {frame * 24.0f, 0, 24.0f, 32.0f};
-                Rectangle dest = {xPos, yPos, 120.0f, 48.0f}; // Ajustado para tamanho real
+                Rectangle dest = {xPos, yPos, 120.0f, 54.0f}; // Ajustado para tamanho real
                 DrawTexturePro(burningEndTex, src, dest, (Vector2){0}, 0, WHITE);
             }
         }
@@ -384,6 +384,7 @@ int main(void) {
 
         // Update scrolling for song select
         if (gameState == SONG_SELECT) {
+            // Handle selection change
             if (IsKeyPressed(KEY_DOWN) && selectedSong < MAX_SONGS - 1) {
                 selectedSong++;
                 PlaySound(menuScrollSound);
@@ -395,10 +396,15 @@ int main(void) {
                 scrollSpeed = -220.0f;
             }
 
-            // Scroll suave
+            // Smooth scroll
             scrollOffset += scrollSpeed * deltaTime;
-            scrollSpeed *= 0.91f;
-            if (fabs(scrollSpeed) < 1.0f) scrollSpeed = 0.0f;
+            scrollSpeed *= 0.9f;
+
+            // Snap to correct position when almost stopped
+            if (fabs(scrollSpeed) < 1.0f) {
+                scrollSpeed = 0.0f;
+                scrollOffset = selectedSong * 37.5; // Ajusta para a posição exata
+            }
         }
 
         if (gameState == MAPAS) {
@@ -928,7 +934,7 @@ int main(void) {
                     // Draw star particles (mais partículas)
                     for (int i = 0; i < 50; i++) {
                         float x = sin(GetTime() * 2 + i) * 200 + screenWidth/2;
-                        float y = cos(GetTime() * 3 + i) * 200 + screenHeight/2;
+                        float y = cos(GetTime() * 3 + i) * 200 + (screenHeight/2 - 100);
                         DrawCircle(x, y, 4, Fade(YELLOW, 0.7f));
                     }
                 }
