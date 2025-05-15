@@ -81,7 +81,8 @@ typedef enum {
     MAPAS,
     RESULTS,
     CHALLENGE,
-    BLESS
+    BLESS,
+    FAME_WARNING
 } GameState;
 
 typedef enum {
@@ -97,6 +98,23 @@ typedef enum {
     MAPA2,
     MAPA3
 } CurrentMap; // Enum para controlar o mapa atual
+
+typedef struct {
+    char message[100];
+    float showTime;
+    float timer;
+} TemporaryWarning;
+
+// No seu arquivo de variáveis globais
+typedef struct {
+    bool active;
+    float displayTime;
+    float timer;
+} FameWarning;
+
+FameWarning fameWarning = {false, 0.2f, 0}; // 0.2s de delay mínimo
+
+TemporaryWarning tempWarning = {0};
 
 Song songs[MAX_SONGS] = {
     {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 5.0f, 4},
@@ -156,6 +174,8 @@ bool HasBlessing(Player* player, RockBlessing blessing);
 void SpawnShieldEffect();
 
 void SpawnComboEffect(int combo);
+
+void ShowTempWarning(const char* message, float duration);
 
 int main(void) {
     SetConfigFlags(FLAG_FULLSCREEN_MODE);
@@ -287,29 +307,54 @@ int main(void) {
             }
         }
 
-        if (gameState == MAPAS) {
+        int pendingMapId = 0; // armazena o mapa de onde veio o aviso
+        bool showFameWarning = false;
 
-            if (currentMap->mapId == 1){
+        if (gameState == MAPAS) {
+            if (currentMap->mapId == 1) {
                 float distance2 = fabs(790 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
-                if (distance2 < 150.0f ){
-                    if (IsKeyPressed(KEY_M)){
-                       gameState = SONG_SELECT;
+                if (distance2 < 150.0f) {
+                    if (IsKeyPressed(KEY_M)) {
+                        if (player.fama >= 10) {
+                            fameWarning.active = true;
+                            fameWarning.timer = 0;
+                            pendingMapId = 1;
+                        } else {
+                            gameState = SONG_SELECT;
+                        }
                     }
                 }
             }
-            else if (currentMap->mapId == 2){
+            else if (currentMap->mapId == 2) {
                 float distance2 = fabs(1550 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
-                if (distance2 < 150.0f && player.fama >= 30){
-                    if (IsKeyPressed(KEY_M)){
-                        gameState = SONG_SELECT;
+                if (distance2 < 150.0f) {
+                    if (player.fama < 30) {
+                        // Aviso temporário se fama < 30 (não deixa prosseguir)
+                        if (IsKeyPressed(KEY_M)) {
+                            ShowTempWarning("Voce precisa de pelo menos 30 de fama!", 2.0f);
+                        }
+                    }
+                    else if (IsKeyPressed(KEY_M)) {
+                        if (player.fama >= 70) {
+                            fameWarning.active = true;
+                            fameWarning.timer = 0;
+                        } else {
+                            gameState = SONG_SELECT; // Prossegue direto (aviso temporário)
+                        }
                     }
                 }
             }
-            else if (currentMap->mapId == 3){
+            else if (currentMap->mapId == 3) {
                 float distance2 = fabs(590 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
-                if (distance2 < 150.0f && player.fama >= 60){
-                    if (IsKeyPressed(KEY_M)){
-                        gameState = SONG_SELECT;
+                if (distance2 < 150.0f) {
+                    if (player.fama < 60) {
+                        // Aviso temporário se fama < 60 (não deixa prosseguir)
+                        if (IsKeyPressed(KEY_M)) {
+                            ShowTempWarning("Voce precisa de pelo menos 60 de fama!", 2.0f);
+                        }
+                    }
+                    else if (IsKeyPressed(KEY_M)) {
+                        gameState = SONG_SELECT; // Prossegue direto
                     }
                 }
             }
@@ -639,8 +684,6 @@ int main(void) {
                             }
                         }
 
-
-                        // Penalize for missed notes
                         if (!hit) {
                             stats.score = fmaxf(0, stats.score - 50);
                             stats.misses++;
@@ -649,7 +692,6 @@ int main(void) {
                             stats.multiplierLevel = 1;
                             stats.starPower = fmaxf(0, stats.starPower - 1.0f);
 
-                            // Update rock meter (miss moves it left by 3 steps)
                             stats.rockMeter = fmaxf(0, stats.rockMeter - ROCK_METER_MISS_PENALTY);
 
                             PlaySound(noteMissSound);
@@ -666,6 +708,32 @@ int main(void) {
                     UpdateMap2(&currentMap->data, &player);
                 } else {
                     UpdateMap3(&currentMap->data, &player);
+                }
+
+                if (tempWarning.timer < tempWarning.showTime) {
+                    tempWarning.timer += GetFrameTime();
+
+                    // Fechar com a tecla F
+                    if (IsKeyPressed(KEY_F)) {
+                        tempWarning.timer = tempWarning.showTime; // Fecha o aviso
+                    }
+                }
+
+                // No update (antes do draw)
+                if (fameWarning.active) {
+                    fameWarning.timer += GetFrameTime();
+
+                    // Só permite fechar após o tempo mínimo
+                    if (fameWarning.timer >= fameWarning.displayTime) {
+                        if (IsKeyPressed(KEY_Y)) {
+                            fameWarning.active = false;
+                            gameState = SONG_SELECT;
+                        }
+                        else if (IsKeyPressed(KEY_N)) {
+                            fameWarning.active = false;
+                            // Lógica adicional se necessário
+                        }
+                    }
                 }
 
                 float distance2 = fabs(SCREEN_WIDTH - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
@@ -1024,6 +1092,7 @@ int main(void) {
             } break;
 
             case MAPAS: {
+                // Desenha o mapa atual
                 if (currentMap->mapId == 1) {
                     DrawMap1(&currentMap->data, &player);
                 } else if (currentMap->mapId == 2) {
@@ -1032,19 +1101,103 @@ int main(void) {
                     DrawMap3(&currentMap->data, &player);
                 }
 
-
                 DrawPlayer(&player);
-
                 DrawFameMeter(&player, screenWidth, mainFont);
 
                 // Texto informativo sobre o mapa atual
-                if (currentMap->mapId == 1) {
-                    DrawDialogue(&currentMap->data.dialogue);
-                } else if (currentMap->mapId == 2) {
-                    DrawDialogue(&currentMap->data.dialogue);
-                } else {
-                    DrawDialogue(&currentMap->data.dialogue);
+                DrawDialogue(&currentMap->data.dialogue);
+
+                if (fameWarning.active) {
+                    // Fundo semi-transparente (aparece imediatamente)
+                    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.7f));
+
+                    // Caixa de diálogo (sem delay)
+                    Rectangle dialogBox = {
+                            screenWidth/2 - 375,
+                            screenHeight/2 - 125,
+                            750,
+                            250
+                    };
+                    DrawRectangleRec(dialogBox, BLACK);
+                    DrawRectangleLinesEx(dialogBox, 3, GOLD);
+
+                    // Texto principal (sem delay)
+                    const char* lines[] = {
+                            "Voce nao ganhara mais fama tocando",
+                            "nesse mapa, deseja continuar mesmo assim?"
+                    };
+
+                    float startY = dialogBox.y + 50;
+                    for (int i = 0; i < 2; i++) {
+                        Vector2 textSize = MeasureTextEx(titleFont, lines[i], 28, 1);
+                        DrawTextEx(titleFont, lines[i],
+                                   (Vector2){dialogBox.x + dialogBox.width/2 - textSize.x/2, startY + i*40},
+                                   28, 1, WHITE);
+                    }
+
+                    // Botões (centralizados horizontalmente)
+                    float totalButtonsWidth = 120 * 2 + 60; // 2 botões de 120 + 60 de espaçamento
+                    float startX = dialogBox.x + (dialogBox.width - totalButtonsWidth) / 2;
+
+                    Rectangle btnYes = {startX, dialogBox.y + 180, 120, 50};
+                    Rectangle btnNo = {startX + 180, dialogBox.y + 180, 120, 50};
+
+// Cores e desenho (mantidos da sua versão)
+                    Color btnYesColor = (fameWarning.timer >= fameWarning.displayTime && CheckCollisionPointRec(GetMousePosition(), btnYes)) ? GREEN : LIME;
+                    Color btnNoColor = (fameWarning.timer >= fameWarning.displayTime && CheckCollisionPointRec(GetMousePosition(), btnNo)) ? PINK : RED;
+
+                    DrawRectangleRec(btnYes, btnYesColor);
+                    DrawRectangleRec(btnNo, btnNoColor);
+
+// Textos dos botões (ajuste fino de centralização)
+                    DrawTextEx(titleFont, "SIM (Y)",
+                               (Vector2){btnYes.x + btnYes.width/2 - MeasureTextEx(titleFont, "SIM (Y)", 24, 1).x/2,
+                                         btnYes.y + btnYes.height/2 - 12},
+                               24, 1, WHITE);
+
+                    DrawTextEx(titleFont, "NAO (N)",
+                               (Vector2){btnNo.x + btnNo.width/2 - MeasureTextEx(titleFont, "NÃO (N)", 24, 1).x/2,
+                                         btnNo.y + btnNo.height/2 - 12},
+                               24, 1, WHITE);
+
+                    // Controles (só funcionam após o delay)
+                    if (fameWarning.timer >= fameWarning.displayTime) {
+                        if (IsKeyPressed(KEY_Y) || (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), btnYes))) {
+                            fameWarning.active = false;
+                            gameState = SONG_SELECT;
+                        }
+                        else if (IsKeyPressed(KEY_N) || (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), btnNo))) {
+                            fameWarning.active = false;
+                        }
+                    }
                 }
+
+// ----- AVISO TEMPORÁRIO DE FAMA (sobrepõe tudo) -----
+                if (tempWarning.timer < tempWarning.showTime) {
+                    // Fundo semi-transparente
+                    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.7f));
+
+                    // Texto principal (centralizado)
+                    const char* warningText = tempWarning.message;
+                    float fontSize = 28;
+                    Vector2 textSize = MeasureTextEx(titleFont, warningText, fontSize, 1);
+
+                    Vector2 textPos = {
+                            screenWidth / 2 - textSize.x / 2,
+                            screenHeight / 2 - textSize.y / 2
+                    };
+                    DrawTextEx(titleFont, warningText, textPos, fontSize, 1, YELLOW);
+
+                    // Texto de instrução (pressione F para fechar)
+                    const char* pressKeyText = "Pressione F para fechar";
+                    Vector2 pressKeyTextSize = MeasureTextEx(titleFont, pressKeyText, 20, 1);
+                    Vector2 pressKeyPos = {
+                            screenWidth / 2 - pressKeyTextSize.x / 2,
+                            textPos.y + textSize.y + 20
+                    };
+                    DrawTextEx(titleFont, pressKeyText, pressKeyPos, 20, 1, WHITE);
+                }
+
             } break;
 
             case BLESS: {
@@ -1539,4 +1692,10 @@ void SpawnComboEffect(int combo) {
         Vector2 pos = {HIGHWAY_LEFT + HIGHWAY_WIDTH/2 + offsetX, TARGET_Y + offsetY};
         DrawRectanglePro((Rectangle){pos.x, pos.y, 10, 3}, (Vector2){5, 1.5f}, angle, c);
     }
+}
+
+void ShowTempWarning(const char* message, float duration) {
+    strncpy(tempWarning.message, message, sizeof(tempWarning.message) - 1);
+    tempWarning.showTime = duration;
+    tempWarning.timer = 0;
 }
