@@ -1,3 +1,4 @@
+#include "../../include/maps/mapa1.h"
 #include "../../include/maps/mapa2.h"
 #include "../../include/utils/utils.h"
 #include "../../lib_raylib/raymath.h"
