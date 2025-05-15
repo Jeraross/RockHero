@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "../include/entities/player.h"
+#include "../include/maps/mapa.h"
 #include "../include/maps/mapa1.h"
 #include "../include/maps/mapa2.h"
 #include "../include/maps/mapa3.h"
@@ -235,16 +236,10 @@ int main(void) {
     InitPlayer(&player);
     player.frozen = false;
 
-    MapData map1;
-    InitMap1(&map1);  // Mapa 1 carregado inicialmente
-
-    MapData map2;
-    InitMap2(&map2); // Mapa 2 carregado
-
-    MapData map3;
-    InitMap3(&map3); // Mapa 3 carregado
-
-    CurrentMap currentMap = MAPA1; // Começa com o mapa 1
+    MapNode* mapList = NULL;
+    MapNode* currentMap = NULL;
+    mapList = CreateMapList();
+    currentMap = mapList; // Começa no mapa 1
 
     while (!WindowShouldClose()) {
         deltaTime = GetFrameTime();
@@ -293,32 +288,8 @@ int main(void) {
         }
 
         if (gameState == MAPAS) {
-            float distance = fabs(SCREEN_WIDTH - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
-            if (distance < 200.0f) {
-                if (IsKeyPressed(KEY_G)) {
-                    if (currentMap == MAPA1) {
-                        currentMap = MAPA2;
-                        player.position.x = 0;
-                    } else if (currentMap == MAPA2) {
-                        currentMap = MAPA3;
-                        player.position.x = 0;
-                    }
-                }
-            }
 
-            else if (player.position.x <= 10) {
-                if (IsKeyPressed(KEY_G)) {
-                    if (currentMap == MAPA2) {
-                        currentMap = MAPA1;
-                        player.position.x = SCREEN_WIDTH - FRAME_WIDTH * PLAYER_SCALE;
-                    } else if (currentMap == MAPA3) {
-                        currentMap = MAPA2;
-                        player.position.x = SCREEN_WIDTH - FRAME_WIDTH * PLAYER_SCALE;
-                    }
-                }
-            }
-
-            if (currentMap == MAPA1){
+            if (currentMap->mapId == 1){
                 float distance2 = fabs(790 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
                 if (distance2 < 150.0f ){
                     if (IsKeyPressed(KEY_M)){
@@ -326,7 +297,7 @@ int main(void) {
                     }
                 }
             }
-            else if (currentMap == MAPA2){
+            else if (currentMap->mapId == 2){
                 float distance2 = fabs(1550 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
                 if (distance2 < 150.0f && player.fama >= 30){
                     if (IsKeyPressed(KEY_M)){
@@ -334,7 +305,7 @@ int main(void) {
                     }
                 }
             }
-            else if (currentMap == MAPA3){
+            else if (currentMap->mapId == 3){
                 float distance2 = fabs(590 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
                 if (distance2 < 150.0f && player.fama >= 60){
                     if (IsKeyPressed(KEY_M)){
@@ -687,12 +658,28 @@ int main(void) {
             } break;
 
             case MAPAS: {
-                if (currentMap == MAPA1) {
-                    UpdateMap1(&map1, &player);  // Atualiza o mapa 1
-                } else if (currentMap == MAPA2) {
-                    UpdateMap2(&map2, &player); // Atualiza o mapa 2
+                // Atualiza o mapa atual
+                if (currentMap->mapId == 1) {
+                    UpdateMap1(&currentMap->data, &player);
+                } else if (currentMap->mapId == 2) {
+                    UpdateMap2(&currentMap->data, &player);
                 } else {
-                    UpdateMap3(&map3, &player); // Atualiza o mapa 3
+                    UpdateMap3(&currentMap->data, &player);
+                }
+
+                float distance2 = fabs(SCREEN_WIDTH - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
+                if (IsKeyPressed(KEY_G)) {
+                    if (distance2 < 200.0f) {
+                        if (currentMap->next != NULL) {
+                            currentMap = currentMap->next; // Vai para o próximo mapa
+                            player.position.x = 0;
+                        }
+                    } else if (player.position.x < 100) {
+                        if (currentMap->prev != NULL){
+                            currentMap = currentMap->prev; // Volta para o mapa anterior
+                            player.position.x = SCREEN_WIDTH - 100;
+                        }
+                    }
                 }
             } break;
 
@@ -1036,16 +1023,15 @@ int main(void) {
             } break;
 
             case MAPAS: {
-                // Desenha o mapa atual
-                if (currentMap == MAPA1) {
-                    DrawMap1(&map1, &player);  // Desenha o mapa 1
-                } else if (currentMap == MAPA2) {
-                    DrawMap2(&map2, &player); // Desenha o mapa 2
+                if (currentMap->mapId == 1) {
+                    DrawMap1(&currentMap->data, &player);
+                } else if (currentMap->mapId == 2) {
+                    DrawMap2(&currentMap->data, &player);
                 } else {
-                    DrawMap3(&map3, &player); // Desenha o mapa 3
+                    DrawMap3(&currentMap->data, &player);
                 }
 
-                // Desenha o player
+
                 DrawPlayer(&player);
 
                 DrawFameMeter(&player, screenWidth, mainFont);
@@ -1225,18 +1211,19 @@ int main(void) {
     UnloadMusicStream(gameMusic);
     UnloadFont(titleFont);
     UnloadFont(mainFont);
-    if (currentMap == MAPA1) {
-        UnloadTexture(map1.npc.spriteSheet);
-        if (map1.background.id != 0) UnloadTexture(map1.background);
-        UnloadSound(map1.typeSound);
-    } else if (currentMap == MAPA2) {
-        UnloadTexture(map2.npc.spriteSheet);
-        if (map2.background.id != 0) UnloadTexture(map2.background);
-        UnloadSound(map2.typeSound);
-    } else {
-        UnloadTexture(map3.npc.spriteSheet);
-        if (map3.background.id != 0) UnloadTexture(map3.background);
-        UnloadSound(map3.typeSound);
+    UnloadTexture(currentMap->data.npc.spriteSheet);
+    if (mapList != NULL) {
+        MapNode* current = mapList;
+        do {
+            UnloadTexture(current->data.npc.spriteSheet);
+            if (current->data.background.id != 0) {
+                UnloadTexture(current->data.background);
+            }
+            UnloadSound(current->data.typeSound);
+            current = current->next;
+        } while (current != mapList);
+
+        FreeMapList(mapList);
     }
     CloseAudioDevice();
 

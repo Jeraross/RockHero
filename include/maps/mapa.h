@@ -24,6 +24,16 @@ typedef struct {
     Sound typeSound;
 } MapData;
 
+typedef struct MapNode {
+    MapData data;
+    int mapId;
+    struct MapNode* prev;
+    struct MapNode* next;
+} MapNode;
+
+MapNode* CreateMapList();
+void FreeMapList(MapNode* list);
+
 void InitMap(MapData *map);
 void UpdateMap(MapData *map, Player *player);
 void DrawMap(MapData *map, Player *player);
