@@ -75,10 +75,7 @@ void UpdateMap1(MapData *map, Player *player) {
 
     // Quando o NPC estiver esperando a resposta, ele processa a pergunta
     if (map->waitingResponse) {
-        // Exemplo de valor de fama (isso será dinamicamente ajustado no futuro)
-        int famaJogador = 65; // Suponha que esse valor virá de algum outro lugar no jogo
 
-        // Gera o prompt completo para a IA assumir o papel do NPC
         char promptFinal[1024];
         snprintf(promptFinal, sizeof(promptFinal),
                  "Você é um NPC chamado Polnareff, um ex-guitarrista francês aposentado. Você é bem-humorado, sarcástico e exagerado. "
@@ -87,7 +84,7 @@ void UpdateMap1(MapData *map, Player *player) {
                  "Você sabe uma informação importante: a melhor música para tocar neste mapa é 'Thunderstruck', da banda AC/DC. "
                  "Mas você **nunca deve revelar isso diretamente**. Dê dicas de forma criativa, com piadas, trocadilhos ou provocações. "
                  "Responda como Polnareff, em primeira pessoa. Sua resposta deve ter no máximo 300 caracteres (não use caracteres especiais). Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
-                 famaJogador, map->inputText
+                 player->fama, map->inputText
         );
 
 

@@ -74,19 +74,17 @@ void UpdateMap3(MapData *map, Player *player) {
 
     // Quando o NPC estiver esperando a resposta, ele processa a pergunta
     if (map->waitingResponse) {
-        // Exemplo de valor de fama (isso será dinamicamente ajustado no futuro)
-        int famaJogador = 35; // Suponha que esse valor virá de algum outro lugar no jogo
 
         char promptFinal[1024];
 
-        if (famaJogador > 70){
+        if (player->fama > 70){
             snprintf(promptFinal, sizeof(promptFinal),
                      "Você é Jotaro, um NPC reservado, sério e direto. Ex-roqueiro que viu o auge e a queda da fama. Você raramente sorri, fala pouco e não suporta bajulação. "
                      "O jogador quer ser um astro do rock. A fama dele é %d. Se for alta (>60), você o reconhece com relutância. Se for média (51–60), responde friamente. "
                      "Você sabe algo importante: a música ideal neste mapa é 'Livin’ on a Prayer', do Bon Jovi. "
                      "Mas **nunca diga isso diretamente**. Use frases secas sobre luta, fé ou resistir quando tudo parece perdido. Nada de otimismo fofo. "
                      "Responda como Jotaro: firme, lacônico, ríspido. No máximo 300 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
-                     famaJogador, map->inputText
+                     player->fama, map->inputText
             );
 
         } else{
@@ -95,7 +93,7 @@ void UpdateMap3(MapData *map, Player *player) {
                      "Ele tentará fazer uma pergunta. "
                      "Se a fama do jogador for 50 ou menos, você evita conversa, responde com desinteresse ou o ignora completamente. "
                      "Nada de dicas, nada de paciência. Responda como Jotaro: curto, seco, sem enrolação. No máximo 300 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
-                     famaJogador, map->inputText
+                     player->fama, map->inputText
             );
 
         }
