@@ -86,8 +86,7 @@ typedef enum {
     MAPAS,
     RESULTS,
     CHALLENGE,
-    BLESS,
-    FAME_WARNING
+    BLESS
 } GameState;
 
 typedef enum {
