@@ -130,7 +130,7 @@ Song songs[MAX_SONGS] = {
     {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},
     {"The Trooper", "Iron Maiden", {}, "assets/musics/the_trooper.mp3", 243.0f, 5},
     {"Livin' on a Prayer", "Bon Jovi", {}, "assets/musics/livin_prayer.mp3", 250.0f, 2},
-    {"Dream On", "Aerosmith", {}, "assets/musics/dream_on.mp3", 270.0f, 3},
+    {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 270.0f, 3},
     {"Toxicity", "System of a Down", {}, "assets/musics/toxicity.mp3", 214.0f, 4}
 };
 
