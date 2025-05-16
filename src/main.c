@@ -122,13 +122,13 @@ TemporaryWarning tempWarning = {0};
 
 Song songs[MAX_SONGS] = {
     {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 0.0f, 4},
-    {"Sweet Child O'Mine", "Guns N' Roses", {}, "assets/musics/sweet_child.mp3", 356.0f, 3},
+    {"Sweet Child O'Mine", "Guns N' Roses", {}, "assets/musics/sweet_child.mp3", 90.5f, 3},
     {"In The End", "Linkin Park", {}, "assets/musics/in_the_end.mp3", 216.0f, 3},
     {"Killer Queen", "Queen", {}, "assets/musics/killer_queen.mp3", 179.0f, 1},
     {"Smells Like Teen Spirit", "Nirvana", {}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
     {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 331.0f, 4},
     {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},
-    {"The Trooper", "Iron Maiden", {}, "assets/musics/trooper.mp3", 97.0f, 5},
+    {"The Trooper", "Iron Maiden", {}, "assets/musics/trooper.mp3", 97.8397f, 5},
     {"Livin' on a Prayer", "Bon Jovi", {}, "assets/musics/livin_prayer.mp3", 250.0f, 2},
     {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 270.0f, 3},
     {"Toxicity", "System of a Down", {}, "assets/musics/toxicity.mp3", 214.0f, 4}
