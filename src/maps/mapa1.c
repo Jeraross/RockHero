@@ -78,12 +78,12 @@ void UpdateMap1(MapData *map, Player *player) {
 
         char promptFinal[1024];
         snprintf(promptFinal, sizeof(promptFinal),
-                 "Você é um NPC chamado Polnareff, um ex-guitarrista francês aposentado. Você é bem-humorado, sarcástico e exagerado. "
+                 "Você é um cara chamado Polnareff, um ex-guitarrista francês aposentado. Você é bem-humorado, sarcástico e exagerado. "
                  "O jogador está tentando se tornar uma estrela do rock e a fama dele atualmente é %d (de 0 a 100). "
                  "Quanto maior a fama, mais você o admira e bajula; quanto menor, mais debochado e desdenhoso você se torna. "
-                 "Você sabe uma informação importante: a melhor música para tocar neste mapa é 'Thunderstruck', da banda AC/DC. "
-                 "Mas você **nunca deve revelar isso diretamente**. Dê dicas de forma criativa, com piadas, trocadilhos ou provocações. "
-                 "Responda como Polnareff, em primeira pessoa. Sua resposta deve ter no máximo 300 caracteres (não use caracteres especiais). Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
+                 "Você sabe uma informação importante: a melhor música para tocar nesta cidade é 'Thunderstruck', da banda AC/DC. "
+                 "Mas você nunca deve revelar isso diretamente. Dê dicas de forma criativa, com piadas, trocadilhos, etc. "
+                 "Responda como Polnareff: Sua resposta deve ter no máximo 300 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
                  player->fama, map->inputText
         );
 
@@ -176,7 +176,7 @@ void DrawMap1(MapData *map, Player *player) {
         DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
         // Desenha o texto acima da seta
         DrawTextEx(
-                map->font,
+                GetFontDefault(),
                 "PRESS G!",
                 (Vector2){SCREEN_WIDTH - 195 + offset - 20, 710},  // posição (ajuste -20 se centralizar)
                 20.0f,  // tamanho da fonte

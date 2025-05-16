@@ -77,19 +77,19 @@ void UpdateMap3(MapData *map, Player *player) {
 
         char promptFinal[1024];
 
-        if (player->fama > 70){
+        if (player->fama > 65){
             snprintf(promptFinal, sizeof(promptFinal),
-                     "Você é Jotaro, um NPC reservado, sério e direto. Ex-roqueiro que viu o auge e a queda da fama. Você raramente sorri, fala pouco e não suporta bajulação. "
-                     "O jogador quer ser um astro do rock. A fama dele é %d. Se for alta (>60), você o reconhece com relutância. Se for média (51–60), responde friamente. "
-                     "Você sabe algo importante: a música ideal neste mapa é 'Livin’ on a Prayer', do Bon Jovi. "
-                     "Mas **nunca diga isso diretamente**. Use frases secas sobre luta, fé ou resistir quando tudo parece perdido. Nada de otimismo fofo. "
+                     "Você é Jotaro, um cara reservado, sério e direto. Ex-roqueiro que viu o auge e a queda da fama. Você raramente sorri, fala pouco e não suporta bajulação. "
+                     "O jogador quer ser um astro do rock. A fama dele é %d. Se for alta (>80), você o reconhece com relutância. Se for média (65-80), responde friamente. "
+                     "Você sabe algo importante: a música ideal nesta cidade é 'Livin on a Prayer', do Bon Jovi. "
+                     "Mas nunca diga isso diretamente. Use frases secas sobre luta, fé ou resistir quando tudo parece perdido. Nada de otimismo fofo. "
                      "Responda como Jotaro: firme, lacônico, ríspido. No máximo 300 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
                      player->fama, map->inputText
             );
 
         } else{
             snprintf(promptFinal, sizeof(promptFinal),
-                     "Você é Jotaro, um NPC frio e direto. Ex-roqueiro calejado. O jogador tem fama %d, e isso não impressiona você. "
+                     "Você é Jotaro, um cara frio e direto. Ex-roqueiro calejado. O jogador tem fama %d, e isso não impressiona você. "
                      "Ele tentará fazer uma pergunta. "
                      "Se a fama do jogador for 50 ou menos, você evita conversa, responde com desinteresse ou o ignora completamente. "
                      "Nada de dicas, nada de paciência. Responda como Jotaro: curto, seco, sem enrolação. No máximo 300 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
@@ -202,9 +202,9 @@ void DrawMap3(MapData *map, Player *player) {
 
         // Texto acima da seta da esquerda
         DrawTextEx(
-                map->font,
+                GetFontDefault(),
                 "PRESS G!",
-                (Vector2){140 + offset - 20, 725},  // ajuste posição conforme necessário
+                (Vector2){130 + offset - 20, 725},  // ajuste posição conforme necessário
                 20.0f,
                 2.0f,
                 WHITE
