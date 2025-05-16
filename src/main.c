@@ -439,7 +439,6 @@ int main(void) {
                     UnloadMusicStream(gameMusic);
                     gameMusic = LoadMusicStream(songs[selectedSong].musicFile);
 
-                    // Set up chart (in a real game, you'd load this from file)
                     currentChart = songs[selectedSong].charts;
 
                     // Reset game state
@@ -1625,7 +1624,11 @@ void DrawRockMeter(float value, int x, int y, int width, int height, bool hasBle
     } else if (value < 0.5f) {
         DrawRectangleGradientH(x, y, fillWidth, height, (Color){255, 100, 0, 255}, YELLOW);
     } else {
-        DrawRectangleGradientH(x, y, fillWidth, height, YELLOW, GREEN);
+        if (hasBlessing) {
+          DrawRectangleGradientH(x, y, fillWidth, height, SKYBLUE, BLUE);
+        } else {
+          DrawRectangleGradientH(x, y, fillWidth, height, YELLOW, GREEN);
+        }
     }
 
     // Outline especial para bênção ativa
@@ -1775,10 +1778,9 @@ void DrawHitEffects(Font mainFont) {
                 float radius = 30.0f * (1.0f + progress); // menor
                 Color fadeColor = Fade(GREEN, 0.7f * progress);
 
-                // Aura externa com deslocamento à direita
+            // Aura externa com deslocamento à direita
                 DrawCircle(xPos + 60, yPos, radius, Fade(GREEN, 0.2f * progress));
-
-                // Anéis concêntricos (também mais pra baixo e à direita)
+            // Anéis concêntricos (também mais pra baixo e à direita)
                 for (int r = 1; r <= 3; r++) {
                     DrawCircleLines(xPos + 60, yPos, radius - r * 8, fadeColor);
                 }
