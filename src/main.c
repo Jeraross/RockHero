@@ -1214,7 +1214,7 @@ int main(void) {
                             250
                     };
                     DrawRectangleRec(dialogBox, BLACK);
-                    DrawRectangleLinesEx(dialogBox, 3, GOLD);
+                    DrawRectangleLinesEx(dialogBox, 3, WHITE);
 
                     // Texto principal (sem delay)
                     const char* lines[] = {
@@ -1237,14 +1237,14 @@ int main(void) {
                     Rectangle btnYes = {startX, dialogBox.y + 180, 120, 50};
                     Rectangle btnNo = {startX + 180, dialogBox.y + 180, 120, 50};
 
-// Cores e desenho (mantidos da sua versão)
+                    // Cores e desenho (mantidos da sua versão)
                     Color btnYesColor = (fameWarning.timer >= fameWarning.displayTime && CheckCollisionPointRec(GetMousePosition(), btnYes)) ? GREEN : LIME;
                     Color btnNoColor = (fameWarning.timer >= fameWarning.displayTime && CheckCollisionPointRec(GetMousePosition(), btnNo)) ? PINK : RED;
 
                     DrawRectangleRec(btnYes, btnYesColor);
                     DrawRectangleRec(btnNo, btnNoColor);
 
-// Textos dos botões (ajuste fino de centralização)
+                    // Textos dos botões (ajuste fino de centralização)
                     DrawTextEx(titleFont, "SIM (Y)",
                                (Vector2){btnYes.x + btnYes.width/2 - MeasureTextEx(titleFont, "SIM (Y)", 24, 1).x/2,
                                          btnYes.y + btnYes.height/2 - 12},

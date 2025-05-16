@@ -75,12 +75,12 @@ void UpdateMap2(MapData *map, Player *player) {
     if (map->waitingResponse) {
         char promptFinal[1024];
 
-        if (player->fama > 50){
+        if (player->fama > 45){
             snprintf(promptFinal, sizeof(promptFinal),
                      "Você é Avdol, um ex-produtor musical egípcio, sério e místico. Você fala como um sábio e valoriza autenticidade e alma musical. "
-                     "A fama do jogador é %d. Se for alta (>60), trate-o com respeito. Se for média (51–60), seja neutro, porém cordial. "
-                     "Você conhece uma verdade oculta: a melhor música para tocar neste mapa é 'Sweet Child O' Mine', do Guns N' Roses. "
-                     "Mas **nunca diga isso diretamente**. Use metáforas, pistas filosóficas ou referências sutis como 'doçura', 'infância', 'guitarra que chora', etc. "
+                     "A fama do jogador é %d. Se for alta (>60), trate-o com respeito. Se for média (45–60), seja neutro, porém cordial. "
+                     "Você sabe uma informação importante: a melhor música para tocar nesta cidade é 'Sweet Child O Mine', do Guns N' Roses. "
+                     "Mas nunca diga isso diretamente. Use metáforas, pistas filosóficas ou referências sutis como 'doçura', 'infância', etc. "
                      "Fale como Avdol. Sua resposta deve ter no máximo 300 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
                      player->fama, map->inputText
             );
@@ -89,7 +89,7 @@ void UpdateMap2(MapData *map, Player *player) {
             snprintf(promptFinal, sizeof(promptFinal),
                      "Você é Avdol, um ex-produtor musical egípcio. Você fala como um sábio e valoriza autenticidade e alma musical. Um jogador de fama %d se aproxima. "
                      "Você não desperdiça palavras com quem não demonstrou alma musical. "
-                     "Se a fama do jogador for 50 ou menos, **ignore-o** ou recuse-se a interagir. "
+                     "Se a fama do jogador for menos que 45, ignore-o ou recuse-se a interagir. "
                      "Responda com silêncio, desdém ou frases curtas que encerram a conversa. "
                      "Fale como Avdol. Sua resposta deve ter no máximo 300 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
                      player->fama, map->inputText
@@ -184,7 +184,7 @@ void DrawMap2(MapData *map, Player *player) {
     if (distance2 < 200.0f) {
         DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
         DrawTextEx(
-                map->font,
+                GetFontDefault(),
                 "PRESS G!",
                 (Vector2){SCREEN_WIDTH - 195 + offset - 20, 710},
                 20.0f,
@@ -214,9 +214,9 @@ void DrawMap2(MapData *map, Player *player) {
 
         // Texto acima da seta da esquerda
         DrawTextEx(
-                map->font,
+                GetFontDefault(),
                 "PRESS G!",
-                (Vector2){140 + offset - 20, 725},  // ajuste posição conforme necessário
+                (Vector2){130 + offset - 20, 725},  // ajuste posição conforme necessário
                 20.0f,
                 2.0f,
                 WHITE
