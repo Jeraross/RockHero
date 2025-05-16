@@ -21,11 +21,11 @@ typedef enum {
 typedef enum {
     BLESS_NONE,
     BLESS_ROCK_METER,    // Rock meter desce mais devagar
-    BLESS_STAR_POWER,    // Star power recarrega mais rápido
     BLESS_SCORE_BOOST,   // Multiplicador de pontuação
     BLESS_FORGIVENESS,   // Menos penalidade por erros
+    BLESS_RHYTHM_SHIELD, // Escudo
     BLESS_COMBO,         // Combos maiores dão mais pontos
-    BLESS_RHYTHM_SHIELD  // Escudo
+    BLESS_STAR_POWER     // Star power recarrega mais rápido
 } RockBlessing;
 
 // Estrutura para armazenar as bênçãos ativas
