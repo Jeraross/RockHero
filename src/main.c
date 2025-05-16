@@ -128,7 +128,7 @@ Song songs[MAX_SONGS] = {
     {"Smells Like Teen Spirit", "Nirvana", {}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
     {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 331.0f, 4},
     {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},
-    {"The Trooper", "Iron Maiden", {}, "assets/musics/the_trooper.mp3", 243.0f, 5},
+    {"The Trooper", "Iron Maiden", {}, "assets/musics/trooper.mp3", 97.0f, 5},
     {"Livin' on a Prayer", "Bon Jovi", {}, "assets/musics/livin_prayer.mp3", 250.0f, 2},
     {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 270.0f, 3},
     {"Toxicity", "System of a Down", {}, "assets/musics/toxicity.mp3", 214.0f, 4}
@@ -1592,13 +1592,13 @@ int main(void) {
 
 void initSongs() {
     memcpy(songs[0].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[1].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[1].charts, SweetChildOMine, sizeof(thunderChart));
     memcpy(songs[2].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[3].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[4].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[5].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[6].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[7].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[7].charts, TheTrooper, sizeof(thunderChart));
     memcpy(songs[8].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[9].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[10].charts, thunderChart, sizeof(thunderChart));
