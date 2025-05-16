@@ -233,8 +233,16 @@ int main(void) {
     float scrollOffset = 0.0f;
     float scrollSpeed = 0.0f;
     Music gameMusic = {0};
+    Music menuMusic = LoadMusicStream("assets/musics/love_rock.mp3");
+    SetMusicVolume(menuMusic, 0.2f);
+    Music map1Music = LoadMusicStream("assets/musics/hell.mp3");
+    SetMusicVolume(map1Music, 0.025f);
+    Music map2Music = LoadMusicStream("assets/musics/jungle.mp3");
+    SetMusicVolume(map2Music, 0.025f);
+    Music map3Music = LoadMusicStream("assets/musics/bad_name.mp3");
+    SetMusicVolume(map3Music, 0.025f);
+    PlayMusicStream(menuMusic);
     Note* currentChart = NULL;
-
 
     // Colors
     Color laneColors[NUM_LANES] = {
@@ -318,18 +326,14 @@ int main(void) {
             }
         }
 
-        int pendingMapId = 0; // armazena o mapa de onde veio o aviso
-        bool showFameWarning = false;
-
         if (gameState == MAPAS) {
             if (currentMap->mapId == 1) {
                 float distance2 = fabs(790 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
                 if (distance2 < 150.0f) {
                     if (IsKeyPressed(KEY_M)) {
-                        if (player.fama >= 10) {
+                        if (player.fama >= 40) {
                             fameWarning.active = true;
                             fameWarning.timer = 0;
-                            pendingMapId = 1;
                         } else {
                             gameState = SONG_SELECT;
                         }
@@ -400,28 +404,29 @@ int main(void) {
 
         switch (gameState) {
             case MAIN_MENU: {
+                UpdateMusicStream(menuMusic);
                 if (IsKeyPressed(KEY_ENTER)) {
                     PlaySound(menuSelectSound);
-
                     switch (currentMenuOption) {
-                    case MENU_STORY:
-                        instory = true;
-                        InitFameSystem(&player);
-                        gameState = MAPAS;
-                        break;
+                        case MENU_STORY:
+                            instory = true;
+                            PlayMusicStream(map1Music);
+                            InitFameSystem(&player);
+                            gameState = MAPAS;
+                            break;
 
-                    case MENU_QUICKPLAY:
-                        gameState = SONG_SELECT;
-                        break;
+                        case MENU_QUICKPLAY:
+                            gameState = SONG_SELECT;
+                            break;
 
-                    case MENU_CONTROLS:
-                    case MENU_CREDITS:
-                        inSubMenu = true;
-                        break;
+                        case MENU_CONTROLS:
+                        case MENU_CREDITS:
+                            inSubMenu = true;
+                            break;
 
-                    case MENU_EXIT:
-                        CloseWindow();
-                        break;
+                        case MENU_EXIT:
+                            CloseWindow();
+                            break;
                     }
                 }
             } break;
@@ -689,12 +694,16 @@ int main(void) {
             } break;
 
             case MAPAS: {
+
                 // Atualiza o mapa atual
                 if (currentMap->mapId == 1) {
+                    UpdateMusicStream(map1Music);
                     UpdateMap1(&currentMap->data, &player);
                 } else if (currentMap->mapId == 2) {
+                    UpdateMusicStream(map2Music);
                     UpdateMap2(&currentMap->data, &player);
                 } else {
+                    UpdateMusicStream(map3Music);
                     UpdateMap3(&currentMap->data, &player);
                 }
 
@@ -725,17 +734,42 @@ int main(void) {
                 }
 
                 float distance2 = fabs(SCREEN_WIDTH - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
+                static int currentMapIndex = 1; // 1, 2 ou 3
+                static Music* currentMusic = NULL;
+
                 if (IsKeyPressed(KEY_G)) {
-                    if (distance2 < 200.0f) {
-                        if (currentMap->next != NULL) {
-                            currentMap = currentMap->next; // Vai para o próximo mapa
-                            player.position.x = 0;
+                    bool changedMap = false;
+
+                    if (distance2 < 200.0f && currentMap->next != NULL && currentMapIndex < 3) {
+                        currentMap = currentMap->next;
+                        currentMapIndex++;
+                        player.position.x = 0;
+                        changedMap = true;
+                    } else if (player.position.x < 100 && currentMap->prev != NULL && currentMapIndex > 1) {
+                        currentMap = currentMap->prev;
+                        currentMapIndex--;
+                        player.position.x = SCREEN_WIDTH - 100;
+                        changedMap = true;
+                    }
+
+                    if (changedMap) {
+                        // Para música atual (se houver)
+                        if (currentMusic != NULL) StopMusicStream(*currentMusic);
+
+                        // Seleciona nova música com base no índice do mapa
+                        switch (currentMapIndex) {
+                        case 1:
+                            currentMusic = &map1Music;
+                            break;
+                        case 2:
+                            currentMusic = &map2Music;
+                            break;
+                        case 3:
+                            currentMusic = &map3Music;
+                            break;
                         }
-                    } else if (player.position.x < 100) {
-                        if (currentMap->prev != NULL){
-                            currentMap = currentMap->prev; // Volta para o mapa anterior
-                            player.position.x = SCREEN_WIDTH - 100;
-                        }
+
+                        PlayMusicStream(*currentMusic);
                     }
                 }
             } break;
@@ -1474,7 +1508,7 @@ int main(void) {
                         }
 
                         if (HasBlessing(&player, BLESS_SCORE_BOOST)) {
-                            DrawTextEx(mainFont, "Bonus: Benção de Fama (+5%)",
+                            DrawTextEx(mainFont, "Bonus: Bencao de Fama (+5%)",
                                       (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, GREEN);
                             startY += spacing;
                         }
@@ -1528,6 +1562,10 @@ int main(void) {
     UnloadSound(menuSelectSound);
     UnloadSound(menuScrollSound);
     UnloadMusicStream(gameMusic);
+    UnloadMusicStream(menuMusic);
+    UnloadMusicStream(map1Music);
+    UnloadMusicStream(map2Music);
+    UnloadMusicStream(map3Music);
     UnloadFont(titleFont);
     UnloadFont(mainFont);
     UnloadTexture(currentMap->data.npc.spriteSheet);
@@ -1622,9 +1660,6 @@ void DrawFameMeter(Player* player, int screenWidth, Font font) {
     float fillWidth = barWidth * (player->fama / 100.0f);
     Color fameColor = (Color){255, 215, 0, 255}; // Ouro
     DrawRectangle(barX, barY, (int)fillWidth, barHeight, fameColor);
-
-    // Simula brilho na parte superior da barra
-    DrawRectangleGradientH(barX, barY, (int)fillWidth, barHeight / 3, WHITE, fameColor);
 
     // Marcadores de "bênção" (25%, 50%, 75%)
     for (int i = 1; i <= 3; i++) {
