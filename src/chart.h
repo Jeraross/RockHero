@@ -23,5 +23,6 @@ extern Note SweetChildOMine[THUNDER_CHART_SIZE];
 extern Note TheTrooper[THUNDER_CHART_SIZE];
 extern Note Livin_Prayer[THUNDER_CHART_SIZE];
 extern Note BringMeToLife[THUNDER_CHART_SIZE];
+extern Note KillerQueen[THUNDER_CHART_SIZE];
 
 #endif //CHART_H
