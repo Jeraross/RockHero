@@ -37,11 +37,11 @@
 // Adicione no início do arquivo, com as outras constantes
 #define MAX_BLESSINGS 6
 // Forgive bless
-#define FORGIVENESS_CHARGES 3
+#define FORGIVENESS_CHARGES 6
 #define FORGIVENESS_EFFECT_DURATION 1.0f
 // CHALLENGE WOW
-#define GOD_MODE_COMBO_THRESHOLD 20
-#define GOD_MODE_WIN_COMBO 50
+#define GOD_MODE_COMBO_THRESHOLD 40
+#define GOD_MODE_WIN_COMBO 100
 #define SPECIAL_NOTE_FIRE 1
 #define SPECIAL_NOTE_POISON 2
 #define SPECIAL_NOTE_INVISIBLE 3
@@ -163,6 +163,7 @@ float screenShakeIntensity = 0.0f;
 float comboModeTimer = 0.0f;
 float invisibleModeTimer = 0.0f;
 float noteSpeedMultiplier = 1.0f;
+int currentMapIndex = 1;
 
 void initSongs();
 
@@ -264,11 +265,11 @@ int main(void) {
     Music menuMusic = LoadMusicStream("assets/musics/love_rock.mp3");
     SetMusicVolume(menuMusic, 0.2f);
     Music map1Music = LoadMusicStream("assets/musics/hell.mp3");
-    SetMusicVolume(map1Music, 0.025f);
+    SetMusicVolume(map1Music, 0.1f);
     Music map2Music = LoadMusicStream("assets/musics/jungle.mp3");
-    SetMusicVolume(map2Music, 0.025f);
+    SetMusicVolume(map2Music, 0.1f);
     Music map3Music = LoadMusicStream("assets/musics/bad_name.mp3");
-    SetMusicVolume(map3Music, 0.025f);
+    SetMusicVolume(map3Music, 0.05f);
     PlayMusicStream(menuMusic);
     Note* currentChart = NULL;
 
@@ -569,7 +570,7 @@ int main(void) {
 
                                 stats.rockMeter = fmaxf(0, stats.rockMeter - penalty);
 
-                                if (HasBlessing(&player, BLESS_FORGIVENESS) && stats.combo >= 15) {
+                                if (HasBlessing(&player, BLESS_COMBO) && stats.combo >= 30) {
                                     stats.combo -= 15;
                                 } else {
                                     stats.combo = 0;
@@ -609,9 +610,9 @@ int main(void) {
 
                 // Update multiplier
                 if (HasBlessing(&player, BLESS_COMBO)) {
-                    // Com a bênção Combo Eterno, aumenta mais rápido e tem limite maior
-                    stats.multiplierLevel = 1 + (stats.combo / 10);
-                    stats.multiplier = fminf(1.0f + (stats.combo / 10), 10.0f);
+    				// Com a bênção Combo Eterno, aumenta mais rápido e tem limite de 8x
+    				stats.multiplierLevel = 1 + (stats.combo / 10);
+    				stats.multiplier = fminf(1.0f + (stats.combo / 10), 8.0f); // Limite alterado para 8.0f
                 } else {
                     // Sem a bênção, comportamento normal com limite de x4
                     if (stats.combo >= 30) {
@@ -704,7 +705,7 @@ int main(void) {
                                         stats.perfectStreak++;
                                         if (HasBlessing(&player, BLESS_RHYTHM_SHIELD) &&
                                             stats.perfectStreak >= 3) {
-                                            stats.rhythmShields = fmin(stats.rhythmShields + 1, 2);
+                                            stats.rhythmShields = fmin(stats.rhythmShields + 1, 3);
                                             stats.perfectStreak = 0;
                                         }
                                     } else {
@@ -737,8 +738,8 @@ int main(void) {
 
                                 stats.misses++;
 
-                                if (HasBlessing(&player, BLESS_FORGIVENESS) && stats.combo >= 15) {
-                                    stats.combo -= 15;
+                                if (HasBlessing(&player, BLESS_COMBO) && stats.combo >= 20) {
+                                    stats.combo -= 10;
                                 } else {
                                     stats.combo = 0;
                                     stats.multiplier = 1.0f;
@@ -803,7 +804,6 @@ int main(void) {
                 }
 
                 float distance2 = fabs(SCREEN_WIDTH - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
-                static int currentMapIndex = 1; // 1, 2 ou 3
                 static Music* currentMusic = NULL;
 
                 if (IsKeyPressed(KEY_G)) {
@@ -947,10 +947,18 @@ int main(void) {
                         else gameState = BLESS;
                     }
                 } else {
-                    if (IsKeyPressed(KEY_SPACE)) {
-
+                    if (IsKeyPressed(KEY_SPACE) && godModeActive) {
+                        for (int i = 0; i < 3; i++) {
+                            player.blessings.blessings[i] = BLESS_NONE;
+                        }
+                        currentMapIndex = 1;
+                        currentMap = currentMap->prev->prev;
+                        noteSpeedMultiplier = 1.0f;
+                        instory = false;
                       	godModeActive = false;
                         gameState = MAIN_MENU;
+                    } else if (IsKeyPressed(KEY_SPACE) && !godModeActive) {
+                      	gameState = MAIN_MENU;
                     }
                   	if (IsKeyPressed(KEY_C) && stats.songFailed && godModeActive) {
                     	gameState = CHALLENGE;
@@ -970,10 +978,14 @@ int main(void) {
 
                 DrawTexturePro(menuBackgroundTex, source, dest, origin, 0.0f, WHITE);
 
-                // Draw animated background
+                for (int i = 0; i < 75; i++) {
+                    float x = sin(GetTime() + i) * 225 + screenWidth/2;
+                    float y = cos(GetTime() * 0.25f + i) * 225 + screenHeight/2;
+                    DrawCircle(x, y, 3, Fade(laneColors[i%NUM_LANES], 0.5f));
+                }
                 for (int i = 0; i < 50; i++) {
-                    float x = sin(GetTime() + i) * 200 + screenWidth/2;
-                    float y = cos(GetTime() * 0.5f + i) * 200 + screenHeight/2;
+                    float x = sin(GetTime() * 0.75f + i) * 200 + screenWidth/2;
+                    float y = cos(GetTime() + i) * 200 + screenHeight/2;
                     DrawCircle(x, y, 3, Fade(laneColors[i%NUM_LANES], 0.5f));
                 }
 
@@ -1123,14 +1135,14 @@ int main(void) {
       	                                   ColorAlpha(MAROON, intensity * 0.1f));
       	        	}
     	        } else {
-                    Rectangle source = { 0.0f, 0.0f, quickBackgroundTex.width, quickBackgroundTex.height };
+                    Rectangle source = { quickBackgroundTex.width/2 - (quickBackgroundTex.width/1.3)/2, 0.0f, quickBackgroundTex.width/1.3, quickBackgroundTex.height/1.3 };
                 	Rectangle dest = { 0.0f, 0.0f, (float)screenWidth, (float)screenHeight };
-                	Vector2 origin = { 0.0f, 0.0f };
+                	Vector2 origin = { 0.0f, 0.0f};
 
                 	DrawTexturePro(quickBackgroundTex, source, dest, origin, 0.0f, WHITE);
     	        }
 
-                DrawRectangle(HIGHWAY_LEFT, 0, HIGHWAY_WIDTH, screenHeight, (Color){0, 0, 0, 250}); // 30 30 40
+                DrawRectangle(HIGHWAY_LEFT, 0, HIGHWAY_WIDTH, screenHeight, (Color){0, 0, 0, 225}); // 30 30 40
 
                 // Draw lane dividers
                 for (int i = 1; i < NUM_LANES; i++) {
@@ -1221,10 +1233,14 @@ int main(void) {
 
                 // Efeito especial para Combo Eterno
                 if (HasBlessing(&player, BLESS_COMBO)) {
-                    // Draw animated background
                     for (int i = 0; i < 20; i++) {
-                        float x = sin(GetTime() + i) * 30 + screenWidth - 130;
-                        float y = cos(GetTime() * 0.5f + i) * 30 + 70;
+                        float x = sin(GetTime() + i) * 30 + screenWidth - 128;
+                        float y = cos(GetTime() * 10.0f + i) * 30 + 70;
+                        DrawCircle(x, y, 3, Fade(laneColors[i%NUM_LANES], 0.5f));
+                    }
+                    for (int i = 0; i < 20; i++) {
+                        float x = sin(GetTime() * 10.0f + i) * 30 + screenWidth - 128;
+                        float y = cos(GetTime() + i) * 30 + 70;
                         DrawCircle(x, y, 3, Fade(laneColors[i%NUM_LANES], 0.5f));
                     }
                 }
@@ -1291,10 +1307,6 @@ int main(void) {
                     int baseX = 40;
                     int baseY = screenHeight - 150;
 
-                    const char* title = "FORGIVENESS";
-                    Vector2 titleSize = MeasureTextEx(mainFont, title, 24, 0);
-                    DrawTextEx(mainFont, title, (Vector2){baseX + 110 - titleSize.x / 2, baseY}, 24, 0, GREEN);
-
                     for (int i = 0; i < FORGIVENESS_CHARGES; i++) {
                         int cx = baseX + 60 + i * 50;
                         int cy = baseY + 45;
@@ -1313,17 +1325,17 @@ int main(void) {
                 if (stats.starPowerActive) {
                     DrawRectangle(0, 0, screenWidth, screenHeight, Fade(SKYBLUE, 0.05f));
 
-                    for (int i = 0; i < 20; i++) {
+                    for (int i = 0; i < 50; i++) {
                         float x = sin(GetTime() * 2 + i) * 200 + screenWidth/2;
                         float y = cos(GetTime() * 3 + i) * 200 + (screenHeight/2 - 100);
-                        DrawCircle(x, y, 4, Fade(YELLOW, 0.7f));
+                        DrawCircle(x, y, 4, Fade(YELLOW, 0.5f));
                     }
 
                     if (HasBlessing(&player, BLESS_STAR_POWER)) {
-                        for (int i = 0; i < 40; i++) {
-                            float x = sin(GetTime() * 3 + i) * 250 + screenWidth/2;
-                            float y = cos(GetTime() * 2 + i) * 250 + (screenHeight/2 - 100);
-                            DrawCircle(x, y, 4, Fade(YELLOW, 0.7f));
+                        for (int i = 0; i < 75; i++) {
+                            float x = sin(GetTime() * 3 + i) * 225 + screenWidth/2;
+                            float y = cos(GetTime() * 2 + i) * 225 + (screenHeight/2 - 100);
+                            DrawCircle(x, y, 4, Fade(YELLOW, 0.5f));
                         }
                     }
                 }
@@ -1519,9 +1531,9 @@ int main(void) {
                     const char* blessingDescs[MAX_BLESSINGS] = {
                         "Ganho maior no Rock Meter e cura passiva",
                         "Bonus de fame e 500pts a cada 10 hits",
-                        "Ignora 3 primeiros erros e protege combo",
-                        "A cada 3 Perfects, bloqueia 2 erro",
-                        "Multiplicador extra ate 10x",
+                        "Ignora os 6 primeiros erros",
+                        "A cada 3 Perfects, ganha 1 escudo (max 3)",
+                        "Multiplicador ate 10x e protege combos",
                         "Star Power dura +2s e ganho passivo"
                     };
 
@@ -2049,15 +2061,9 @@ void DrawShieldIndicator(int shieldsAvailable, int screenWidth, int screenHeight
     int baseX = screenWidth - 220;
     int baseY = screenHeight - 150;
 
-    const char* title = "ESCUDOS SONOROS";
-
-    // Título centralizado
-    Vector2 titleSize = MeasureTextEx(font, title, 24, 0);
-    DrawTextEx(font, title, (Vector2){baseX + 40 - titleSize.x / 2, baseY}, 24, 0, BLUE);
-
     // Ícones
-    for (int i = 0; i < 2; i++) {
-        int cx = baseX + 60 + i * 50;
+    for (int i = 0; i < 3; i++) {
+        int cx = baseX + 10 + i * 50;
         int cy = baseY + 45;
 
         if (i < shieldsAvailable) {
@@ -2139,13 +2145,13 @@ void ApplyBlessings(Player* player, GameStats* stats, float deltaTime) {
         case BLESS_ROCK_METER: {
                 // Resistência do Rock - Melhorado
                 if (stats->rockMeter < 1.0f) {
-                    stats->rockMeter += 0.03f * deltaTime; // Cura passiva
+                    stats->rockMeter += 0.05f * deltaTime;
                 }
         } break;
 
         case BLESS_STAR_POWER: {
-                // Explosão Estelar - Melhorado
-                stats->starPower += 0.3f * deltaTime; // 50% mais rápido
+                // Explosão Estelar
+                stats->starPower += 0.5f * deltaTime;
         } break;
 
         case BLESS_SCORE_BOOST: {
@@ -2214,9 +2220,6 @@ bool ShouldIgnoreMiss(Player *player, GameStats* stats, int lane) {
             stats->forgivenessMisses++;
             SpawnForgivenessEffect(lane, stats);
             return true;
-        } else if (stats->combo > 15) {
-            SpawnForgivenessEffect(lane, stats);
-            return false;
         }
     } else if (HasBlessing(player, BLESS_RHYTHM_SHIELD) && stats->rhythmShields > 0) {
         stats->rhythmShields--;
