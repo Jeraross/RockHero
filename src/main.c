@@ -102,12 +102,6 @@ typedef enum {
     MENU_EXIT
 } MenuOption;
 
-typedef enum {
-    MAPA1,
-    MAPA2,
-    MAPA3
-} CurrentMap; // Enum para controlar o mapa atual
-
 typedef struct {
     char message[100];
     float showTime;
@@ -1806,14 +1800,14 @@ int main(void) {
 
 void initSongs() {
     memcpy(songs[0].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[1].charts, SweetChildOMine, sizeof(thunderChart));
-    memcpy(songs[2].charts, BringMeToLife, sizeof(thunderChart));
-    memcpy(songs[3].charts, KillerQueen, sizeof(thunderChart));
+    memcpy(songs[1].charts, SweetChildOMine, sizeof(SweetChildOMine));
+    memcpy(songs[2].charts, BringMeToLife, sizeof(BringMeToLife));
+    memcpy(songs[3].charts, KillerQueen, sizeof(KillerQueen));
     memcpy(songs[4].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[5].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[6].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[7].charts, TheTrooper, sizeof(thunderChart));
-    memcpy(songs[8].charts, Livin_Prayer, sizeof(thunderChart));
+    memcpy(songs[7].charts, TheTrooper, sizeof(TheTrooper));
+    memcpy(songs[8].charts, Livin_Prayer, sizeof(Livin_Prayer));
     memcpy(songs[9].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[10].charts, thunderChart, sizeof(thunderChart));
 }

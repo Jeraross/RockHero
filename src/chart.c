@@ -4,7 +4,7 @@
 
 #include "chart.h"
 
-Note thunderChart[THUNDER_CHART_SIZE] = {
+Note thunderChart[CHART_SIZE] = {
     // Opening riff (16th notes at ~130 BPM)
     {.lane = 0, .spawnTime = 1.0f},
     {.lane = 2, .spawnTime = 1.15f},
@@ -429,7 +429,7 @@ Note thunderChart[THUNDER_CHART_SIZE] = {
     {.lane = -1} // Terminador
 };
 
-Note SweetChildOMine[THUNDER_CHART_SIZE] = {
+Note SweetChildOMine[CHART_SIZE] = {
         {.lane = 1, .spawnTime = 0.212f},
         {.lane = 2, .spawnTime = 0.763f},
         {.lane = 0, .spawnTime = 1.262f},
@@ -629,7 +629,7 @@ Note SweetChildOMine[THUNDER_CHART_SIZE] = {
         {.lane = -1}
 };
 
-Note TheTrooper[THUNDER_CHART_SIZE] = {
+Note TheTrooper[CHART_SIZE] = {
         {.lane = 2, .spawnTime = 2.089f},
         {.lane = 4, .spawnTime = 2.274f},
         {.lane = 1, .spawnTime = 2.450f},
@@ -987,7 +987,7 @@ Note TheTrooper[THUNDER_CHART_SIZE] = {
 
 };
 
-Note Livin_Prayer[THUNDER_CHART_SIZE] = {
+Note Livin_Prayer[CHART_SIZE] = {
         // Main pattern (single notes)
         {.lane = 1, .spawnTime = 24.710f},  // s
         {.lane = 2, .spawnTime = 25.169f},  // j
@@ -1175,7 +1175,7 @@ Note Livin_Prayer[THUNDER_CHART_SIZE] = {
         {.lane = -1}  // Terminator
 };
 
-Note BringMeToLife[THUNDER_CHART_SIZE] = {
+Note BringMeToLife[CHART_SIZE] = {
         // Initial pattern
         {.lane = 0, .spawnTime = 2.574f},  // a
         {.lane = 2, .spawnTime = 2.891f},  // j
@@ -1597,7 +1597,7 @@ Note BringMeToLife[THUNDER_CHART_SIZE] = {
         {.lane = 0, .spawnTime = 136.596f}, // a
         {.lane = -1}
 };
-Note KillerQueen[THUNDER_CHART_SIZE] = {
+Note KillerQueen[CHART_SIZE] = {
         // Initial pattern (adjusted times)
         {.lane = 1, .spawnTime = 3.223f},  // s (7.803 - 4.58)
         {.lane = 0, .spawnTime = 3.588f},  // a
