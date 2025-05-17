@@ -16,6 +16,8 @@ typedef struct {
     Color color;
     float spawnTime;
     bool hit;
+    int specialType; // 0 = normal, 1 = fogo roxo, 2 = fogo verde, 3 = fogo branco
+    float specialTimer; // Para animações especiais
 } Note;
 
 extern Note thunderChart[THUNDER_CHART_SIZE];

@@ -19,7 +19,7 @@
 #define NUM_LANES 5
 #define HIT_WINDOW 0.15f // Seconds
 #define COMBO_FADE_TIME 1.0f
-#define MAX_NOTES 500
+#define MAX_NOTES 1000
 #define MAX_CHART_NOTES 1000
 #define MAX_SONGS 11
 // Define the note highway dimensions (1/3 of screen width centered)
@@ -39,11 +39,16 @@
 // Forgive bless
 #define FORGIVENESS_CHARGES 3
 #define FORGIVENESS_EFFECT_DURATION 1.0f
+// CHALLENGE WOW
+#define GOD_MODE_COMBO_THRESHOLD 20
+#define GOD_MODE_WIN_COMBO 50
+#define SPECIAL_NOTE_FIRE 1
+#define SPECIAL_NOTE_POISON 2
+#define SPECIAL_NOTE_INVISIBLE 3
 
 typedef struct {
     int score;
     int combo;
-    int maxCombo;
     int hits[4]; // 0=Perfect, 1=Great, 2=Good, 3=OK
     int misses;
     float streakFxTimer;
@@ -135,17 +140,29 @@ Song songs[MAX_SONGS] = {
 };
 
 HitEffect hitEffects[MAX_HIT_EFFECTS];
+Color laneColors[NUM_LANES];
 Texture2D burningStartTex;
 Texture2D burningEndTex;
+Texture2D burningLoopPurple;
+Texture2D burningLoopWhite;
+Texture2D burningLoopGreen;
 Texture2D menuBackgroundTex;
+Texture2D godBackgroundTex;
+Texture2D quickBackgroundTex;
 
+RockBlessing blessingOptions[2];
 bool inBlessingSelection = false;
 bool ignoreMiss;
 int selectedOption = 0;
 int currentMilestone = 0;
-RockBlessing blessingOptions[2]; // Para armazenar as opções de bênção
 bool blessingOptionsInitialized = false;
-float deltaTime; // Adicione esta linha para ter acesso ao deltaTime
+float deltaTime;
+
+bool godModeActive = false;
+float screenShakeIntensity = 0.0f;
+float comboModeTimer = 0.0f;
+float invisibleModeTimer = 0.0f;
+float noteSpeedMultiplier = 1.0f;
 
 void initSongs();
 
@@ -187,6 +204,12 @@ bool ShouldIgnoreMiss(Player *player, GameStats* stats, int lane);
 
 void ShowTempWarning(const char* message, float duration);
 
+void AddSpecialNote(Note* notes, int maxNotes, int lane, float spawnTime, int specialType);
+
+void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic);
+
+void ResetGodModeState(Note* notes, GameStats* stats, Music* gameMusic);
+
 int main(void) {
     SetConfigFlags(FLAG_FULLSCREEN_MODE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ROCK HERO");
@@ -209,9 +232,14 @@ int main(void) {
     Font titleFont = LoadFontEx("assets/font/Vampire Wars.ttf", 72, 0, 0);
     Font mainFont = LoadFontEx("assets/font/Vampire Wars.ttf", 36, 0, 0);
 
-    burningStartTex = LoadTexture("assets/sprites/burning_start_1.png");
-	burningEndTex = LoadTexture("assets/sprites/burning_end_1.png");
+    burningStartTex = LoadTexture("assets/sprites/burning_start.png");
+	burningEndTex = LoadTexture("assets/sprites/burning_end.png");
+    burningLoopPurple = LoadTexture("assets/sprites/burning_loop_purple.png");
+	burningLoopWhite = LoadTexture("assets/sprites/burning_loop_white.png");
+	burningLoopGreen = LoadTexture("assets/sprites/burning_loop_green.png");
     menuBackgroundTex = LoadTexture("assets/maps/menu_bg.jpg");
+    godBackgroundTex = LoadTexture("assets/maps/boss_bg.jpg");
+	quickBackgroundTex = LoadTexture("assets/maps/quick_bg.png");
 
     for (int i = 0; i < MAX_HIT_EFFECTS; i++) {
         hitEffects[i].active = false;
@@ -290,12 +318,13 @@ int main(void) {
             musicPosition = GetMusicTimePlayed(gameMusic);
 
             // Check if song ended (fixed bug by using musicPosition >= duration)
-            if (musicPosition >= songs[selectedSong].duration) {
+            if (musicPosition >= songs[selectedSong].duration && !godModeActive) {
+
                 gameState = RESULTS;
             }
 
             // Check if player failed (rock meter in red zone)
-            if (stats.rockMeter <= 0.166f && !stats.songFailed) {
+            if (stats.rockMeter <= 0.15f && !stats.songFailed) {
                 stats.songFailed = true;
                 gameState = RESULTS;
             }
@@ -411,6 +440,7 @@ int main(void) {
                         case MENU_STORY:
                             instory = true;
                             PlayMusicStream(map1Music);
+                            InitPlayer(&player);
                             InitFameSystem(&player);
                             gameState = MAPAS;
                             break;
@@ -468,36 +498,58 @@ int main(void) {
             case PLAYING: {
                 ApplyBlessings(&player, &stats, deltaTime);
 
-                // Spawn notes from chart
-                while (nextChartNote < MAX_CHART_NOTES &&
-                       currentChart[nextChartNote].lane != -1 &&
-                       currentChart[nextChartNote].spawnTime <= musicPosition) {
+                if (godModeActive) {
+                    noteSpeedMultiplier = 1.5f;
 
-                    for (int i = 0; i < MAX_NOTES; i++) {
-                        if (!notes[i].active) {
-                            notes[i] = currentChart[nextChartNote];
-                            notes[i].active = true;
-                            notes[i].rect = (Rectangle){
+                    if (invisibleModeTimer > 0) {
+                        invisibleModeTimer -= deltaTime;
+                    }
+
+                    if (comboModeTimer > 0) {
+                        comboModeTimer -= deltaTime;
+                    }
+
+                    // Gera notas especiais
+                    if (IsMusicStreamPlaying(gameMusic)) {
+        				GenerateGodModeNotes(notes, MAX_NOTES, musicPosition, &gameMusic);
+    				}
+
+                    // Atualiza tremulação da tela baseada no combo
+                    screenShakeIntensity = stats.combo / 100.0f;
+                } else {
+                	while (nextChartNote < MAX_CHART_NOTES &&
+                	    currentChart[nextChartNote].lane != -1 &&
+                	    currentChart[nextChartNote].spawnTime <= musicPosition) {
+
+                	    for (int i = 0; i < MAX_NOTES; i++) {
+                	        if (!notes[i].active) {
+                	            notes[i] = currentChart[nextChartNote];
+                	            notes[i].active = true;
+                	            notes[i].rect = (Rectangle){
                                     HIGHWAY_LEFT + notes[i].lane * LANE_WIDTH + (LANE_WIDTH - NOTE_WIDTH)/2,
                                     -NOTE_HEIGHT,
                                     NOTE_WIDTH,
                                     NOTE_HEIGHT
-                            };
-                            notes[i].color = laneColors[notes[i].lane];
-                            notes[i].hit = false;
-                            activeNoteCount++;
-                            break;
-                        }
-                    }
-                    nextChartNote++;
+                            	};
+                            	notes[i].color = laneColors[notes[i].lane];
+                            	notes[i].hit = false;
+                            	activeNoteCount++;
+                            	break;
+                        	}
+                    	}
+                    	nextChartNote++;
+                	}
                 }
+
+
 
                 // Update active notes
                 for (int i = 0; i < MAX_NOTES; i++) {
                     if (notes[i].active) {
                         // Move note
                         float timeSinceSpawn = musicPosition - notes[i].spawnTime;
-                        notes[i].rect.y = timeSinceSpawn * NOTE_SPEED - NOTE_HEIGHT;
+
+                        notes[i].rect.y = timeSinceSpawn * NOTE_SPEED * noteSpeedMultiplier - NOTE_HEIGHT;
 
                         // Check if note passed hit window without being hit
                         if (notes[i].rect.y > TARGET_Y + 50 && !notes[i].hit) {
@@ -508,12 +560,14 @@ int main(void) {
                                 stats.misses++;
 
                                 float penalty;
+
                                 switch (currentMap->mapId) {
                                     case 1: penalty = ROCK_METER_MISS_PENALTY; break;
                                     case 2: penalty = 0.1f; break;
                                     case 3: penalty = 0.125f; break;
                                     default: penalty = ROCK_METER_MISS_PENALTY; // Fallback
                                 }
+
                                 stats.rockMeter = fmaxf(0, stats.rockMeter - penalty);
 
                                 if (HasBlessing(&player, BLESS_FORGIVENESS) && stats.combo >= 15) {
@@ -524,11 +578,22 @@ int main(void) {
                                     stats.multiplierLevel = 1;
                                 }
 
+                                if (godModeActive && notes[i].specialType == SPECIAL_NOTE_FIRE) {
+                                  	comboModeTimer = 5.0f;
+    							}
+
+                                if (godModeActive && notes[i].specialType == SPECIAL_NOTE_INVISIBLE) {
+                                  	invisibleModeTimer = 5.0f;
+    							}
+
+                                if (godModeActive && notes[i].specialType == SPECIAL_NOTE_POISON) {
+                                  	stats.rockMeter = 0.0f;
+    							}
+
                                 stats.starPower = fmaxf(0, stats.starPower - 1.0f);
 
                                 PlaySound(noteMissSound);
                             } else {
-                                // Se o erro for ignorado, ainda assim desativa a nota
                                 notes[i].active = false;
                                 activeNoteCount--;
                             }
@@ -538,6 +603,7 @@ int main(void) {
 
                 // Update effects
                 if (stats.streakFxTimer > 0) stats.streakFxTimer -= deltaTime;
+
                 if (stats.starPowerActive && (stats.starPowerTimer -= deltaTime) <= 0) {
                     stats.starPowerActive = false;
                 }
@@ -577,14 +643,13 @@ int main(void) {
                             if (notes[i].active && notes[i].lane == lane && !notes[i].hit) {
                                 float notePos = notes[i].rect.y + notes[i].rect.height;
                                 float hitDiff = fabs(notePos - TARGET_Y);
-                                float hitWindowPixels = HIT_WINDOW * NOTE_SPEED;
+                                float hitWindowPixels = HIT_WINDOW * (NOTE_SPEED * noteSpeedMultiplier);
 
                                 if (hitDiff <= hitWindowPixels) {
-                                    // Determine hit quality
                                     int hitQuality;
 
-                                    if (hitDiff < hitWindowPixels * 0.2f) hitQuality = 0; // Perfect
-                                    else if (hitDiff < hitWindowPixels * 0.4f) hitQuality = 1; // Great
+                                    if (hitDiff < hitWindowPixels * 0.3f) hitQuality = 0; // Perfect
+                                    else if (hitDiff < hitWindowPixels * 0.45f) hitQuality = 1; // Great
                                     else if (hitDiff < hitWindowPixels * 0.6f) hitQuality = 2; // Good
                                     else hitQuality = 3; // OK
 
@@ -592,9 +657,14 @@ int main(void) {
                                     notes[i].hit = true;
                                     stats.hits[hitQuality]++;
 
-                                    stats.combo++;
+                    				if (!godModeActive || !(comboModeTimer > 0)) {
+                        				stats.combo++;
+                    				}
 
-                                    if (stats.combo > stats.maxCombo) stats.maxCombo = stats.combo;
+                                    if (godModeActive && stats.combo >= GOD_MODE_WIN_COMBO) {
+                                        gameState = RESULTS;
+                                    }
+
                                     SpawnHitEffect(notes[i].lane);
 
                                     // Calculate score with blessings
@@ -663,7 +733,9 @@ int main(void) {
 
                         // Penalize for missed notes
                         if (!hit) {
+
                             if (!ShouldIgnoreMiss(&player, &stats, lane)) {
+
                                 stats.misses++;
 
                                 if (HasBlessing(&player, BLESS_FORGIVENESS) && stats.combo >= 15) {
@@ -693,7 +765,6 @@ int main(void) {
             } break;
 
             case MAPAS: {
-
                 // Atualiza o mapa atual
                 if (currentMap->mapId == 1) {
                     UpdateMusicStream(map1Music);
@@ -796,14 +867,22 @@ int main(void) {
             } break;
 
             case CHALLENGE: {
-                if (IsKeyPressed(KEY_SPACE)) {
-                    instory = false;
-                    gameState = MAIN_MENU;
-                }
+				if (IsKeyPressed(KEY_ENTER)) {
+        			// Reseta completamente o estado antes de começar
+        			ResetGodModeState(notes, &stats, &gameMusic);
+
+        			// Configura o modo Deus
+        			godModeActive = true;
+
+        			// Começa a música
+        			PlayMusicStream(gameMusic);
+        			SeekMusicStream(gameMusic, 0);
+        			gameState = PLAYING;
+				}
             } break;
 
             case RESULTS: {
-                if (instory) {
+                if (instory && !godModeActive) {
                     if (IsKeyPressed(KEY_SPACE)) {
                         int totalHits = stats.hits[0] + stats.hits[1] + stats.hits[2] + stats.hits[3];
                         int totalNotes = totalHits + stats.misses;
@@ -861,18 +940,22 @@ int main(void) {
                                 }
 
                                 player.fama += fameGain;
-
-                                if (player.fama > 100) player.fama = 100;
                             }
 
                             CheckForMilestone(&player);
                         }
-                        gameState = BLESS;
+                        if (player.fama >= 100) gameState = CHALLENGE;
+                        else gameState = BLESS;
                     }
                 } else {
                     if (IsKeyPressed(KEY_SPACE)) {
+
+                      	godModeActive = false;
                         gameState = MAIN_MENU;
                     }
+                  	if (IsKeyPressed(KEY_C) && stats.songFailed && godModeActive) {
+                    	gameState = CHALLENGE;
+                  	}
                 }
             } break;
         }
@@ -1019,8 +1102,36 @@ int main(void) {
                 // Draw dark background
                 ClearBackground((Color){10, 10, 20, 255});
 
-                // Draw highway background (dark gray)
-                DrawRectangle(HIGHWAY_LEFT, 0, HIGHWAY_WIDTH, screenHeight, (Color){30, 30, 40, 255});
+                if (godModeActive) {
+                    Rectangle source = { 0.0f, 0.0f, godBackgroundTex.width, godBackgroundTex.height };
+                	Rectangle dest = { 0.0f, 0.0f, (float)screenWidth, (float)screenHeight };
+                	Vector2 origin = { 0.0f, 0.0f };
+
+                	DrawTexturePro(godBackgroundTex, source, dest, origin, 0.0f, WHITE);
+
+       	         	// Aplica tremulação na tela
+        	    	if (screenShakeIntensity > 0) {
+     	               	int shakeX = GetRandomValue(-screenShakeIntensity*5, screenShakeIntensity*5);
+      	            	int shakeY = GetRandomValue(-screenShakeIntensity*5, screenShakeIntensity*5);
+    	                BeginScissorMode(shakeX, shakeY, screenWidth, screenHeight);
+     	       	 	}
+
+     	           	// Desenha aura vermelha quando o combo está alto
+     	        	if (stats.combo > GOD_MODE_COMBO_THRESHOLD) {
+    	                float intensity = (stats.combo - GOD_MODE_COMBO_THRESHOLD) / (float)(GOD_MODE_WIN_COMBO - GOD_MODE_COMBO_THRESHOLD);
+     	               	DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
+      	                                   ColorAlpha(RED, intensity * 0.3f),
+      	                                   ColorAlpha(MAROON, intensity * 0.1f));
+      	        	}
+    	        } else {
+                    Rectangle source = { 0.0f, 0.0f, quickBackgroundTex.width, quickBackgroundTex.height };
+                	Rectangle dest = { 0.0f, 0.0f, (float)screenWidth, (float)screenHeight };
+                	Vector2 origin = { 0.0f, 0.0f };
+
+                	DrawTexturePro(quickBackgroundTex, source, dest, origin, 0.0f, WHITE);
+    	        }
+
+                DrawRectangle(HIGHWAY_LEFT, 0, HIGHWAY_WIDTH, screenHeight, (Color){0, 0, 0, 250}); // 30 30 40
 
                 // Draw lane dividers
                 for (int i = 1; i < NUM_LANES; i++) {
@@ -1056,8 +1167,44 @@ int main(void) {
                 // Draw notes
                 for (int i = 0; i < MAX_NOTES; i++) {
                     if (notes[i].active) {
-                        // Note body
-                        DrawRectangleRec(notes[i].rect, notes[i].color);
+                        bool shouldDraw = true;
+
+    					// Verifica se está no modo invisível
+    					if (godModeActive && invisibleModeTimer > 0 &&
+    					    notes[i].rect.y > TARGET_Y - 200) {
+    						shouldDraw = false;
+    					}
+
+    					if (shouldDraw) {
+            				// Primeiro desenha a nota base (sempre)
+            				DrawRectangleRec(notes[i].rect, notes[i].color);
+
+            				// Depois desenha os efeitos especiais (se for o caso)
+            				if (godModeActive && notes[i].specialType > 0) {
+                				notes[i].specialTimer += deltaTime;
+                				int frameWidth = burningLoopPurple.width / 8;
+                				int frame = ((int)(notes[i].specialTimer * 10) % 8) * frameWidth;
+
+                				Rectangle srcRect = {frame, 0, frameWidth, burningLoopPurple.height};
+                				Rectangle destRect = {
+                				    notes[i].rect.x + notes[i].rect.width/2 - frameWidth*5,
+                				    notes[i].rect.y - 120,
+                				    240.0f,
+                				    120.0f
+                				};
+
+                				Texture2D* currentTexture = NULL;
+                				switch (notes[i].specialType) {
+                				    case SPECIAL_NOTE_FIRE:    currentTexture = &burningLoopPurple; break;
+                				    case SPECIAL_NOTE_POISON:  currentTexture = &burningLoopGreen; break;
+                				    case SPECIAL_NOTE_INVISIBLE: currentTexture = &burningLoopWhite; break;
+                				}
+
+                				if (currentTexture) {
+                    				DrawTexturePro(*currentTexture, srcRect, destRect, (Vector2){0}, 0, WHITE);
+                				}
+            				}
+        				}
                     }
                 }
 
@@ -1183,6 +1330,41 @@ int main(void) {
                 }
 
                 DrawHitEffects(mainFont);
+
+				if (godModeActive && screenShakeIntensity > 0) {
+				    EndScissorMode();
+				}
+
+				// Adicione um HUD especial para o modo Deus:
+				if (godModeActive) {
+ 					// Combo do Deus
+ 				   	char godComboText[50];
+  	    			sprintf(godComboText, "RESPECT: %d/%d", stats.combo, GOD_MODE_WIN_COMBO);
+
+ 					Vector2 textSize = MeasureTextEx(mainFont, godComboText, 40, 0);
+ 					DrawTextEx(mainFont, godComboText,
+ 				             (Vector2){screenWidth/2 - textSize.x/2, 100},
+ 				             40, 0,
+ 				             stats.combo >= GOD_MODE_COMBO_THRESHOLD ? RED : WHITE);
+
+  				 	 // Barra de progresso
+				    float progress = stats.combo / (float)GOD_MODE_WIN_COMBO;
+ 					DrawRectangle(screenWidth/2 - 200, 150, 400, 20, GRAY);
+    				DrawRectangle(screenWidth/2 - 200, 150, 400 * progress, 20,
+  					            stats.combo >= GOD_MODE_COMBO_THRESHOLD ? RED : YELLOW);
+
+ 				   int yPos = 180;
+ 				   if (comboModeTimer > 0) {
+    				    DrawTextEx(mainFont, TextFormat("NO RESPECT: %.1fs", comboModeTimer),
+				                  (Vector2){50, yPos}, 30, 0, WHITE);
+ 				       yPos += 35;
+ 				   }
+ 				   if (invisibleModeTimer > 0) {
+ 				       DrawTextEx(mainFont, TextFormat("INVISIBLE NOTES: %.1fs", invisibleModeTimer),
+ 				                 (Vector2){50, yPos}, 30, 0, WHITE);
+ 				       yPos += 35;
+ 				   }
+				}
             } break;
 
             case MAPAS: {
@@ -1398,122 +1580,150 @@ int main(void) {
                           (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "para se tornar o verdadeiro REI DO ROCK!", 30, 0).x/2, 400},
                           30, 0, YELLOW);
 
-                DrawTextEx(mainFont, "Pressione SPACE para comecar o desafio",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione SPACE para comecar o desafio", 25, 0).x/2, 550},
+                DrawTextEx(mainFont, "Pressione ENTER para comecar o desafio",
+                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione ENTER para comecar o desafio", 25, 0).x/2, 550},
                           25, 0, GRAY);
             } break;
 
             case RESULTS: {
                 // Draw results screen background
                 DrawRectangleGradientV(0, 0, screenWidth, screenHeight, (Color){20, 20, 40, 255}, (Color){10, 10, 20, 255});
+				// Na seção RESULTS, adicione uma verificação para o modo Deus:
+                if (godModeActive) {
+                    if (!stats.songFailed) {
+                        // Vitória contra o Deus do Rock
+                        DrawTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!",
+                                  (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!", 70, 0).x/2, 150},
+                                  70, 0, GOLD);
 
-                // Calculate accuracy
-                int totalHits = stats.hits[0] + stats.hits[1] + stats.hits[2] + stats.hits[3];
-                int totalNotes = totalHits + stats.misses;
-                float accuracy = totalNotes > 0 ? (totalHits * 100.0f) / totalNotes : 100.0f;
+                        DrawTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!",
+                                  (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!", 40, 0).x/2, 250},
+                                  40, 0, WHITE);
 
-                // Determine rating
-                const char* rating;
-                Color ratingColor;
-                if (stats.songFailed) {
-                    rating = "FAILED!";
-                    ratingColor = RED;
-                } else if (accuracy >= 95.0f) {
-                    rating = "5 STARS!";
-                    ratingColor = GOLD;
-                } else if (accuracy >= 90.0f) {
-                    rating = "4 STARS";
-                    ratingColor = ORANGE;
-                } else if (accuracy >= 80.0f) {
-                    rating = "3 STARS";
-                    ratingColor = YELLOW;
-                } else if (accuracy >= 70.0f) {
-                    rating = "2 STARS";
-                    ratingColor = WHITE;
+                        // Reseta o modo Deus após a vitória
+                    } else {
+                        // Derrota no desafio
+                        DrawTextEx(titleFont, "O DEUS DO ROCK TE DERROTOU!",
+                                  (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "O DEUS DO ROCK TE DERROTOU!", 70, 0).x/2, 150},
+                                  70, 0, RED);
+
+                        DrawTextEx(mainFont, "Tente novamente quando estiver preparado... (C)",
+                                  (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Tente novamente quando estiver preparado... (C)", 40, 0).x/2, 250},
+                                  40, 0, WHITE);
+                    }
+
+                    // Botão para retornar
+                    DrawTextEx(mainFont, "Press SPACE to return to menu",
+                              (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Press SPACE to return to menu", 30, 2).x/2,
+                              screenHeight - 100}, 30, 2, GRAY);
+
+                    if (IsKeyPressed(KEY_SPACE)) {
+                        gameState = MAIN_MENU;
+                    }
                 } else {
-                    rating = "1 STAR";
-                    ratingColor = GRAY;
-                }
+                	// Calculate accuracy
+                	int totalHits = stats.hits[0] + stats.hits[1] + stats.hits[2] + stats.hits[3];
+            	    int totalNotes = totalHits + stats.misses;
+            	    float accuracy = totalNotes > 0 ? (totalHits * 100.0f) / totalNotes : 100.0f;
 
-                // Draw title
-                DrawTextEx(titleFont, stats.songFailed ? "SONG FAILED!" : "SONG COMPLETE!",
-                          (Vector2){screenWidth/2 - MeasureTextEx(titleFont, stats.songFailed ? "SONG FAILED!" : "SONG COMPLETE!", 80, 0).x/2, 80},
-                          80, 0, WHITE);
+            	    // Determine rating
+           		    const char* rating;
+            	    Color ratingColor;
+            	    if (stats.songFailed) {
+            	        rating = "FAILED!";
+                    	ratingColor = RED;
+                	} else if (accuracy >= 95.0f) {
+                    	rating = "5 STARS!";
+                    	ratingColor = GOLD;
+                	} else if (accuracy >= 90.0f) {
+                	    rating = "4 STARS";
+                	    ratingColor = ORANGE;
+                	} else if (accuracy >= 80.0f) {
+                	    rating = "3 STARS";
+                	    ratingColor = YELLOW;
+                	} else if (accuracy >= 70.0f) {
+                	    rating = "2 STARS";
+                	    ratingColor = WHITE;
+               		} else {
+               		    rating = "1 STAR";
+                	    ratingColor = GRAY;
+                	}
 
-                // Draw rating
-                DrawTextEx(titleFont, rating,
-                          (Vector2){screenWidth/2 - MeasureTextEx(titleFont, rating, 70, 0).x/2, 160},
-                          70, 0, ratingColor);
+                	// Draw title
+                	DrawTextEx(titleFont, stats.songFailed ? "SONG FAILED!" : "SONG COMPLETE!",
+                	          (Vector2){screenWidth/2 - MeasureTextEx(titleFont, stats.songFailed ? "SONG FAILED!" : "SONG COMPLETE!", 80, 0).x/2, 80},
+                	          80, 0, WHITE);
 
-                // Draw stats
-                int startY = 250;
-                int spacing = 40;
+                	// Draw rating
+                	DrawTextEx(titleFont, rating,
+                	          (Vector2){screenWidth/2 - MeasureTextEx(titleFont, rating, 70, 0).x/2, 160},
+                	          70, 0, ratingColor);
 
-                DrawTextEx(mainFont, TextFormat("FINAL SCORE: %08d", stats.score),
-                          (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, WHITE);
-                startY += spacing;
+                	// Draw stats
+                	int startY = 250;
+                	int spacing = 40;
 
-                DrawTextEx(mainFont, TextFormat("ACCURACY: %.2f%%", accuracy),
-                          (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, WHITE);
-                startY += spacing;
+                	DrawTextEx(mainFont, TextFormat("FINAL SCORE: %08d", stats.score),
+                	          (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, WHITE);
+                	startY += spacing;
 
-                DrawTextEx(mainFont, TextFormat("MAX COMBO: %d", stats.maxCombo),
-                          (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, WHITE);
-                startY += spacing;
+                	DrawTextEx(mainFont, TextFormat("ACCURACY: %.2f%%", accuracy),
+                	          (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, WHITE);
+                	startY += spacing;
 
-                // Seção específica para o modo história
-                if (instory) {
-                    // Linha divisória
-                    DrawRectangle(screenWidth/2 - 300, startY, 600, 2, Fade(WHITE, 0.3f));
-                    startY += 20;
+                	// Seção específica para o modo história
+                	if (instory) {
+                	    // Linha divisória
+                	    DrawRectangle(screenWidth/2 - 300, startY, 600, 2, Fade(WHITE, 0.3f));
+                	    startY += 20;
 
-                    if (stats.songFailed) {
-                        // Mensagem de falha
-                        int fameLoss = 0;
-                        switch (currentMap->mapId) {
-                            case 1: fameLoss = 5; break;
-                            case 2: fameLoss = 10; break;
-                            case 3: fameLoss = 15; break;
-                        }
+                	    if (stats.songFailed) {
+                	        // Mensagem de falha
+                	        int fameLoss = 0;
+                	        switch (currentMap->mapId) {
+                	            case 1: fameLoss = 5; break;
+               	 	            case 2: fameLoss = 10; break;
+                	            case 3: fameLoss = 15; break;
+                	    }
 
-                        DrawTextEx(mainFont, TextFormat("Voce perdeu %d%% de fama!", fameLoss),
-                                  (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, RED);
+                 		DrawTextEx(mainFont, TextFormat("Voce perdeu %d%% de fama!", fameLoss),
+                        	      (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, RED);
                         startY += spacing;
                     } else {
-                        // Detalhes do ganho de fama
-                        bool isFavorite = IsFavoriteSong(selectedSong, currentMap->mapId);
-                        int stars;
-                        if (accuracy >= 95.0f) stars = 5;
-                        else if (accuracy >= 90.0f) stars = 4;
-                        else if (accuracy >= 80.0f) stars = 3;
+                    	// Detalhes do ganho de fama
+                    	bool isFavorite = IsFavoriteSong(selectedSong, currentMap->mapId);
+                    	int stars;
+                    	if (accuracy >= 95.0f) stars = 5;
+                   		else if (accuracy >= 90.0f) stars = 4;
+                    	else if (accuracy >= 80.0f) stars = 3;
                         else if (accuracy >= 70.0f) stars = 2;
-                        else stars = 1;
+                    	else stars = 1;
 
                         int baseFameGain = 0;
                         switch (stars) {
-                            case 5: baseFameGain = 15; break;
-                            case 4: baseFameGain = 10; break;
-                            default: baseFameGain = 5; break;
+                        	case 5: baseFameGain = 15; break;
+                        	case 4: baseFameGain = 10; break;
+                        	default: baseFameGain = 5; break;
                         }
 
                         int bonusFame = 0;
-                        if (isFavorite) bonusFame += 5;
+                       	if (isFavorite) bonusFame += 5;
                         if (HasBlessing(&player, BLESS_SCORE_BOOST)) bonusFame += 5;
 
                         if (isFavorite) {
-                            DrawTextEx(mainFont, "Bonus: Musica favorita do publico (+5%)",
-                                      (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, GREEN);
-                            startY += spacing;
+                        	DrawTextEx(mainFont, "Bonus: Musica favorita do publico (+5%)",
+                        	          (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, GREEN);
+                        	startY += spacing;
                         }
 
                         if (HasBlessing(&player, BLESS_SCORE_BOOST)) {
-                            DrawTextEx(mainFont, "Bonus: Bencao de Fama (+5%)",
-                                      (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, GREEN);
-                            startY += spacing;
+                       		DrawTextEx(mainFont, "Bonus: Bencao de Fama (+5%)",
+                        	          (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, GREEN);
+                        	startY += spacing;
                         }
 
                         DrawTextEx(mainFont, TextFormat("Fama ganha: %d%%", baseFameGain + bonusFame),
-                                  (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, GOLD);
+                        	      (Vector2){screenWidth/2 - 300, (float)startY}, 40, 0, GOLD);
                         startY += spacing;
                     }
                 }
@@ -1545,6 +1755,8 @@ int main(void) {
                 DrawTextEx(mainFont, "Press SPACE to Continue",
                           (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Press SPACE to Continue", 30, 2).x/2,
                           screenHeight - 50}, 30, 2, GRAY);
+				}
+
             } break;
         }
 
@@ -1555,7 +1767,11 @@ int main(void) {
     UnloadTexture(player.spriteSheet);
     UnloadTexture(burningStartTex);
     UnloadTexture(burningEndTex);
+    UnloadTexture(burningLoopPurple);
+	UnloadTexture(burningLoopWhite);
+	UnloadTexture(burningLoopGreen);
     UnloadTexture(menuBackgroundTex);
+    UnloadTexture(godBackgroundTex);
     UnloadSound(noteMissSound);
     UnloadSound(starPowerSound);
     UnloadSound(menuSelectSound);
@@ -1708,16 +1924,6 @@ void DrawControlsScreen(int screenWidth, int screenHeight, Font titleFont, Font 
     DrawTextEx(mainFont, "LANE 4 (BLUE):   K KEY", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
     startY += spacing;
     DrawTextEx(mainFont, "LANE 5 (PURPLE): L KEY", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
-    startY += spacing*2;
-
-    DrawTextEx(mainFont, "MENU CONTROLS:", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, YELLOW);
-    startY += spacing;
-
-    DrawTextEx(mainFont, "UP/DOWN:    Navigate menu", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
-    startY += spacing;
-    DrawTextEx(mainFont, "ENTER:      Select option", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
-    startY += spacing;
-    DrawTextEx(mainFont, "ESCAPE:     Back/Exit", (Vector2){screenWidth/2 - 300, (float)startY}, 30, 0, WHITE);
 
     // Voltar
     DrawTextEx(mainFont, "Press ENTER to return",
@@ -1821,14 +2027,14 @@ void DrawHitEffects(Font mainFont) {
                                    center.y - 50 - (1.0f - progress) * 30},
                           fontSize, 0, auraColor);
             } else if (hitEffects[i].isStart) {
-                // Animação de início (burning_start_1.png)
+                // Animação de início (burning_start.png)
                 int frame = (int)((1.0f - progress) * 4);
                 frame = clamp(frame, 0, 3);
                 Rectangle src = {frame * 24.0f, 0, 24.0f, 32.0f};
                 Rectangle dest = {xPos, yPos, 96.0f, 54.0f};
                 DrawTexturePro(burningStartTex, src, dest, (Vector2){0}, 0, WHITE);
             } else {
-                // Animação de término (burning_end_1.png)
+                // Animação de término (burning_end.png)
                 int frame = (int)((1.0f - progress) * 5);
                 frame = clamp(frame, 0, 4);
                 Rectangle src = {frame * 24.0f, 0, 24.0f, 32.0f};
@@ -2025,4 +2231,122 @@ void ShowTempWarning(const char* message, float duration) {
     strncpy(tempWarning.message, message, sizeof(tempWarning.message) - 1);
     tempWarning.showTime = duration;
     tempWarning.timer = 0;
+}
+
+void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic) {
+  	if (!IsMusicStreamPlaying(*gameMusic)) return;
+    // Padrões de riff pré-definidos para o modo Deus
+    static float lastRiffTime = 0.0f;
+	if (currentTime == 0) {
+          lastRiffTime = 0.0f;
+	}
+    // Gera um riff a cada 5-8 segundos
+    if (currentTime - lastRiffTime > 0.65) {
+        lastRiffTime = currentTime;
+
+        // Escolhe um padrão de riff aleatório
+        int riffPattern = GetRandomValue(0, 3);
+        float baseTime = currentTime + 1.0f; // Começa 1 segundo depois
+
+        switch (riffPattern) {
+            case 0: // Riff ascendente
+                for (int i = 0; i < NUM_LANES; i++) {
+                    int type = (GetRandomValue(0, 9) < 9) ? 0 : GetRandomValue(1, 3);
+                    AddSpecialNote(notes, maxNotes, i, baseTime + i*0.1f, type);
+                }
+                break;
+
+            case 1: // Riff descendente
+                for (int i = NUM_LANES-1; i >= 0; i--) {
+                    // 70% chance de nota normal, 30% de especial
+                    int type = (GetRandomValue(0, 9) < 9) ? 0 : GetRandomValue(1, 3);
+                    AddSpecialNote(notes, maxNotes, i, baseTime + (NUM_LANES-1-i)*0.1f, type);
+                }
+                break;
+
+            case 2: // Notas simultâneas
+                for (int i = 0; i < NUM_LANES; i++) {
+                    if (GetRandomValue(0, 1)) { // 50% chance de spawnar em cada lane
+                        int type = (GetRandomValue(0, 9) < 9) ? 0 : GetRandomValue(1, 3);
+                        AddSpecialNote(notes, maxNotes, i, baseTime, type);
+                        AddSpecialNote(notes, maxNotes, i, baseTime + 0.3f, type);
+                    }
+                }
+                break;
+
+            case 3: // Notas alternadas
+                for (int i = 0; i < NUM_LANES; i += 2) {
+                    int type = (GetRandomValue(0, 9) < 9) ? 0 : GetRandomValue(1, 3);
+                    AddSpecialNote(notes, maxNotes, i, baseTime + i*0.1f, type);
+                }
+                break;
+        }
+    }
+}
+
+void AddSpecialNote(Note* notes, int maxNotes, int lane, float spawnTime, int specialType) {
+    for (int i = 0; i < maxNotes; i++) {
+        if (!notes[i].active) {
+          	notes[i] = (Note){0};
+            notes[i].lane = lane;
+            notes[i].hit = false;
+            notes[i].spawnTime = spawnTime;
+            notes[i].specialType = specialType;
+            notes[i].specialTimer = 0.0f;
+            notes[i].active = true;
+            notes[i].rect = (Rectangle){
+                HIGHWAY_LEFT + lane * LANE_WIDTH + (LANE_WIDTH - NOTE_WIDTH)/2,
+                -NOTE_HEIGHT,
+                NOTE_WIDTH,
+                NOTE_HEIGHT
+            };
+            // Define cor base para todos os tipos de notas
+
+            switch (lane) {
+                case 0: notes[i].color = (Color){255, 50, 50, 255}; break;
+                case 1: notes[i].color = (Color){255, 150, 50, 255}; break;
+                case 2: notes[i].color = (Color){50, 255, 50, 255}; break;
+                case 3: notes[i].color = (Color){50, 150, 255, 255}; break;
+                case 4: notes[i].color = (Color){200, 50, 255, 255}; break;
+            }
+            // Se for nota especial, ajusta a cor
+            if (specialType > 0) {
+                switch (specialType) {
+                    case SPECIAL_NOTE_FIRE:    notes[i].color = (Color){252, 140, 212, 255}; break;
+                    case SPECIAL_NOTE_POISON:  notes[i].color = (Color){212, 252, 124, 255}; break;
+                    case SPECIAL_NOTE_INVISIBLE: notes[i].color = (Color){228, 252, 252, 255}; break;
+                }
+            }
+
+            break;
+        }
+    }
+}
+
+void ResetGodModeState(Note* notes, GameStats* stats, Music* gameMusic) {
+    // Reseta todas as notas
+    for (int i = 0; i < MAX_NOTES; i++) {
+        notes[i].active = false;
+    }
+
+    // Reseta estatísticas do jogo
+    memset(stats, 0, sizeof(GameStats));
+    stats->multiplier = 1.0f;
+    stats->multiplierLevel = 1;
+    stats->rockMeter = 0.5f;
+    stats->songFailed = false;
+    stats->forgivenessMisses = 0;
+    stats->perfectStreak = 0;
+    stats->rhythmShields = 0;
+
+    // Reseta variáveis do God Mode
+    godModeActive = false;
+    screenShakeIntensity = 0.0f;
+    comboModeTimer = 0.0f;
+    invisibleModeTimer = 0.0f;
+    noteSpeedMultiplier = 1.0f;
+
+    // Para e reseta a música
+    StopMusicStream(*gameMusic);
+    *gameMusic = LoadMusicStream("assets/musics/doom.mp3");
 }

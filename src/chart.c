@@ -984,5 +984,4 @@ Note TheTrooper[THUNDER_CHART_SIZE] = {
         {.lane = 4, .spawnTime = 95.597f},
         {.lane = 1, .spawnTime = 95.799f},
         {.lane = -1, .spawnTime = 97.839790f}
-
 };
