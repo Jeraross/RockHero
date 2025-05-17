@@ -41,7 +41,7 @@
 #define FORGIVENESS_EFFECT_DURATION 1.0f
 // CHALLENGE WOW
 #define GOD_MODE_COMBO_THRESHOLD 40
-#define GOD_MODE_WIN_COMBO 100
+#define GOD_MODE_WIN_COMBO 200
 #define SPECIAL_NOTE_FIRE 1
 #define SPECIAL_NOTE_POISON 2
 #define SPECIAL_NOTE_INVISIBLE 3
@@ -653,7 +653,8 @@ int main(void) {
                                     stats.hits[hitQuality]++;
 
                     				if (!godModeActive || !(comboModeTimer > 0)) {
-                        				stats.combo++;
+                                        if (stats.starPowerActive) stats.combo += 2;
+                        				else stats.combo++;
                     				}
 
                                     if (godModeActive && stats.combo >= GOD_MODE_WIN_COMBO) {
@@ -672,7 +673,7 @@ int main(void) {
 
                                     stats.score += baseScore * comboMultiplier;
                                     stats.streakBonus += baseScore / 10;
-                                    stats.starPower += 0.5f;
+                                    stats.starPower += 0.25f;
 
                                     // Update rock meter with blessing bonus
                                     float gain = ROCK_METER_HIT_GAIN;
@@ -707,7 +708,6 @@ int main(void) {
                                         stats.perfectStreak = 0;
                                     }
 
-                                    // Bônus de combo para Fama Instantânea
                                     if (HasBlessing(&player, BLESS_SCORE_BOOST) &&
                                         stats.combo % 10 == 0) {
                                         stats.score += 500;
@@ -1528,7 +1528,7 @@ int main(void) {
                         "Bonus de fame e 500pts a cada 10 hits",
                         "Ignora os 6 primeiros erros",
                         "A cada 3 Perfects, ganha 1 escudo (max 3)",
-                        "Multiplicador ate 10x e protege combos",
+                        "Multiplicador ate 8x e protege combos",
                         "Star Power dura +2s e ganho passivo"
                     };
 
@@ -2248,15 +2248,14 @@ void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* g
         switch (riffPattern) {
             case 0: // Riff ascendente
                 for (int i = 0; i < NUM_LANES; i++) {
-                    int type = (GetRandomValue(0, 9) < 9) ? 0 : GetRandomValue(1, 3);
+                    int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + i*0.1f, type);
                 }
                 break;
 
             case 1: // Riff descendente
                 for (int i = NUM_LANES-1; i >= 0; i--) {
-                    // 70% chance de nota normal, 30% de especial
-                    int type = (GetRandomValue(0, 9) < 9) ? 0 : GetRandomValue(1, 3);
+                    int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + (NUM_LANES-1-i)*0.1f, type);
                 }
                 break;
@@ -2264,7 +2263,7 @@ void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* g
             case 2: // Notas simultâneas
                 for (int i = 0; i < NUM_LANES; i++) {
                     if (GetRandomValue(0, 1)) { // 50% chance de spawnar em cada lane
-                        int type = (GetRandomValue(0, 9) < 9) ? 0 : GetRandomValue(1, 3);
+                        int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
                         AddSpecialNote(notes, maxNotes, i, baseTime, type);
                         AddSpecialNote(notes, maxNotes, i, baseTime + 0.3f, type);
                     }
@@ -2273,7 +2272,7 @@ void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* g
 
             case 3: // Notas alternadas
                 for (int i = 0; i < NUM_LANES; i += 2) {
-                    int type = (GetRandomValue(0, 9) < 9) ? 0 : GetRandomValue(1, 3);
+                    int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + i*0.1f, type);
                 }
                 break;
