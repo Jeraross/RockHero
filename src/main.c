@@ -129,7 +129,7 @@ Song songs[MAX_SONGS] = {
     {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 0.0f, 4},
     {"Sweet Child O'Mine", "Guns N' Roses", {}, "assets/musics/sweet_child.mp3", 90.5f, 3},
     {"Bring Me To Life", "Evanescence", {}, "assets/musics/bring_me_to_life.mp3", 140.0f, 3},
-    {"Killer Queen", "Queen", {}, "assets/musics/killer_queen.mp3", 179.0f, 1},
+    {"Killer Queen", "Queen", {}, "assets/musics/killer_queen.mp3", 114.469f, 1},
     {"Smells Like Teen Spirit", "Nirvana", {}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
     {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 331.0f, 4},
     {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},
@@ -1820,7 +1820,7 @@ void initSongs() {
     memcpy(songs[0].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[1].charts, SweetChildOMine, sizeof(thunderChart));
     memcpy(songs[2].charts, BringMeToLife, sizeof(thunderChart));
-    memcpy(songs[3].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[3].charts, KillerQueen, sizeof(thunderChart));
     memcpy(songs[4].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[5].charts, thunderChart, sizeof(thunderChart));
     memcpy(songs[6].charts, thunderChart, sizeof(thunderChart));
