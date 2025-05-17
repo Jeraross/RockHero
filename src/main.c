@@ -319,7 +319,6 @@ int main(void) {
 
             // Check if song ended (fixed bug by using musicPosition >= duration)
             if (musicPosition >= songs[selectedSong].duration && !godModeActive) {
-
                 gameState = RESULTS;
             }
 
