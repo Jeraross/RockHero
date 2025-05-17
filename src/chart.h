@@ -21,5 +21,6 @@ typedef struct {
 extern Note thunderChart[THUNDER_CHART_SIZE];
 extern Note SweetChildOMine[THUNDER_CHART_SIZE];
 extern Note TheTrooper[THUNDER_CHART_SIZE];
+extern Note Livin_Prayer[THUNDER_CHART_SIZE];
 
 #endif //CHART_H
