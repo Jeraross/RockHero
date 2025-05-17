@@ -610,9 +610,10 @@ int main(void) {
 
                 // Update multiplier
                 if (HasBlessing(&player, BLESS_COMBO)) {
-    				// Com a bênção Combo Eterno, aumenta mais rápido e tem limite de 8x
-    				stats.multiplierLevel = 1 + (stats.combo / 10);
-    				stats.multiplier = fminf(1.0f + (stats.combo / 10), 8.0f); // Limite alterado para 8.0f
+    				// Com a bênção Combo Eterno, combo pode ir até x8
+    				int level = 1 + (stats.combo / 10);
+    				stats.multiplierLevel = (level > 8) ? 8 : level;
+    				stats.multiplier = (float)stats.multiplierLevel;
                 } else {
                     // Sem a bênção, comportamento normal com limite de x4
                     if (stats.combo >= 30) {
@@ -1142,7 +1143,7 @@ int main(void) {
                 	DrawTexturePro(quickBackgroundTex, source, dest, origin, 0.0f, WHITE);
     	        }
 
-                DrawRectangle(HIGHWAY_LEFT, 0, HIGHWAY_WIDTH, screenHeight, (Color){0, 0, 0, 225}); // 30 30 40
+                DrawRectangle(HIGHWAY_LEFT, 0, HIGHWAY_WIDTH, screenHeight, (Color){0, 0, 0, 250}); // 30 30 40
 
                 // Draw lane dividers
                 for (int i = 1; i < NUM_LANES; i++) {
@@ -1234,12 +1235,12 @@ int main(void) {
                 // Efeito especial para Combo Eterno
                 if (HasBlessing(&player, BLESS_COMBO)) {
                     for (int i = 0; i < 20; i++) {
-                        float x = sin(GetTime() + i) * 30 + screenWidth - 128;
+                        float x = sin(GetTime() + i) * 30 + screenWidth - 129;
                         float y = cos(GetTime() * 10.0f + i) * 30 + 70;
                         DrawCircle(x, y, 3, Fade(laneColors[i%NUM_LANES], 0.5f));
                     }
                     for (int i = 0; i < 20; i++) {
-                        float x = sin(GetTime() * 10.0f + i) * 30 + screenWidth - 128;
+                        float x = sin(GetTime() * 10.0f + i) * 30 + screenWidth - 129;
                         float y = cos(GetTime() + i) * 30 + 70;
                         DrawCircle(x, y, 3, Fade(laneColors[i%NUM_LANES], 0.5f));
                     }
@@ -2145,13 +2146,13 @@ void ApplyBlessings(Player* player, GameStats* stats, float deltaTime) {
         case BLESS_ROCK_METER: {
                 // Resistência do Rock - Melhorado
                 if (stats->rockMeter < 1.0f) {
-                    stats->rockMeter += 0.05f * deltaTime;
+                    stats->rockMeter += 0.06f * deltaTime;
                 }
         } break;
 
         case BLESS_STAR_POWER: {
                 // Explosão Estelar
-                stats->starPower += 0.5f * deltaTime;
+                stats->starPower += 0.6f * deltaTime;
         } break;
 
         case BLESS_SCORE_BOOST: {
