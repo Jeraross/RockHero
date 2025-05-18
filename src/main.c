@@ -1706,34 +1706,16 @@ if (godModeActive) {
 
 case CHALLENGE: {
     storyStartTime = GetTime();  // marca o tempo inicial
-    cutsceneTimer += deltaTime/2;
+    cutsceneTimer += deltaTime;
 
     // Fundo com efeito de fogo
-    if (cutsceneState == 0) {
-          DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
-                          (Color){10, 0, 0, 255},
-                          (Color){40, 0, 0, 255});
-    } else {
-      DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
-    }
-
-    // Desenha o Deus do Rock (apenas no estado 1)
-    if (cutsceneState == 1) {
-        float godAlpha = fminf(0.8f, cutsceneTimer * 0.2f);
-
-        // Desenha a imagem com fade-in e efeito de brilho
-        float godScale = 1.0f;
-        Rectangle godSrc = {0, 0, godTex.width, godTex.height};
-        Rectangle godDest = {
-            screenWidth/2 - (godTex.width * godScale)/2,
-            screenHeight/2 - (godTex.height * godScale)/2,
-            godTex.width * godScale,
-            godTex.height * godScale
-        };
-
-        // Desenha a imagem com fade-in
-        DrawTexturePro(godTex, godSrc, godDest, (Vector2){0}, 0,
-                      Fade(WHITE, godAlpha));
+    if (cutsceneState == 0 || cutsceneState == 1) {
+        DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
+                        (Color){10, 0, 0, 255},
+                        (Color){40, 0, 0, 255});
+    } else if (cutsceneState == 2) {
+        // Apresentação do Deus do Rock
+        DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
     }
 
     // Efeitos de partículas de fogo (sobrepostas à imagem)
@@ -1770,8 +1752,8 @@ case CHALLENGE: {
             }
 
             if (cutsceneTimer > 6.0f) {
-              	PlaySound(guitarSound);
-                cutsceneState = 1;
+                PlaySound(guitarSound);
+                cutsceneState = 1; // Vai para a tela de explicação das chamas
                 cutsceneTimer = 0;
             }
 
@@ -1783,13 +1765,91 @@ case CHALLENGE: {
             }
 
             if (IsKeyPressed(KEY_E)) {
-              	PlaySound(guitarSound);
+                PlaySound(guitarSound);
                 cutsceneState = 1;
                 cutsceneTimer = 0;
             }
         } break;
 
-        case 1: { // Apresentação do Deus do Rock
+case 1: { // Explicação das chamas do destino
+    // Título
+    DrawTextEx(titleFont, "CHAMAS DO DESTINO",
+             (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "CHAMAS DO DESTINO", 60, 0).x/2, 80},
+             60, 0, GOLD);
+
+    // Explicação geral
+    DrawTextEx(mainFont, "Para vencer, alcance um combo de 300!",
+             (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Para vencer, alcance um combo de 300!", 30, 0).x/2, 150},
+             30, 0, WHITE);
+
+    // Animação frame (8 frames total)
+    int frame = ((int)(cutsceneTimer * 10) % 8);
+    int frameWidth = burningLoopPurple.width / 8;
+
+    // Configurações para cada chama
+    struct FlameInfo {
+        Texture2D* texture;
+        const char* text;
+        Color color;
+        Vector2 position;
+    } flames[3] = {
+        {&burningLoopPurple, "FOGO ROXO: Se errar, nao ganha combo por 10s", (Color){252, 140, 212, 255}, {screenWidth/2 - 150, 250}},
+        {&burningLoopGreen,  "FOGO VERDE: Se errar, perde INSTANTANEAMENTE", (Color){212, 252, 124, 255}, {screenWidth/2 - 150, 400}},
+        {&burningLoopWhite,  "FOGO BRANCO: Se errar, notas ficam invisiveis por 5s", (Color){228, 252, 252, 255}, {screenWidth/2 - 150, 550}}
+    };
+
+    // Desenha todas as chamas com suas animações
+    for (int i = 0; i < 3; i++) {
+        // Efeito de fade-in sequencial para cada chama
+        float flameAlpha = fminf(1.0f, (cutsceneTimer - i * 1.0f) * 2.0f);
+        float textAlpha = fminf(1.0f, (cutsceneTimer - (i * 1.0f + 0.5f)) * 2.0f);
+
+        if (flameAlpha > 0) {
+            // Desenha a animação da chama
+            Rectangle flameSrc = {frame * frameWidth, 0, frameWidth, flames[i].texture->height};
+            Rectangle flameDest = {screenWidth/2 - 50, flames[i].position.y, 100, 100};
+            DrawTexturePro(*flames[i].texture, flameSrc, flameDest, (Vector2){0}, 0, Fade(WHITE, flameAlpha));
+
+            // Texto explicativo abaixo da chama
+            if (textAlpha > 0) {
+                Vector2 textSize = MeasureTextEx(mainFont, flames[i].text, 28, 0);
+                DrawTextEx(mainFont, flames[i].text,
+                         (Vector2){screenWidth/2 - textSize.x/2, flames[i].position.y + 120},
+                         28, 0, Fade(flames[i].color, textAlpha));
+            }
+        }
+    }
+
+    // Instrução para continuar
+    if (cutsceneTimer > 3.5f) { // Mostra depois que todas as chamas apareceram
+        DrawTextEx(mainFont, "Pressione E para avancar",
+                 (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione E para avancar", 30, 0).x/2,
+                 screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
+    }
+
+    if (IsKeyPressed(KEY_E) && cutsceneTimer > 3.5f) {
+        PlaySound(guitarSound);
+        cutsceneState = 2;
+        cutsceneTimer = 0;
+    }
+} break;
+
+        case 2: { // Apresentação final do Deus do Rock
+            float godAlpha = fminf(0.8f, cutsceneTimer * 0.2f);
+
+            // Desenha a imagem com fade-in e efeito de brilho
+            float godScale = 1.0f;
+            Rectangle godSrc = {0, 0, godTex.width, godTex.height};
+            Rectangle godDest = {
+                screenWidth/2 - (godTex.width * godScale)/2,
+                screenHeight/2 - (godTex.height * godScale)/2,
+                godTex.width * godScale,
+                godTex.height * godScale
+            };
+
+            // Desenha a imagem com fade-in
+            DrawTexturePro(godTex, godSrc, godDest, (Vector2){0}, 0, Fade(WHITE, godAlpha));
+
             // Diálogo
             const char* godText = "\"ENFRENTE-ME SE FOR CAPAZ, CRIATURA!\"";
             float textAlpha = fminf(1.0f, cutsceneTimer * 2.0f);
@@ -1799,11 +1859,11 @@ case CHALLENGE: {
                      screenHeight - 150},
                      50, 0, Fade(WHITE, textAlpha));
 
-            // Instrução
-            if (cutsceneTimer > 2.0f) {
-                DrawTextEx(mainFont, "Pressione ENTER para aceitar o desafio",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione ENTER para aceitar o desafio", 30, 0).x/2,
-                          screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
+            // Instrução para começar
+            if (cutsceneTimer > 1.0f) {
+                DrawTextEx(mainFont, "Pressione ENTER para comecar o desafio",
+                         (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione ENTER para comecar o desafio", 30, 0).x/2,
+                         screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
             }
         } break;
     }
