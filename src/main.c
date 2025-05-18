@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "../include/entities/player.h"
+#include "scoreboard.h"
 #include "../include/maps/mapa.h"
 #include "../include/maps/mapa1.h"
 #include "../include/maps/mapa2.h"
@@ -115,6 +116,31 @@ typedef struct {
     float timer;
 } FameWarning;
 
+ScoreEntry topScores[MAX_SCORES];
+int numScores = 0;
+
+char playerName[MAX_NAME_LENGTH] = "";
+int nameLength = 0;
+bool enteringName = false;
+
+float storyStartTime = 0.0;
+float storyEndTime = 0.0f;
+float totalTime = 0.0f;
+
+bool showFinalScoreboard = false;
+float scoreboardTimer = 0.0f;
+bool scoreAlreadySaved = false;
+
+void ResetScoreboardState() {
+    scoreAlreadySaved = false;
+    enteringName = false;
+    showFinalScoreboard = false;
+    nameLength = 0;
+    playerName[0] = '\0';
+    totalTime = 0.0f;
+}
+
+
 FameWarning fameWarning = {false, 0.2f, 0}; // 0.2s de delay mínimo
 
 TemporaryWarning tempWarning = {0};
@@ -207,6 +233,11 @@ void AddSpecialNote(Note* notes, int maxNotes, int lane, float spawnTime, int sp
 void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic);
 
 void ResetGodModeState(Note* notes, GameStats* stats, Music* gameMusic);
+
+void InsertScore(const char* name, float time);
+
+void DrawScoreboard(Font font, int x, int y);
+
 
 int main(void) {
     SetConfigFlags(FLAG_FULLSCREEN_MODE);
@@ -877,7 +908,9 @@ int main(void) {
         			// Configura o modo Deus
         			godModeActive = true;
 
-        			// Começa a música
+                    ResetScoreboardState();
+
+                    // Começa a música
         			PlayMusicStream(gameMusic);
         			SeekMusicStream(gameMusic, 0);
         			gameState = PLAYING;
@@ -1627,6 +1660,7 @@ if (godModeActive) {
             } break;
 
 case CHALLENGE: {
+    storyStartTime = GetTime();  // marca o tempo inicial
     cutsceneTimer += deltaTime/2;
 
     // Fundo com efeito de fogo
@@ -1730,43 +1764,137 @@ case CHALLENGE: {
 } break;
 
             case RESULTS: {
-                // Draw results screen background
+                // Fundo padrão
                 DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
-                          (Color){10, 0, 0, 255},
-                          (Color){40, 0, 0, 255});
-				// Na seção RESULTS, adicione uma verificação para o modo Deus:
+                                       (Color){10, 0, 0, 255},
+                                       (Color){40, 0, 0, 255});
+
+                // Vitória no modo Deus
                 if (godModeActive) {
-                    if (!stats.songFailed) {
-                        // Vitória contra o Deus do Rock
+                    if (!stats.songFailed){
+                    // Captura o tempo apenas uma vez
+                    if (totalTime == 0.0f) {
+                        storyEndTime = GetTime();
+                        totalTime = storyEndTime - storyStartTime;
+                    }
+
+                    // Etapa 1: Tela de vitória + entrada de nome
+                    if (!showFinalScoreboard) {
                         DrawTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!",
-                                  (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!", 70, 0).x/2, 150},
-                                  70, 0, GOLD);
+                                   (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!", 70, 0).x/2, 150},
+                                   70, 0, GOLD);
 
                         DrawTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!",
-                                  (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!", 40, 0).x/2, 250},
-                                  40, 0, WHITE);
+                                   (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!", 40, 0).x/2, 250},
+                                   40, 0, WHITE);
 
-                        // Reseta o modo Deus após a vitória
-                    } else {
-                        // Derrota no desafio
-                        DrawTextEx(titleFont, "O DEUS DO ROCK TE DERROTOU!",
-                                  (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "O DEUS DO ROCK TE DERROTOU!", 70, 0).x/2, 150},
-                                  70, 0, RED);
 
-                        DrawTextEx(mainFont, "Tente novamente quando estiver preparado... (C)",
-                                  (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Tente novamente quando estiver preparado... (C)", 40, 0).x/2, 250},
-                                  40, 0, WHITE);
+                        // Entrada de nome
+                        if (!scoreAlreadySaved) enteringName = true;
+
+                        if (enteringName) {
+                            int key = GetCharPressed();
+                            while (key > 0) {
+                                if (key >= 32 && key <= 125 && nameLength < MAX_NAME_LENGTH - 1) {
+                                    playerName[nameLength++] = (char)key;
+                                    playerName[nameLength] = '\0';
+                                }
+                                key = GetCharPressed();
+                            }
+
+                            if (IsKeyPressed(KEY_BACKSPACE) && nameLength > 0) {
+                                nameLength--;
+                                playerName[nameLength] = '\0';
+                            }
+
+                            const char* tempoStr = TextFormat("Tempo final: %.2f segundos", totalTime);
+                            Vector2 tempoSize = MeasureTextEx(mainFont, tempoStr, 30, 0);
+                            DrawTextEx(mainFont, tempoStr,
+                                       (Vector2){screenWidth/2 - tempoSize.x/2, 320}, 30, 0, WHITE);
+
+                            const char* promptStr = "Digite seu nome:";
+                            Vector2 promptSize = MeasureTextEx(mainFont, promptStr, 30, 0);
+                            DrawTextEx(mainFont, promptStr,
+                                       (Vector2){screenWidth/2 - promptSize.x/2, 370}, 30, 0, WHITE);
+
+                            Vector2 nameSize = MeasureTextEx(mainFont, playerName, 30, 0);
+                            DrawTextEx(mainFont, playerName,
+                                       (Vector2){screenWidth/2 - nameSize.x/2, 410}, 30, 0, GREEN);
+
+                            if (IsKeyPressed(KEY_ENTER) && nameLength > 0) {
+                                InsertScore(playerName, totalTime);
+                                enteringName = false;
+                                scoreAlreadySaved = true;
+                                showFinalScoreboard = true;
+                            }
+                        }
                     }
 
-                    // Botão para retornar
-                    DrawTextEx(mainFont, "Press SPACE to return to menu",
-                              (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Press SPACE to return to menu", 30, 2).x/2,
-                              screenHeight - 100}, 30, 2, GRAY);
+                        if (showFinalScoreboard) {
+                            DrawText("PLACAR DE HERÓIS DO ROCK", screenWidth/2 - 200, 80, 30, YELLOW);
+                            DrawScoreboard(mainFont, screenWidth/2 - 200, 130);
 
-                    if (IsKeyPressed(KEY_SPACE)) {
-                        gameState = MAIN_MENU;
+                            DrawText("Pressione ESPAÇO para voltar ao menu", screenWidth/2 - 200, 500, 20, GRAY);
+
+                            if (IsKeyPressed(KEY_SPACE)) {
+                                // Resetar tudo
+                                showFinalScoreboard = false;
+                                scoreAlreadySaved = false;
+                                enteringName = false;
+                                nameLength = 0;
+                                playerName[0] = '\0';
+                                godModeActive = false;
+                                instory = false;
+                                currentMapIndex = 1;
+                                totalTime = 0.0f;
+                                gameState = MAIN_MENU;
+                            }
+                        }
+
+                            // Etapa 1: entrada de nome
+                        else if (!stats.songFailed) {
+                            if (totalTime == 0.0f) {
+                                storyEndTime = GetTime();
+                                totalTime = storyEndTime - storyStartTime;
+                            }
+
+                            DrawTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!",
+                                       (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!", 70, 0).x/2, 150},
+                                       70, 0, GOLD);
+
+                            DrawTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!",
+                                       (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!", 40, 0).x/2, 250},
+                                       40, 0, WHITE);
+
+                            if (!scoreAlreadySaved) enteringName = true;
+
+                            if (enteringName) {
+                                int key = GetCharPressed();
+                                while (key > 0) {
+                                    if (key >= 32 && key <= 125 && nameLength < MAX_NAME_LENGTH - 1) {
+                                        playerName[nameLength++] = (char)key;
+                                        playerName[nameLength] = '\0';
+                                    }
+                                    key = GetCharPressed();
+                                }
+
+                                if (IsKeyPressed(KEY_BACKSPACE) && nameLength > 0) {
+                                    nameLength--;
+                                    playerName[nameLength] = '\0';
+                                }
+
+
+                                if (IsKeyPressed(KEY_ENTER) && nameLength > 0) {
+                                    InsertScore(playerName, totalTime);
+                                    enteringName = false;
+                                    scoreAlreadySaved = true;
+                                    showFinalScoreboard = true;
+                                }
+                            }
+                        }
                     }
-                } else {
+                }
+                else {
                 	// Calculate accuracy
                 	int totalHits = stats.hits[0] + stats.hits[1] + stats.hits[2] + stats.hits[3];
             	    int totalNotes = totalHits + stats.misses;
@@ -2487,3 +2615,36 @@ void ResetGodModeState(Note* notes, GameStats* stats, Music* gameMusic) {
     StopMusicStream(*gameMusic);
     *gameMusic = LoadMusicStream("assets/musics/doom.mp3");
 }
+
+void InsertScore(const char* name, float time) {
+    if (numScores < MAX_SCORES) {
+        strcpy(topScores[numScores].name, name);
+        topScores[numScores].time = time;
+        numScores++;
+    } else if (time < topScores[MAX_SCORES - 1].time) {
+        // Substitui o pior tempo
+        strcpy(topScores[MAX_SCORES - 1].name, name);
+        topScores[MAX_SCORES - 1].time = time;
+    } else {
+        return; // tempo não é bom o suficiente
+    }
+
+    // Ordenar usando insertion sort
+    for (int i = 1; i < numScores; i++) {
+        ScoreEntry key = topScores[i];
+        int j = i - 1;
+        while (j >= 0 && topScores[j].time > key.time) {
+            topScores[j + 1] = topScores[j];
+            j--;
+        }
+        topScores[j + 1] = key;
+    }
+}
+
+void DrawScoreboard(Font font, int x, int y) {
+    for (int i = 0; i < numScores; i++) {
+        DrawTextEx(font, TextFormat("%d. %s - %.2f segundos", i + 1, topScores[i].name, topScores[i].time),
+                   (Vector2){x, y + i * 30}, 24, 1, WHITE);
+    }
+}
+
