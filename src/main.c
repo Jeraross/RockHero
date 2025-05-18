@@ -41,7 +41,7 @@
 #define FORGIVENESS_EFFECT_DURATION 1.0f
 // CHALLENGE WOW
 #define GOD_MODE_COMBO_THRESHOLD 40
-#define GOD_MODE_WIN_COMBO 300
+#define GOD_MODE_WIN_COMBO 150
 #define SPECIAL_NOTE_FIRE 1
 #define SPECIAL_NOTE_POISON 2
 #define SPECIAL_NOTE_INVISIBLE 3
@@ -143,6 +143,7 @@ Texture2D burningLoopGreen;
 Texture2D menuBackgroundTex;
 Texture2D godBackgroundTex;
 Texture2D quickBackgroundTex;
+Texture2D godTex;
 
 RockBlessing blessingOptions[2];
 bool inBlessingSelection = false;
@@ -151,6 +152,8 @@ int selectedOption = 0;
 int currentMilestone = 0;
 bool blessingOptionsInitialized = false;
 float deltaTime;
+int cutsceneState = 0;
+float cutsceneTimer = 0;
 
 bool godModeActive = false;
 float screenShakeIntensity = 0.0f;
@@ -220,8 +223,10 @@ int main(void) {
     Sound noteMissSound = LoadSound("assets/sounds/miss.wav");
     SetSoundVolume(noteMissSound, 0.3f);
     Sound starPowerSound = LoadSound("assets/sounds/starpower.wav");
+    SetSoundVolume(starPowerSound, 1.5f);
     Sound menuSelectSound = LoadSound("assets/sounds/select.wav");
     Sound menuScrollSound = LoadSound("assets/sounds/scroll.wav");
+    Sound guitarSound = LoadSound("assets/sounds/guitar_scream.wav");
 
     // Load fonts
     Font titleFont = LoadFontEx("assets/font/Vampire Wars.ttf", 72, 0, 0);
@@ -232,9 +237,11 @@ int main(void) {
     burningLoopPurple = LoadTexture("assets/sprites/burning_loop_purple.png");
 	burningLoopWhite = LoadTexture("assets/sprites/burning_loop_white.png");
 	burningLoopGreen = LoadTexture("assets/sprites/burning_loop_green.png");
+
     menuBackgroundTex = LoadTexture("assets/maps/menu_bg.jpg");
-    godBackgroundTex = LoadTexture("assets/maps/boss_bg.jpg");
+    godBackgroundTex = LoadTexture("assets/maps/boss_bg.png");
 	quickBackgroundTex = LoadTexture("assets/maps/quick_bg.png");
+    godTex = LoadTexture("assets/sprites/rockgod.png");
 
     for (int i = 0; i < MAX_HIT_EFFECTS; i++) {
         hitEffects[i].active = false;
@@ -573,7 +580,7 @@ int main(void) {
                                 }
 
                                 if (godModeActive && notes[i].specialType == SPECIAL_NOTE_FIRE) {
-                                  	comboModeTimer = 5.0f;
+                                  	comboModeTimer = 10.0f;
     							}
 
                                 if (godModeActive && notes[i].specialType == SPECIAL_NOTE_INVISIBLE) {
@@ -760,6 +767,7 @@ int main(void) {
             } break;
 
             case MAPAS: {
+                //if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;}
                 // Atualiza o mapa atual
                 if (currentMap->mapId == 1) {
                     UpdateMusicStream(map1Music);
@@ -861,8 +869,9 @@ int main(void) {
             } break;
 
             case CHALLENGE: {
+              	if (IsKeyPressed(KEY_E)) PlaySound(guitarSound);
 				if (IsKeyPressed(KEY_ENTER)) {
-        			// Reseta completamente o estado antes de começar
+                    PlaySound(guitarSound);
         			ResetGodModeState(notes, &stats, &gameMusic);
 
         			// Configura o modo Deus
@@ -938,7 +947,7 @@ int main(void) {
 
                             CheckForMilestone(&player);
                         }
-                        if (player.fama >= 100) gameState = CHALLENGE;
+                        if (player.fama >= 100) {cutsceneState = 0; cutsceneTimer = 0; gameState = CHALLENGE;}
                         else gameState = BLESS;
                     }
                 } else {
@@ -956,6 +965,8 @@ int main(void) {
                       	gameState = MAIN_MENU;
                     }
                   	if (IsKeyPressed(KEY_C) && stats.songFailed && godModeActive) {
+                        cutsceneState = 1;
+                        cutsceneTimer = 0;
                     	gameState = CHALLENGE;
                   	}
                 }
@@ -1109,25 +1120,20 @@ int main(void) {
                 ClearBackground((Color){10, 10, 20, 255});
 
                 if (godModeActive) {
-                    Rectangle source = { 0.0f, 0.0f, godBackgroundTex.width, godBackgroundTex.height };
+                    Rectangle source = { 0.0f, 0.0f, godBackgroundTex.width/1.0875, godBackgroundTex.height };
                 	Rectangle dest = { 0.0f, 0.0f, (float)screenWidth, (float)screenHeight };
                 	Vector2 origin = { 0.0f, 0.0f };
 
                 	DrawTexturePro(godBackgroundTex, source, dest, origin, 0.0f, WHITE);
 
-       	         	// Aplica tremulação na tela
-        	    	if (screenShakeIntensity > 0) {
-     	               	int shakeX = GetRandomValue(-screenShakeIntensity*5, screenShakeIntensity*5);
-      	            	int shakeY = GetRandomValue(-screenShakeIntensity*5, screenShakeIntensity*5);
-    	                BeginScissorMode(shakeX, shakeY, screenWidth, screenHeight);
-     	       	 	}
-
      	           	// Desenha aura vermelha quando o combo está alto
      	        	if (stats.combo > GOD_MODE_COMBO_THRESHOLD) {
-    	                float intensity = (stats.combo - GOD_MODE_COMBO_THRESHOLD) / (float)(GOD_MODE_WIN_COMBO - GOD_MODE_COMBO_THRESHOLD);
-     	               	DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
-      	                                   ColorAlpha(RED, intensity * 0.3f),
-      	                                   ColorAlpha(MAROON, intensity * 0.1f));
+         	        	// Efeitos de partículas de fogo (sobrepostas à imagem)
+         	        	for (int i = 0; i < 50; i++) {
+         	        	    float x = sin(GetTime() * 2 + i) * screenWidth;
+         	        	    float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+         	        	    DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.7f));
+         	        	}
       	        	}
     	        } else {
                     Rectangle source = { quickBackgroundTex.width/2 - (quickBackgroundTex.width/1.3)/2, 0.0f, quickBackgroundTex.width/1.3, quickBackgroundTex.height/1.3 };
@@ -1318,8 +1324,6 @@ int main(void) {
                 }
 
                 if (stats.starPowerActive) {
-                    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(SKYBLUE, 0.05f));
-
                     for (int i = 0; i < 50; i++) {
                         float x = sin(GetTime() * 2 + i) * 200 + screenWidth/2;
                         float y = cos(GetTime() * 3 + i) * 200 + (screenHeight/2 - 100);
@@ -1337,40 +1341,100 @@ int main(void) {
 
                 DrawHitEffects(mainFont);
 
-				if (godModeActive && screenShakeIntensity > 0) {
-				    EndScissorMode();
-				}
+// Adicione um HUD especial para o modo Deus:
+if (godModeActive) {
+    // Efeito de pulsação quando o combo está alto
+    float pulseIntensity = 0.0f;
+    if (stats.combo >= GOD_MODE_COMBO_THRESHOLD) {
+        pulseIntensity = (stats.combo - GOD_MODE_COMBO_THRESHOLD) /
+                       (float)(GOD_MODE_WIN_COMBO - GOD_MODE_COMBO_THRESHOLD);
+    }
 
-				// Adicione um HUD especial para o modo Deus:
-				if (godModeActive) {
- 					// Combo do Deus
- 				   	char godComboText[50];
-  	    			sprintf(godComboText, "RESPECT: %d/%d", stats.combo, GOD_MODE_WIN_COMBO);
+    // ---- Barra de progresso épica ----
+    float progress = stats.combo / (float)GOD_MODE_WIN_COMBO;
+    int barWidth = 500;
+    int barHeight = 30;
+    int barX = screenWidth/2 - barWidth/2;
+    int barY = 120;
 
- 					Vector2 textSize = MeasureTextEx(mainFont, godComboText, 40, 0);
- 					DrawTextEx(mainFont, godComboText,
- 				             (Vector2){screenWidth/2 - textSize.x/2, 100},
- 				             40, 0,
- 				             stats.combo >= GOD_MODE_COMBO_THRESHOLD ? RED : WHITE);
+    // Fundo da barra com detalhes
+    DrawRectangle(barX, barY, barWidth, barHeight, Fade((Color){40, 40, 40, 255}, 0.8f));
+    DrawRectangleLines(barX, barY, barWidth, barHeight, Fade(WHITE, 0.3f));
 
-  				 	 // Barra de progresso
-				    float progress = stats.combo / (float)GOD_MODE_WIN_COMBO;
- 					DrawRectangle(screenWidth/2 - 200, 150, 400, 20, GRAY);
-    				DrawRectangle(screenWidth/2 - 200, 150, 400 * progress, 20,
-  					            stats.combo >= GOD_MODE_COMBO_THRESHOLD ? RED : YELLOW);
+    // Preenchimento da barra com efeitos
+    if (progress > 0) {
+        // Gradiente de cor
+        Color fillStart = stats.combo >= GOD_MODE_COMBO_THRESHOLD ?
+                         (Color){255, 50, 50, 255} : (Color){255, 215, 0, 255};
+        Color fillEnd = stats.combo >= GOD_MODE_COMBO_THRESHOLD ?
+                       (Color){150, 0, 0, 255} : (Color){200, 100, 0, 255};
 
- 				   int yPos = 180;
- 				   if (comboModeTimer > 0) {
-    				    DrawTextEx(mainFont, TextFormat("NO RESPECT: %.1fs", comboModeTimer),
-				                  (Vector2){50, yPos}, 30, 0, WHITE);
- 				       yPos += 35;
- 				   }
- 				   if (invisibleModeTimer > 0) {
- 				       DrawTextEx(mainFont, TextFormat("INVISIBLE NOTES: %.1fs", invisibleModeTimer),
- 				                 (Vector2){50, yPos}, 30, 0, WHITE);
- 				       yPos += 35;
- 				   }
-				}
+        DrawRectangleGradientH(barX, barY, barWidth * progress, barHeight, fillStart, fillEnd);
+
+        // Efeito de brilho pulsante quando está alto
+        if (pulseIntensity > 0) {
+            DrawRectangleGradientH(barX, barY, barWidth * progress, barHeight,
+                                 ColorAlpha(WHITE, pulseIntensity * 0.3f),
+                                 ColorAlpha(YELLOW, pulseIntensity * 0.1f));
+        }
+    }
+
+    // Marcador do threshold
+    float thresholdPos = GOD_MODE_COMBO_THRESHOLD / (float)GOD_MODE_WIN_COMBO;
+    DrawLine(barX + barWidth * thresholdPos, barY - 5,
+             barX + barWidth * thresholdPos, barY + barHeight + 5,
+             Fade(WHITE, 0.5f));
+
+    // ---- Contador numérico ----
+    char godComboText[50];
+    sprintf(godComboText, "%d/%d", stats.combo, GOD_MODE_WIN_COMBO);
+
+    Vector2 textSize = MeasureTextEx(mainFont, godComboText, 40, 0);
+    Color textColor = stats.combo >= GOD_MODE_COMBO_THRESHOLD ?
+                     ColorAlpha(RED, 0.9f + sin(GetTime()*10)*0.1f) : WHITE;
+
+    // Sombra do texto
+    DrawTextEx(mainFont, godComboText,
+              (Vector2){screenWidth/2 - textSize.x/2 + 2, 155 + 2},
+              40, 0, Fade(BLACK, 0.7f));
+
+    // Texto principal
+    DrawTextEx(mainFont, godComboText,
+              (Vector2){screenWidth/2 - textSize.x/2, 155},
+              40, 0, textColor);
+
+    // ---- Efeitos especiais ativos ----
+    int yPos = 200;
+
+    if (comboModeTimer > 0) {
+        DrawTextEx(mainFont, TextFormat("NO RESPECT: %.1fs", comboModeTimer),
+                  (Vector2){50, yPos}, 30, 0,
+                  ColorAlpha((Color){255, 100, 100, 255},
+                             0.8f + sin(GetTime()*10)*0.2f));
+        yPos += 40;
+    }
+
+    if (invisibleModeTimer > 0) {
+        DrawTextEx(mainFont, TextFormat("INVISIBLE NOTES: %.1fs", invisibleModeTimer),
+                  (Vector2){50, yPos}, 30, 0,
+                  ColorAlpha((Color){100, 100, 255, 255},
+                             0.8f + sin(GetTime()*8)*0.2f));
+        yPos += 40;
+    }
+
+    // Efeito de partículas quando o combo está alto
+    if (pulseIntensity > 0) {
+        for (int i = 0; i < 5; i++) {
+            float angle = GetTime() + i;
+            float radius = 50 + pulseIntensity * 50;
+            Vector2 pos = {
+                screenWidth/2 + cos(angle * (2 + i)) * radius,
+                barY + barHeight/2 + sin(angle * (3 + i)) * radius
+            };
+            DrawCircleV(pos, 2 + pulseIntensity * 3, Fade(RED, 0.7f));
+        }
+    }
+}
             } break;
 
             case MAPAS: {
@@ -1562,38 +1626,114 @@ int main(void) {
                 }
             } break;
 
-            case CHALLENGE: {
-                // Tela de desafio do Rei do Rock
-                ClearBackground(BLACK);
+case CHALLENGE: {
+    cutsceneTimer += deltaTime/2;
 
-                DrawTextEx(titleFont, "DESAFIO DO REI DO ROCK",
-                          (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "DESAFIO DO REI DO ROCK", 70, 0).x/2, 100},
-                          70, 0, GOLD);
+    // Fundo com efeito de fogo
+    if (cutsceneState == 0) {
+          DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
+                          (Color){10, 0, 0, 255},
+                          (Color){40, 0, 0, 255});
+    } else {
+      DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
+    }
 
-                DrawTextEx(mainFont, "Voce alcancou 100% de fama!",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Voce alcancou 100% de fama!", 40, 0).x/2, 200},
-                          40, 0, WHITE);
+    // Desenha o Deus do Rock (apenas no estado 1)
+    if (cutsceneState == 1) {
+        float godAlpha = fminf(1.0f, cutsceneTimer * 0.3f); // Fade-in lento
 
-                DrawTextEx(mainFont, "O Deus do Rock te desafia para uma batalha final!",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "O Deus do Rock te desafia para uma batalha final!", 40, 0).x/2, 250},
-                          40, 0, WHITE);
+        // Desenha a imagem com fade-in e efeito de brilho
+        float godScale = 1.0f;
+        Rectangle godSrc = {0, 0, godTex.width, godTex.height};
+        Rectangle godDest = {
+            screenWidth/2 - (godTex.width * godScale)/2,
+            screenHeight/2 - (godTex.height * godScale)/2,
+            godTex.width * godScale,
+            godTex.height * godScale
+        };
 
-                DrawTextEx(mainFont, "Toque PERFEITAMENTE todas as musicas em sequencia",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Toque PERFEITAMENTE todas as musicas em sequencia", 30, 0).x/2, 350},
-                          30, 0, YELLOW);
+        // Desenha a imagem com fade-in
+        DrawTexturePro(godTex, godSrc, godDest, (Vector2){0}, 0,
+                      Fade(WHITE, godAlpha));
+    }
 
-                DrawTextEx(mainFont, "para se tornar o verdadeiro REI DO ROCK!",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "para se tornar o verdadeiro REI DO ROCK!", 30, 0).x/2, 400},
-                          30, 0, YELLOW);
+    // Efeitos de partículas de fogo (sobrepostas à imagem)
+    for (int i = 0; i < 50; i++) {
+        float x = sin(GetTime() * 2 + i) * screenWidth;
+        float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+        DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.7f));
+    }
 
-                DrawTextEx(mainFont, "Pressione ENTER para comecar o desafio",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione ENTER para comecar o desafio", 25, 0).x/2, 550},
-                          25, 0, GRAY);
-            } break;
+    switch (cutsceneState) {
+        case 0: { // Introdução
+            const char* text1 = "O DEUS DO ROCK TE DESAFIA!";
+            const char* text2 = "Voce alcancou 100% de fama...";
+            const char* text3 = "Mas sera que consegue enfrentar o criador do rock?";
+
+            float textAlpha = fminf(1.0f, cutsceneTimer * 0.8f);
+
+            DrawTextEx(titleFont, text1,
+                     (Vector2){screenWidth/2 - MeasureTextEx(titleFont, text1, 60, 0).x/2, 100},
+                     60, 0, Fade(GOLD, textAlpha));
+
+            if (cutsceneTimer > 1.5f) {
+                float alpha2 = fminf(1.0f, (cutsceneTimer-1.5f) * 0.8f);
+                DrawTextEx(mainFont, text2,
+                         (Vector2){screenWidth/2 - MeasureTextEx(mainFont, text2, 40, 0).x/2, 200},
+                         40, 0, Fade(WHITE, alpha2));
+            }
+
+            if (cutsceneTimer > 3.0f) {
+                float alpha3 = fminf(1.0f, (cutsceneTimer-3.0f) * 0.8f);
+                DrawTextEx(mainFont, text3,
+                         (Vector2){screenWidth/2 - MeasureTextEx(mainFont, text3, 40, 0).x/2, 260},
+                         40, 0, Fade(WHITE, alpha3));
+            }
+
+            if (cutsceneTimer > 6.0f) {
+              	PlaySound(guitarSound);
+                cutsceneState = 1;
+                cutsceneTimer = 0;
+            }
+
+            // Instrução para pular
+            if (cutsceneTimer > 1.0f) {
+                DrawTextEx(mainFont, "Pressione E para avancar",
+                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione E para avancar", 30, 0).x/2,
+                          screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
+            }
+
+            if (IsKeyPressed(KEY_E)) {
+                cutsceneState = 1;
+                cutsceneTimer = 0;
+            }
+        } break;
+
+        case 1: { // Apresentação do Deus do Rock
+            // Diálogo
+            const char* godText = "\"ENFRENTE-ME SE FOR CAPAZ, CRIATURA!\"";
+            float textAlpha = fminf(1.0f, cutsceneTimer * 2.0f);
+
+            DrawTextEx(titleFont, godText,
+                     (Vector2){screenWidth/2 - MeasureTextEx(titleFont, godText, 50, 0).x/2,
+                     screenHeight - 150},
+                     50, 0, Fade(WHITE, textAlpha));
+
+            // Instrução
+            if (cutsceneTimer > 2.0f) {
+                DrawTextEx(mainFont, "Pressione ENTER para aceitar o desafio",
+                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione ENTER para aceitar o desafio", 30, 0).x/2,
+                          screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
+            }
+        } break;
+    }
+} break;
 
             case RESULTS: {
                 // Draw results screen background
-                DrawRectangleGradientV(0, 0, screenWidth, screenHeight, (Color){20, 20, 40, 255}, (Color){10, 10, 20, 255});
+                DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
+                          (Color){10, 0, 0, 255},
+                          (Color){40, 0, 0, 255});
 				// Na seção RESULTS, adicione uma verificação para o modo Deus:
                 if (godModeActive) {
                     if (!stats.songFailed) {
@@ -1779,6 +1919,7 @@ int main(void) {
     UnloadTexture(menuBackgroundTex);
     UnloadTexture(godBackgroundTex);
     UnloadSound(noteMissSound);
+    UnloadSound(guitarSound);
     UnloadSound(starPowerSound);
     UnloadSound(menuSelectSound);
     UnloadSound(menuScrollSound);
