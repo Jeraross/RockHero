@@ -1,6 +1,4 @@
-# 💻 Projeto com Raylib + cURL + Gemini API
-
-Este repositório contém um projeto C com suporte à [Raylib](https://www.raylib.com/) e integração com a [API Gemini](https://ai.google.dev/). Ele já vem com a estrutura pronta, incluindo dependências como `cURL` e `cJSON`, e um exemplo funcional de requisição à API.
+# 💻 ROCK HERO
 
 ---
 
