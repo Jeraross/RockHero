@@ -186,8 +186,10 @@ void DrawMap1(MapData *map, Player *player) {
     }
 
     float distance3 = fabs(790 - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
-    if (distance3 < 150.0f){
+    if (distance3 < 150.0f) {
         float scale = 0.25f;
+
+        // Desenha a seta
         DrawTexturePro(
                 map->seta,
                 (Rectangle){0, 0, map->seta.width, map->seta.height},
@@ -204,5 +206,19 @@ void DrawMap1(MapData *map, Player *player) {
                 270.0f,
                 WHITE
         );
+
+        const char* letra = "M";
+        int fontSize = 20;
+        Vector2 textSize = MeasureTextEx(map->font, letra, fontSize, 2.0f);
+
+        Vector2 textPos = {
+                736 - textSize.x / 2,
+                (790 + offset) - textSize.y / 2
+        };
+
+        DrawTextEx(map->font, letra, textPos, fontSize, 2.0f, WHITE);
     }
+
+
+
 }

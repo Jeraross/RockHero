@@ -230,6 +230,16 @@ void DrawMap3(MapData *map, Player *player) {
                 270.0f,
                 WHITE
         );
+        const char* letra = "M";
+        int fontSize = 20;
+        Vector2 textSize = MeasureTextEx(map->font, letra, fontSize, 2.0f);
+
+        Vector2 textPos = {
+                486 - textSize.x / 2,
+                (790 + offset) - textSize.y / 2
+        };
+
+        DrawTextEx(map->font, letra, textPos, fontSize, 2.0f, WHITE);
     }
 
 }

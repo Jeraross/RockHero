@@ -12,6 +12,7 @@ typedef struct {
     Npc npc;
     Font font;
     Texture keyPrompt;
+    Texture keyPrompt2;
 
     bool typingQuestion;
     bool waitingResponse;
