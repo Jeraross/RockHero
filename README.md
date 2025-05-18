@@ -33,7 +33,7 @@ Acesse o site oficial da Raylib:
 
 ---
 
-### 4. Compile o jogo
+### 3. Compile o jogo
 
 Abra o terminal `w64devkit` e digite duas vezes no diretório do seu jogo:
 
