@@ -232,7 +232,7 @@ void ShowTempWarning(const char* message, float duration);
 
 void AddSpecialNote(Note* notes, int maxNotes, int lane, float spawnTime, int specialType);
 
-void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic);
+void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic, GameStats* stats);
 
 void ResetGodModeState(Note* notes, GameStats* stats, Music* gameMusic);
 
@@ -263,6 +263,7 @@ int main(void) {
     Sound menuSelectSound = LoadSound("assets/sounds/select.wav");
     Sound menuScrollSound = LoadSound("assets/sounds/scroll.wav");
     Sound guitarSound = LoadSound("assets/sounds/guitar_scream.wav");
+    Sound godSound = LoadSound("assets/sounds/criatura.wav");
 
     // Load fonts
     Font titleFont = LoadFontEx("assets/font/Vampire Wars.ttf", 72, 0, 0);
@@ -551,7 +552,7 @@ int main(void) {
 
                     // Gera notas especiais
                     if (IsMusicStreamPlaying(gameMusic)) {
-        				GenerateGodModeNotes(notes, MAX_NOTES, musicPosition, &gameMusic);
+        				GenerateGodModeNotes(notes, MAX_NOTES, musicPosition, &gameMusic, &stats);
     				}
                 } else {
                 	while (nextChartNote < MAX_CHART_NOTES &&
@@ -803,7 +804,7 @@ int main(void) {
             } break;
 
             case MAPAS: {
-                if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;}
+                //if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;}
                 // Atualiza o mapa atual
                 if (currentMap->mapId == 1) {
                     UpdateMusicStream(map1Music);
@@ -1007,7 +1008,7 @@ int main(void) {
                       	gameState = MAIN_MENU;
                     }
                   	if (IsKeyPressed(KEY_C) && stats.songFailed && godModeActive) {
-                        cutsceneState = 1;
+                        cutsceneState = 2;
                         cutsceneTimer = 0;
                     	gameState = CHALLENGE;
                   	}
@@ -1166,15 +1167,11 @@ int main(void) {
 
                 	DrawTexturePro(godBackgroundTex, source, dest, origin, 0.0f, WHITE);
 
-     	           	// Desenha aura vermelha quando o combo está alto
-     	        	if (stats.combo > GOD_MODE_COMBO_THRESHOLD) {
-         	        	// Efeitos de partículas de fogo (sobrepostas à imagem)
-         	        	for (int i = 0; i < 50; i++) {
-         	        	    float x = sin(GetTime() * 2 + i) * screenWidth;
-         	        	    float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
-         	        	    DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.7f));
-         	        	}
-      	        	}
+         	        for (int i = 0; i < 50; i++) {
+         	        	float x = sin(GetTime() * 2 + i) * screenWidth;
+         	        	float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+         	        	DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.5f));
+         	        }
     	        } else {
                     Rectangle source = { quickBackgroundTex.width/2 - (quickBackgroundTex.width/1.3)/2, 0.0f, quickBackgroundTex.width/1.3, quickBackgroundTex.height/1.3 };
                 	Rectangle dest = { 0.0f, 0.0f, (float)screenWidth, (float)screenHeight };
@@ -1421,6 +1418,7 @@ if (godModeActive) {
 
     // Marcador do threshold
     float thresholdPos = GOD_MODE_COMBO_THRESHOLD / (float)GOD_MODE_WIN_COMBO;
+
     DrawLine(barX + barWidth * thresholdPos, barY - 5,
              barX + barWidth * thresholdPos, barY + barHeight + 5,
              Fade(WHITE, 0.5f));
@@ -1472,6 +1470,15 @@ if (godModeActive) {
                 barY + barHeight/2 + sin(angle * (3 + i)) * radius
             };
             DrawCircleV(pos, 2 + pulseIntensity * 3, Fade(RED, 0.7f));
+        }
+    }
+
+    if (stats.combo >= GOD_MODE_COMBO_THRESHOLD) {
+        // Efeitos de partículas de fogo (sobrepostas à imagem)
+        for (int i = 0; i < 50; i++) {
+         	float x = sin(GetTime() * 1.8 + i) * screenWidth;
+         	float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+         	DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.5f));
         }
     }
 }
@@ -1751,13 +1758,7 @@ case CHALLENGE: {
                          40, 0, Fade(WHITE, alpha3));
             }
 
-            if (cutsceneTimer > 7.0f) {
-                PlaySound(guitarSound);
-                cutsceneState = 1; // Vai para a tela de explicação das chamas
-                cutsceneTimer = 0;
-            }
-
-                // Instrução para continuar
+            // Instrução para continuar
     		if (cutsceneTimer > 3.5f) { // Mostra depois que todas as chamas apareceram
     		    DrawTextEx(mainFont, "Pressione E para avancar",
     		             (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione E para avancar", 30, 0).x/2,
@@ -1829,6 +1830,7 @@ case 1: { // Explicação das chamas do destino
 
     if (IsKeyPressed(KEY_E) && cutsceneTimer > 3.5f) {
         PlaySound(guitarSound);
+        PlaySound(godSound);
         cutsceneState = 2;
         cutsceneTimer = 0;
     }
@@ -1850,7 +1852,7 @@ case 1: { // Explicação das chamas do destino
             // Desenha a imagem com fade-in
             DrawTexturePro(godTex, godSrc, godDest, (Vector2){0}, 0, Fade(WHITE, godAlpha));
 			DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
-                        (Color){10, 0, 0, 50},
+                        (Color){10, 0, 0, 40},
                         (Color){40, 0, 0, 150});
     		// Efeitos de partículas de fogo (sobrepostas à imagem)
     		for (int i = 0; i < 50; i++) {
@@ -2008,6 +2010,11 @@ case 1: { // Explicação das chamas do destino
                                 }
                             }
                         }
+                        for (int i = 0; i < 50; i++) {
+         					float x = sin(GetTime() * 2 + i) * screenWidth;
+         					float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+         					DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.7f));
+        				}
                     } else {
                         DrawTextEx(titleFont, "O DEUS DO ROCK TE DERROTOU!",
                                   (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "O DEUS DO ROCK TE DERROTOU!", 70, 0).x/2, 150},
@@ -2016,6 +2023,12 @@ case 1: { // Explicação das chamas do destino
                         DrawTextEx(mainFont, "Tente novamente quando estiver preparado... (C)",
                                   (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Tente novamente quando estiver preparado... (C)", 40, 0).x/2, 250},
                                   40, 0, WHITE);
+
+                        for (int i = 0; i < 50; i++) {
+         					float x = sin(GetTime() * 2 + i) * screenWidth;
+         					float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+         					DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.7f));
+        				}
                     }
                 }
                 else {
@@ -2172,6 +2185,7 @@ case 1: { // Explicação das chamas do destino
     UnloadTexture(godBackgroundTex);
     UnloadSound(noteMissSound);
     UnloadSound(guitarSound);
+    UnloadSound(godSound);
     UnloadSound(starPowerSound);
     UnloadSound(menuSelectSound);
     UnloadSound(menuScrollSound);
@@ -2623,39 +2637,63 @@ void ShowTempWarning(const char* message, float duration) {
     tempWarning.timer = 0;
 }
 
-void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic) {
+void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic, GameStats* stats) {
   	if (!IsMusicStreamPlaying(*gameMusic)) return;
     // Padrões de riff pré-definidos para o modo Deus
 	if (currentTime == 0) {
           lastRiffTime = 0.0f;
 	}
-    // Gera um riff a cada 5-8 segundos
-    if (currentTime - lastRiffTime > 0.60) {
+
+    // Define o intervalo entre riffs baseado no combo atual
+    float riffInterval;
+    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD) {
+        riffInterval = 0.6f;
+    } else { // Fase 1 - Normal
+        riffInterval = 0.65f;
+    }
+
+    if (currentTime - lastRiffTime > riffInterval) {
         lastRiffTime = currentTime;
 
         // Escolhe um padrão de riff aleatório
         int riffPattern = GetRandomValue(0, 3);
-        float baseTime = currentTime + 1.0f; // Começa 1 segundo depois
+        float baseTime = currentTime; // Começa 1 segundo depois
+
+        // Define a probabilidade de notas especiais baseado no combo
+        int specialNoteChance;
+        if (stats->combo >= GOD_MODE_COMBO_THRESHOLD) { // Fase 2 - 60% chance
+            specialNoteChance = 6;
+        } else { // Fase 1 - 20% chance
+            specialNoteChance = 8;
+        }
 
         switch (riffPattern) {
             case 0: // Riff ascendente
                 for (int i = 0; i < NUM_LANES; i++) {
-                    int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
+                    int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + i*0.1f, type);
+
+                    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD && i == 4) {
+                        AddSpecialNote(notes, maxNotes, 0, baseTime + i*0.1f, type);
+                    }
                 }
                 break;
 
             case 1: // Riff descendente
                 for (int i = NUM_LANES-1; i >= 0; i--) {
-                    int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
+                    int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + (NUM_LANES-1-i)*0.1f, type);
+
+                    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD && i == 0) {
+                        AddSpecialNote(notes, maxNotes, 4, baseTime + (NUM_LANES-1-i)*0.1f, type);
+                    }
                 }
                 break;
 
             case 2: // Notas simultâneas
                 for (int i = 0; i < NUM_LANES; i++) {
                     if (GetRandomValue(0, 1)) { // 50% chance de spawnar em cada lane
-                        int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
+                        int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                         AddSpecialNote(notes, maxNotes, i, baseTime, type);
                         AddSpecialNote(notes, maxNotes, i, baseTime + 0.3f, type);
                     }
@@ -2664,8 +2702,13 @@ void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* g
 
             case 3: // Notas alternadas
                 for (int i = 0; i < NUM_LANES; i += 2) {
-                    int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
+                    int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + i*0.1f, type);
+
+                    // Na fase 3, adiciona notas entre as alternadas
+                    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD && i+1 < NUM_LANES) {
+                        AddSpecialNote(notes, maxNotes, i+1, baseTime + i*0.1f + 0.2f, type);
+                    }
                 }
                 break;
         }
