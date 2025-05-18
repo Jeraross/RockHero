@@ -993,7 +993,7 @@ int main(void) {
                         else gameState = BLESS;
                     }
                 } else {
-                    if (IsKeyPressed(KEY_SPACE) && godModeActive) {
+                    if (IsKeyPressed(KEY_SPACE) && godModeActive && !stats.songFailed) {
                         for (int i = 0; i < 3; i++) {
                             player.blessings.blessings[i] = BLESS_NONE;
                         }
@@ -1751,18 +1751,18 @@ case CHALLENGE: {
                          40, 0, Fade(WHITE, alpha3));
             }
 
-            if (cutsceneTimer > 6.0f) {
+            if (cutsceneTimer > 7.0f) {
                 PlaySound(guitarSound);
                 cutsceneState = 1; // Vai para a tela de explicação das chamas
                 cutsceneTimer = 0;
             }
 
-            // Instrução para pular
-            if (cutsceneTimer > 1.0f) {
-                DrawTextEx(mainFont, "Pressione E para avancar",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione E para avancar", 30, 0).x/2,
-                          screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
-            }
+                // Instrução para continuar
+    		if (cutsceneTimer > 3.5f) { // Mostra depois que todas as chamas apareceram
+    		    DrawTextEx(mainFont, "Pressione E para avancar",
+    		             (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione E para avancar", 30, 0).x/2,
+    		             screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
+    		}
 
             if (IsKeyPressed(KEY_E)) {
                 PlaySound(guitarSound);
@@ -1835,7 +1835,7 @@ case 1: { // Explicação das chamas do destino
 } break;
 
         case 2: { // Apresentação final do Deus do Rock
-            float godAlpha = fminf(0.8f, cutsceneTimer * 0.2f);
+            float godAlpha = fminf(1.0f, cutsceneTimer * 0.2f);
 
             // Desenha a imagem com fade-in e efeito de brilho
             float godScale = 1.0f;
@@ -1849,6 +1849,15 @@ case 1: { // Explicação das chamas do destino
 
             // Desenha a imagem com fade-in
             DrawTexturePro(godTex, godSrc, godDest, (Vector2){0}, 0, Fade(WHITE, godAlpha));
+			DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
+                        (Color){10, 0, 0, 50},
+                        (Color){40, 0, 0, 150});
+    		// Efeitos de partículas de fogo (sobrepostas à imagem)
+    		for (int i = 0; i < 50; i++) {
+    		    float x = sin(GetTime() * 2 + i) * screenWidth;
+    		    float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+    		    DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.7f));
+    		}
 
             // Diálogo
             const char* godText = "\"ENFRENTE-ME SE FOR CAPAZ, CRIATURA!\"";
@@ -1860,7 +1869,7 @@ case 1: { // Explicação das chamas do destino
                      50, 0, Fade(WHITE, textAlpha));
 
             // Instrução para começar
-            if (cutsceneTimer > 1.0f) {
+            if (cutsceneTimer > 3.5f) {
                 DrawTextEx(mainFont, "Pressione ENTER para comecar o desafio",
                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione ENTER para comecar o desafio", 30, 0).x/2,
                          screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
@@ -1877,65 +1886,65 @@ case 1: { // Explicação das chamas do destino
 
                 // Vitória no modo Deus
                 if (godModeActive) {
-                    if (!stats.songFailed){
-                    // Captura o tempo apenas uma vez
-                    if (totalTime == 0.0f) {
-                        storyEndTime = GetTime();
-                        totalTime = storyEndTime - storyStartTime;
-                    }
+                    if (!stats.songFailed) {
+                    	// Captura o tempo apenas uma vez
+                    	if (totalTime == 0.0f) {
+                    	    storyEndTime = GetTime();
+                    	    totalTime = storyEndTime - storyStartTime;
+                    	}
 
-                    // Etapa 1: Tela de vitória + entrada de nome
-                    if (!showFinalScoreboard) {
-                        DrawTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!",
-                                   (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!", 70, 0).x/2, 150},
-                                   70, 0, GOLD);
+                    	// Etapa 1: Tela de vitória + entrada de nome
+                    	if (!showFinalScoreboard) {
+                    	    DrawTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!",
+                    	               (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!", 70, 0).x/2, 150},
+                    	               70, 0, GOLD);
 
-                        DrawTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!",
+                    	    DrawTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!",
                                    (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!", 40, 0).x/2, 250},
                                    40, 0, WHITE);
 
 
                         // Entrada de nome
-                        if (!scoreAlreadySaved) enteringName = true;
+                   		    if (!scoreAlreadySaved) enteringName = true;
 
-                        if (enteringName) {
-                            int key = GetCharPressed();
-                            while (key > 0) {
-                                if (key >= 32 && key <= 125 && nameLength < MAX_NAME_LENGTH - 1) {
-                                    playerName[nameLength++] = (char)key;
-                                    playerName[nameLength] = '\0';
-                                }
-                                key = GetCharPressed();
-                            }
+                    	    if (enteringName) {
+                            	int key = GetCharPressed();
+                           		while (key > 0) {
+                            	    if (key >= 32 && key <= 125 && nameLength < MAX_NAME_LENGTH - 1) {
+                           		        playerName[nameLength++] = (char)key;
+                            	        playerName[nameLength] = '\0';
+                            	    }
+                            	    key = GetCharPressed();
+                            	}
 
-                            if (IsKeyPressed(KEY_BACKSPACE) && nameLength > 0) {
-                                nameLength--;
-                                playerName[nameLength] = '\0';
-                            }
+                            	if (IsKeyPressed(KEY_BACKSPACE) && nameLength > 0) {
+                            	    nameLength--;
+                            	    playerName[nameLength] = '\0';
+                            	}
 
-                            const char* tempoStr = TextFormat("Tempo final: %.2f segundos", totalTime);
-                            Vector2 tempoSize = MeasureTextEx(mainFont, tempoStr, 30, 0);
-                            DrawTextEx(mainFont, tempoStr,
+                            	const char* tempoStr = TextFormat("Tempo final: %.2f segundos", totalTime);
+                            	Vector2 tempoSize = MeasureTextEx(mainFont, tempoStr, 30, 0);
+                            	DrawTextEx(mainFont, tempoStr,
                                        (Vector2){screenWidth/2 - tempoSize.x/2, 320}, 30, 0, WHITE);
 
-                            const char* promptStr = "Digite seu nome:";
-                            Vector2 promptSize = MeasureTextEx(mainFont, promptStr, 30, 0);
-                            DrawTextEx(mainFont, promptStr,
+                            	const char* promptStr = "Digite seu nome:";
+                            	Vector2 promptSize = MeasureTextEx(mainFont, promptStr, 30, 0);
+                            	DrawTextEx(mainFont, promptStr,
                                        (Vector2){screenWidth/2 - promptSize.x/2, 370}, 30, 0, WHITE);
 
-                            Vector2 nameSize = MeasureTextEx(mainFont, playerName, 30, 0);
-                            DrawTextEx(mainFont, playerName,
+                            	Vector2 nameSize = MeasureTextEx(mainFont, playerName, 30, 0);
+                            	DrawTextEx(mainFont, playerName,
                                        (Vector2){screenWidth/2 - nameSize.x/2, 410}, 30, 0, YELLOW);
 
-                            if (IsKeyPressed(KEY_ENTER) && nameLength > 0) {
-                                InsertScore(playerName, totalTime);
-                                SaveScoreboardToFile("scoreboard.txt");
-                                enteringName = false;
-                                scoreAlreadySaved = true;
-                                showFinalScoreboard = true;
-                            }
-                        }
-                    }
+                            	if (IsKeyPressed(KEY_ENTER) && nameLength > 0) {
+                            	    InsertScore(playerName, totalTime);
+                            	    SaveScoreboardToFile("scoreboard.txt");
+                            	    enteringName = false;
+                            	    scoreAlreadySaved = true;
+                            	    showFinalScoreboard = true;
+                            	}
+                        	}
+                    	}
 
                         if (showFinalScoreboard) {
                             DrawText("PLACAR DE HERÓIS DO ROCK", screenWidth/2 - 200, 80, 30, YELLOW);
@@ -1999,6 +2008,14 @@ case 1: { // Explicação das chamas do destino
                                 }
                             }
                         }
+                    } else {
+                        DrawTextEx(titleFont, "O DEUS DO ROCK TE DERROTOU!",
+                                  (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "O DEUS DO ROCK TE DERROTOU!", 70, 0).x/2, 150},
+                                  70, 0, RED);
+
+                        DrawTextEx(mainFont, "Tente novamente quando estiver preparado... (C)",
+                                  (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Tente novamente quando estiver preparado... (C)", 40, 0).x/2, 250},
+                                  40, 0, WHITE);
                     }
                 }
                 else {
