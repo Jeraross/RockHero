@@ -41,7 +41,7 @@
 #define FORGIVENESS_CHARGES 6
 #define FORGIVENESS_EFFECT_DURATION 1.0f
 // CHALLENGE WOW
-#define GOD_MODE_COMBO_THRESHOLD 100
+#define GOD_MODE_COMBO_THRESHOLD 150
 #define GOD_MODE_WIN_COMBO 300
 #define SPECIAL_NOTE_FIRE 1
 #define SPECIAL_NOTE_POISON 2
@@ -184,7 +184,7 @@ int cutsceneState = 0;
 float cutsceneTimer = 0;
 
 bool godModeActive = false;
-float screenShakeIntensity = 0.0f;
+float lastRiffTime = 0.0f;
 float comboModeTimer = 0.0f;
 float invisibleModeTimer = 0.0f;
 float noteSpeedMultiplier = 1.0f;
@@ -553,9 +553,6 @@ int main(void) {
                     if (IsMusicStreamPlaying(gameMusic)) {
         				GenerateGodModeNotes(notes, MAX_NOTES, musicPosition, &gameMusic);
     				}
-
-                    // Atualiza tremulação da tela baseada no combo
-                    screenShakeIntensity = stats.combo / 100.0f;
                 } else {
                 	while (nextChartNote < MAX_CHART_NOTES &&
                 	    currentChart[nextChartNote].lane != -1 &&
@@ -806,7 +803,7 @@ int main(void) {
             } break;
 
             case MAPAS: {
-                //if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;}
+                if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;}
                 // Atualiza o mapa atual
                 if (currentMap->mapId == 1) {
                     UpdateMusicStream(map1Music);
@@ -908,7 +905,7 @@ int main(void) {
             } break;
 
             case CHALLENGE: {
-              	if (IsKeyPressed(KEY_E)) PlaySound(guitarSound);
+
 				if (IsKeyPressed(KEY_ENTER)) {
                     PlaySound(guitarSound);
         			ResetGodModeState(notes, &stats, &gameMusic);
@@ -1050,7 +1047,7 @@ int main(void) {
                 const char* menuOptions[] = {"STORY", "QUICKPLAY", "CONTROLS", "CREDITS", "SCOREBOARD", "EXIT"};
                 int numOptions = sizeof(menuOptions)/sizeof(menuOptions[0]);
 
-                int startY = 375;
+                int startY = 340;
                 int optionSpacing = 70;
 
                 for (int i = 0; i < numOptions; i++) {
@@ -1163,7 +1160,7 @@ int main(void) {
                 ClearBackground((Color){10, 10, 20, 255});
 
                 if (godModeActive) {
-                    Rectangle source = { 0.0f, 0.0f, godBackgroundTex.width/1.0875, godBackgroundTex.height };
+                    Rectangle source = { 0.0f, 0.0f, godBackgroundTex.width/1.082, godBackgroundTex.height };
                 	Rectangle dest = { 0.0f, 0.0f, (float)screenWidth, (float)screenHeight };
                 	Vector2 origin = { 0.0f, 0.0f };
 
@@ -1722,7 +1719,7 @@ case CHALLENGE: {
 
     // Desenha o Deus do Rock (apenas no estado 1)
     if (cutsceneState == 1) {
-        float godAlpha = fminf(1.0f, cutsceneTimer * 0.3f); // Fade-in lento
+        float godAlpha = fminf(0.8f, cutsceneTimer * 0.2f);
 
         // Desenha a imagem com fade-in e efeito de brilho
         float godScale = 1.0f;
@@ -1786,6 +1783,7 @@ case CHALLENGE: {
             }
 
             if (IsKeyPressed(KEY_E)) {
+              	PlaySound(guitarSound);
                 cutsceneState = 1;
                 cutsceneTimer = 0;
             }
@@ -2551,12 +2549,11 @@ void ShowTempWarning(const char* message, float duration) {
 void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic) {
   	if (!IsMusicStreamPlaying(*gameMusic)) return;
     // Padrões de riff pré-definidos para o modo Deus
-    static float lastRiffTime = 0.0f;
 	if (currentTime == 0) {
           lastRiffTime = 0.0f;
 	}
     // Gera um riff a cada 5-8 segundos
-    if (currentTime - lastRiffTime > 0.65) {
+    if (currentTime - lastRiffTime > 0.60) {
         lastRiffTime = currentTime;
 
         // Escolhe um padrão de riff aleatório
@@ -2655,7 +2652,6 @@ void ResetGodModeState(Note* notes, GameStats* stats, Music* gameMusic) {
 
     // Reseta variáveis do God Mode
     godModeActive = false;
-    screenShakeIntensity = 0.0f;
     comboModeTimer = 0.0f;
     invisibleModeTimer = 0.0f;
     noteSpeedMultiplier = 1.0f;
