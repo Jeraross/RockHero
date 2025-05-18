@@ -23,9 +23,9 @@ LIBS = -L$(LIB_DIR) -Lcurl/lib -lraylib -lcurl -lopengl32 -lgdi32 -lwinmm
 $(RELEASE_DIR)/$(TARGET).exe: $(SOURCES)
 	@mkdir -p $(RELEASE_DIR)
 	gcc $(CFLAGS) $^ -o $@ $(LIBS)
-	@cp $(LIB_DIR)/raylib.dll $(RELEASE_DIR)/
-	@cp curl/bin/libcurl.dll $(RELEASE_DIR)/
-	@echo "Compilação concluída. DLLs copiadas para bin/"
+	-@cp $(LIB_DIR)/raylib.dll $(RELEASE_DIR)/
+	-@cp /bin/libcurl.dll $(RELEASE_DIR)/
+	@echo "Compilacao concluida. DLLs copiadas para bin/"
 
 run: $(RELEASE_DIR)/$(TARGET).exe
 	./bin/app.exe

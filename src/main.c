@@ -41,8 +41,8 @@
 #define FORGIVENESS_CHARGES 6
 #define FORGIVENESS_EFFECT_DURATION 1.0f
 // CHALLENGE WOW
-#define GOD_MODE_COMBO_THRESHOLD 40
-#define GOD_MODE_WIN_COMBO 150
+#define GOD_MODE_COMBO_THRESHOLD 100
+#define GOD_MODE_WIN_COMBO 300
 #define SPECIAL_NOTE_FIRE 1
 #define SPECIAL_NOTE_POISON 2
 #define SPECIAL_NOTE_INVISIBLE 3
@@ -92,7 +92,8 @@ typedef enum {
     MAPAS,
     RESULTS,
     CHALLENGE,
-    BLESS
+    BLESS,
+    SCOREBOARD
 } GameState;
 
 typedef enum {
@@ -100,6 +101,7 @@ typedef enum {
     MENU_QUICKPLAY,
     MENU_CONTROLS,
     MENU_CREDITS,
+    MENU_SCOREBOARD,
     MENU_EXIT
 } MenuOption;
 
@@ -238,6 +240,9 @@ void InsertScore(const char* name, float time);
 
 void DrawScoreboard(Font font, int x, int y);
 
+void SaveScoreboardToFile(const char* filename);
+
+void LoadScoreboardFromFile(const char* filename);
 
 int main(void) {
     SetConfigFlags(FLAG_FULLSCREEN_MODE);
@@ -340,6 +345,8 @@ int main(void) {
     MapNode* currentMap = NULL;
     mapList = CreateMapList();
     currentMap = mapList; // Começa no mapa 1
+
+    LoadScoreboardFromFile("scoreboard.txt");
 
     while (!WindowShouldClose()) {
         deltaTime = GetFrameTime();
@@ -486,7 +493,12 @@ int main(void) {
                             inSubMenu = true;
                             break;
 
+                        case MENU_SCOREBOARD:
+                            gameState = SCOREBOARD;
+                            break;
+
                         case MENU_EXIT:
+                            exit(0);
                             CloseWindow();
                             break;
                     }
@@ -520,10 +532,6 @@ int main(void) {
                     PlayMusicStream(gameMusic);
                     SeekMusicStream(gameMusic, 0);
                     gameState = PLAYING;
-                }
-                if (IsKeyPressed(KEY_ESCAPE)) {
-                    PlaySound(menuSelectSound);
-                    gameState = MAIN_MENU;
                 }
             } break;
 
@@ -917,6 +925,10 @@ int main(void) {
 				}
             } break;
 
+            case SCOREBOARD:{
+
+            } break;
+
             case RESULTS: {
                 if (instory && !godModeActive) {
                     if (IsKeyPressed(KEY_SPACE)) {
@@ -1035,7 +1047,7 @@ int main(void) {
                 DrawTextEx(titleFont, titleText, titlePos, 200, 0, WHITE);
 
                 // Menu options
-                const char* menuOptions[] = {"STORY", "QUICKPLAY", "CONTROLS", "CREDITS", "EXIT"};
+                const char* menuOptions[] = {"STORY", "QUICKPLAY", "CONTROLS", "CREDITS", "SCOREBOARD", "EXIT"};
                 int numOptions = sizeof(menuOptions)/sizeof(menuOptions[0]);
 
                 int startY = 375;
@@ -1082,19 +1094,17 @@ int main(void) {
                         case MENU_CREDITS:
                             break;
 
+                        case MENU_SCOREBOARD:
+                            gameState = SCOREBOARD;
+                            break;
+
                         case MENU_EXIT:
+                            exit(0);
                             CloseWindow();
                             break;
                     }
                 }
 
-                if (IsKeyPressed(KEY_ESCAPE)) {
-                    if (inSubMenu) {
-                        inSubMenu = false;
-                    } else {
-                        CloseWindow();
-                    }
-                }
 
                 // Draw instructions
                 const char *instructionText = "Use ARROWS to navigate | ENTER to select";
@@ -1579,6 +1589,44 @@ if (godModeActive) {
 
             } break;
 
+            case SCOREBOARD: {
+                // Fundo
+                DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
+                                       (Color){10, 10, 30, 255},
+                                       (Color){5, 5, 15, 255});
+
+                // Título
+                const char* titleText = "PLACAR DE HEROIS DO ROCK";
+                Vector2 titleSize = MeasureTextEx(titleFont, titleText, 60, 0);
+                DrawTextEx(titleFont, titleText,
+                           (Vector2){screenWidth/2 - titleSize.x/2, 80},
+                           60, 0, GOLD);
+
+                // Lista de scores centralizada
+                for (int i = 0; i < numScores; i++) {
+                    char line[64];
+                    sprintf(line, "%2d. %-20s  %.2f s", i + 1, topScores[i].name, topScores[i].time);
+
+                    Vector2 lineSize = MeasureTextEx(mainFont, line, 32, 0);
+                    DrawTextEx(mainFont, line,
+                               (Vector2){screenWidth/2 - lineSize.x/2, 160 + i * 40},
+                               32, 0, WHITE);
+                }
+
+                // Instrução de retorno
+                const char* backText = "PRESS SPACE TO RETURN";
+                Vector2 backSize = MeasureTextEx(mainFont, backText, 24, 0);
+                DrawTextEx(mainFont, backText,
+                           (Vector2){screenWidth/2 - backSize.x/2, screenHeight - 60},
+                           24, 0, GRAY);
+
+                // Voltar ao menu
+                if (IsKeyPressed(KEY_SPACE)) {
+                    gameState = MAIN_MENU;
+                }
+            } break;
+
+
             case BLESS: {
                 if (inBlessingSelection) {
                     // Fundo com textura
@@ -1819,10 +1867,11 @@ case CHALLENGE: {
 
                             Vector2 nameSize = MeasureTextEx(mainFont, playerName, 30, 0);
                             DrawTextEx(mainFont, playerName,
-                                       (Vector2){screenWidth/2 - nameSize.x/2, 410}, 30, 0, GREEN);
+                                       (Vector2){screenWidth/2 - nameSize.x/2, 410}, 30, 0, YELLOW);
 
                             if (IsKeyPressed(KEY_ENTER) && nameLength > 0) {
                                 InsertScore(playerName, totalTime);
+                                SaveScoreboardToFile("scoreboard.txt");
                                 enteringName = false;
                                 scoreAlreadySaved = true;
                                 showFinalScoreboard = true;
@@ -2648,3 +2697,26 @@ void DrawScoreboard(Font font, int x, int y) {
     }
 }
 
+void SaveScoreboardToFile(const char* filename) {
+    FILE* file = fopen(filename, "w");
+    if (!file) return;
+
+    for (int i = 0; i < numScores; i++) {
+        fprintf(file, "%s %.2f\n", topScores[i].name, topScores[i].time);
+    }
+
+    fclose(file);
+}
+
+void LoadScoreboardFromFile(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (!file) return;
+
+    numScores = 0;
+    while (fscanf(file, "%s %f", topScores[numScores].name, &topScores[numScores].time) == 2) {
+        numScores++;
+        if (numScores >= MAX_SCORES) break;
+    }
+
+    fclose(file);
+}
