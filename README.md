@@ -33,19 +33,9 @@ Acesse o site oficial da Raylib:
 
 ---
 
-### 3. Adicione sua chave da API Gemini
-
-Abra o arquivo src/gemini.c e substitua o conteúdo da variável:
-
-```gemini.c
-#define API_KEY "SUA_CHAVE_AQUI"
-```
-
----
-
 ### 4. Compile o jogo
 
-Abra o terminal `w64devkit` e digite no diretório do seu jogo:
+Abra o terminal `w64devkit` e digite duas vezes no diretório do seu jogo:
 
 ```bash
 make run
