@@ -183,6 +183,7 @@ void DrawMap2(MapData *map, Player *player) {
     float time = GetTime();
     float offset = sinf(time * 4.0f) * 10.0f;
 
+    //Desenha a seta para orientar o jogador para qual fase deve ir
     if (player->fama >= 70){
         DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
     }
@@ -219,6 +220,8 @@ void DrawMap2(MapData *map, Player *player) {
                 WHITE
         );
     }
+
+        //Desenha a seta para orientar o jogador à mudar de mapa
     else if (player->position.x < 20) {
         float scale = 0.5f;
 
@@ -250,6 +253,7 @@ void DrawMap2(MapData *map, Player *player) {
         );
     }
 
+    //Desenha a seta para o jogador entrar no cinema para tocar a musica
     float distance3 = fabs(1550 - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
     if (distance3 < 150.0f){
         float scale = 0.25f;
@@ -282,6 +286,7 @@ void DrawMap2(MapData *map, Player *player) {
         DrawTextEx(map->font, letra, textPos, fontSize, 2.0f, WHITE);
     }
 
+    //Desenha a exclamação caso o NPC possa dar a dica
     if (player->fama >= 40){
         float exclamationOffset = sinf(GetTime() * 4.0f) * 5.0f;
         float scaleExclamation = 0.25f;

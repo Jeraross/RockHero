@@ -161,6 +161,7 @@ void DrawMap1(MapData *map, Player *player) {
         );
     }
 
+    //Desenha a exclamação caso o NPC possa dar a dica
     float exclamationOffset = sinf(GetTime() * 4.0f) * 5.0f;
     float scaleExclamation = 0.25f;
     DrawTextureEx(
@@ -186,10 +187,12 @@ void DrawMap1(MapData *map, Player *player) {
     float time = GetTime();
     float offset = sinf(time * 4.0f) * 10.0f;
 
+    //Desenha a seta para orientar o jogador para qual fase deve ir
     if (player->fama >= 40) {
         DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
     }
 
+    //Desenha a seta para o jogador entrar no bar para tocar a musica
     if (distance2 < 200.0f) {
         DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
         DrawTextEx(
