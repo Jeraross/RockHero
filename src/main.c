@@ -41,7 +41,7 @@
 #define FORGIVENESS_CHARGES 6
 #define FORGIVENESS_EFFECT_DURATION 1.0f
 // CHALLENGE WOW
-#define GOD_MODE_COMBO_THRESHOLD 200
+#define GOD_MODE_COMBO_THRESHOLD 150
 #define GOD_MODE_WIN_COMBO 300
 #define SPECIAL_NOTE_FIRE 1
 #define SPECIAL_NOTE_POISON 2
@@ -357,7 +357,6 @@ int main(void) {
             UpdateHitEffects(deltaTime);
             musicPosition = GetMusicTimePlayed(gameMusic);
 
-            // Check if song ended (fixed bug by using musicPosition >= duration)
             if (musicPosition >= songs[selectedSong].duration && !godModeActive) {
                 gameState = RESULTS;
             }
@@ -838,7 +837,7 @@ int main(void) {
             } break;
 
             case MAPAS: {
-                //if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;}
+                if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;}
                 // Atualiza o mapa atual
                 if (currentMap->mapId == 1) {
                     UpdateMusicStream(map1Music);
@@ -940,7 +939,6 @@ int main(void) {
             } break;
 
             case CHALLENGE: {
-
 				if (IsKeyPressed(KEY_ENTER)) {
                     PlaySound(guitarSound);
         			ResetGodModeState(notes, &stats, &gameMusic);
@@ -1544,7 +1542,7 @@ if (godModeActive) {
         for (int i = 0; i < 50; i++) {
          	float x = sin(GetTime() * 1.8 + i) * screenWidth;
          	float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
-         	DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.5f));
+         	DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.6f));
         }
     }
 }
@@ -2841,6 +2839,7 @@ void ResetGodModeState(Note* notes, GameStats* stats, Music* gameMusic) {
     comboModeTimer = 0.0f;
     invisibleModeTimer = 0.0f;
     noteSpeedMultiplier = 1.0f;
+    lastRiffTime = 0.0f;
 
     // Para e reseta a música
     StopMusicStream(*gameMusic);
