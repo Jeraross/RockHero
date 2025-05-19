@@ -4,7 +4,7 @@
 
 #include "chart.h"
 
-Note thunderChart[CHART_SIZE] = {
+Note Thunder[CHART_SIZE] = {
     // Opening riff (16th notes at ~130 BPM)
     {.lane = 0, .spawnTime = 1.0f},
     {.lane = 2, .spawnTime = 1.15f},

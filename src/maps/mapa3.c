@@ -81,8 +81,8 @@ void UpdateMap3(MapData *map, Player *player) {
             snprintf(promptFinal, sizeof(promptFinal),
                      "Você é Jotaro, um cara reservado, sério e direto. Ex-roqueiro que viu o auge e a queda da fama. Você raramente sorri, fala pouco e não suporta bajulação. "
                      "O jogador quer ser um astro do rock. A fama dele é %d. Se for alta (>80), você o reconhece com relutância. Se for média (65-80), responde friamente. "
-                     "Você sabe algo importante: a música ideal nesta cidade é 'Livin on a Prayer', do Bon Jovi. "
-                     "Mas nunca diga isso diretamente. Use frases secas sobre luta, fé ou resistir quando tudo parece perdido. Nada de otimismo fofo. "
+                     "Você sabe algo importante: a música ideal nesta cidade é 'Thunderstruck', da banda AC/DC. "
+                     "Mas nunca diga isso diretamente. Dê dicas de forma criativa. "
                      "Responda como Jotaro: firme, lacônico, ríspido. No máximo 300 caracteres. Nunca ultrapasse esse limite.\n\nJogador: \"%s\"",
                      player->fama, map->inputText
             );

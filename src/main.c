@@ -142,23 +142,22 @@ void ResetScoreboardState() {
     totalTime = 0.0f;
 }
 
-
 FameWarning fameWarning = {false, 0.2f, 0}; // 0.2s de delay mínimo
 
 TemporaryWarning tempWarning = {0};
 
 Song songs[MAX_SONGS] = {
-    {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 0.0f, 4},
+    {"Killer Queen", "Queen", {}, "assets/musics/killer_queen.mp3", 114.469f, 1},
+    {"Livin' on a Prayer", "Bon Jovi", {}, "assets/musics/livin_prayer.mp3", 96.2281f, 2},
+    {"Smells Like Teen Spirit", "Nirvana", {}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
+    {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 270.0f, 3},
     {"Sweet Child O'Mine", "Guns N' Roses", {}, "assets/musics/sweet_child.mp3", 90.5f, 3},
     {"Bring Me To Life", "Evanescence", {}, "assets/musics/bring_me_to_life.mp3", 140.0f, 3},
-    {"Killer Queen", "Queen", {}, "assets/musics/killer_queen.mp3", 114.469f, 1},
-    {"Smells Like Teen Spirit", "Nirvana", {}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
-    {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 331.0f, 4},
     {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},
-    {"The Trooper", "Iron Maiden", {}, "assets/musics/trooper.mp3", 97.8397f, 5},
-    {"Livin' on a Prayer", "Bon Jovi", {}, "assets/musics/livin_prayer.mp3", 96.2281f, 2},
-    {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 270.0f, 3},
-    {"Toxicity", "System of a Down", {}, "assets/musics/toxicity.mp3", 214.0f, 4}
+    {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 331.0f, 4},
+    {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 0.0f, 4},
+    {"Toxicity", "System of a Down", {}, "assets/musics/toxicity.mp3", 214.0f, 4},
+    {"The Trooper", "Iron Maiden", {}, "assets/musics/trooper.mp3", 97.8397f, 5}
 };
 
 HitEffect hitEffects[MAX_HIT_EFFECTS];
@@ -232,7 +231,7 @@ void ShowTempWarning(const char* message, float duration);
 
 void AddSpecialNote(Note* notes, int maxNotes, int lane, float spawnTime, int specialType);
 
-void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic);
+void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic, GameStats* stats);
 
 void ResetGodModeState(Note* notes, GameStats* stats, Music* gameMusic);
 
@@ -263,6 +262,7 @@ int main(void) {
     Sound menuSelectSound = LoadSound("assets/sounds/select.wav");
     Sound menuScrollSound = LoadSound("assets/sounds/scroll.wav");
     Sound guitarSound = LoadSound("assets/sounds/guitar_scream.wav");
+    Sound godSound = LoadSound("assets/sounds/criatura.wav");
 
     // Load fonts
     Font titleFont = LoadFontEx("assets/font/Vampire Wars.ttf", 72, 0, 0);
@@ -301,12 +301,12 @@ int main(void) {
     Music gameMusic = {0};
     Music menuMusic = LoadMusicStream("assets/musics/love_rock.mp3");
     SetMusicVolume(menuMusic, 0.2f);
-    Music map1Music = LoadMusicStream("assets/musics/hell.mp3");
-    SetMusicVolume(map1Music, 0.1f);
+    Music map1Music = LoadMusicStream("assets/musics/bad_name.mp3");
+    SetMusicVolume(map1Music, 0.05f);
     Music map2Music = LoadMusicStream("assets/musics/jungle.mp3");
     SetMusicVolume(map2Music, 0.1f);
-    Music map3Music = LoadMusicStream("assets/musics/bad_name.mp3");
-    SetMusicVolume(map3Music, 0.05f);
+    Music map3Music = LoadMusicStream("assets/musics/hell.mp3");
+    SetMusicVolume(map3Music, 0.1f);
     PlayMusicStream(menuMusic);
     Note* currentChart = NULL;
 
@@ -357,7 +357,6 @@ int main(void) {
             UpdateHitEffects(deltaTime);
             musicPosition = GetMusicTimePlayed(gameMusic);
 
-            // Check if song ended (fixed bug by using musicPosition >= duration)
             if (musicPosition >= songs[selectedSong].duration && !godModeActive) {
                 gameState = RESULTS;
             }
@@ -372,6 +371,7 @@ int main(void) {
         // Update scrolling for song select
         if (gameState == SONG_SELECT) {
             // Handle selection change
+            if (!instory) {
             if (IsKeyPressed(KEY_DOWN) && selectedSong < MAX_SONGS - 1) {
                 selectedSong++;
                 PlaySound(menuScrollSound);
@@ -392,6 +392,37 @@ int main(void) {
                 scrollSpeed = 0.0f;
                 scrollOffset = selectedSong * 37.5; // Ajusta para a posição exata
             }
+            } else {
+            float rapidez;
+            int x, y;
+            switch (currentMap->mapId) {
+              	case 1: {rapidez = 60.0f; x = 0; y = 3;}
+            	break;
+            	case 2: {rapidez = 80.0f; x = 3; y = 7;}
+                break;
+                case 3: {rapidez = 80.0f; x = 7; y = 11;}
+                break;
+            }
+            if (IsKeyPressed(KEY_DOWN) && selectedSong < y - 1) {
+                selectedSong++;
+                PlaySound(menuScrollSound);
+                scrollSpeed = rapidez;
+            }
+            if (IsKeyPressed(KEY_UP) && selectedSong > x) {
+                selectedSong--;
+                PlaySound(menuScrollSound);
+                scrollSpeed = rapidez * -1;
+            }
+
+            // Smooth scroll
+            scrollOffset += scrollSpeed * deltaTime;
+            scrollSpeed *= 0.9f;
+
+            // Snap to correct position when almost stopped
+            if (fabs(scrollSpeed) < 1.0f) {
+                scrollSpeed = 0.0f;
+            }
+            }
         }
 
         if (gameState == MAPAS) {
@@ -403,6 +434,7 @@ int main(void) {
                             fameWarning.active = true;
                             fameWarning.timer = 0;
                         } else {
+                          selectedSong = 0;
                             gameState = SONG_SELECT;
                         }
                     }
@@ -422,6 +454,7 @@ int main(void) {
                             fameWarning.active = true;
                             fameWarning.timer = 0;
                         } else {
+                          selectedSong = 3;
                             gameState = SONG_SELECT; // Prossegue direto (aviso temporário)
                         }
                     }
@@ -437,6 +470,7 @@ int main(void) {
                         }
                     }
                     else if (IsKeyPressed(KEY_M)) {
+                      selectedSong = 7;
                         gameState = SONG_SELECT; // Prossegue direto
                     }
                 }
@@ -551,7 +585,7 @@ int main(void) {
 
                     // Gera notas especiais
                     if (IsMusicStreamPlaying(gameMusic)) {
-        				GenerateGodModeNotes(notes, MAX_NOTES, musicPosition, &gameMusic);
+        				GenerateGodModeNotes(notes, MAX_NOTES, musicPosition, &gameMusic, &stats);
     				}
                 } else {
                 	while (nextChartNote < MAX_CHART_NOTES &&
@@ -602,7 +636,7 @@ int main(void) {
                                     case 1: penalty = ROCK_METER_MISS_PENALTY; break;
                                     case 2: penalty = 0.1f; break;
                                     case 3: penalty = 0.125f; break;
-                                    default: penalty = ROCK_METER_MISS_PENALTY; // Fallback
+                                    default: penalty = ROCK_METER_MISS_PENALTY;
                                 }
 
                                 stats.rockMeter = fmaxf(0, stats.rockMeter - penalty);
@@ -803,7 +837,7 @@ int main(void) {
             } break;
 
             case MAPAS: {
-                if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;}
+                //if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;}
                 // Atualiza o mapa atual
                 if (currentMap->mapId == 1) {
                     UpdateMusicStream(map1Music);
@@ -905,7 +939,6 @@ int main(void) {
             } break;
 
             case CHALLENGE: {
-
 				if (IsKeyPressed(KEY_ENTER)) {
                     PlaySound(guitarSound);
         			ResetGodModeState(notes, &stats, &gameMusic);
@@ -993,7 +1026,7 @@ int main(void) {
                         else gameState = BLESS;
                     }
                 } else {
-                    if (IsKeyPressed(KEY_SPACE) && godModeActive) {
+                    if (IsKeyPressed(KEY_SPACE) && godModeActive && !stats.songFailed) {
                         for (int i = 0; i < 3; i++) {
                             player.blessings.blessings[i] = BLESS_NONE;
                         }
@@ -1007,7 +1040,7 @@ int main(void) {
                       	gameState = MAIN_MENU;
                     }
                   	if (IsKeyPressed(KEY_C) && stats.songFailed && godModeActive) {
-                        cutsceneState = 1;
+                        cutsceneState = 2;
                         cutsceneTimer = 0;
                     	gameState = CHALLENGE;
                   	}
@@ -1122,10 +1155,40 @@ int main(void) {
                     // Scissor: delimita a área rolável para a lista de músicas
                     int listStartY = 150; // onde começa a lista (abaixo do título)
                     int listHeight = screenHeight - listStartY - 100; // altura da área rolável
+
                     BeginScissorMode(0, listStartY, screenWidth, listHeight);
 
                     // Lista de músicas
                     int startY = listStartY + 50 - scrollOffset; // scrollOffset ajusta rolagem
+                    if (instory) {
+                    int x, y, z = 0;
+            		switch (currentMap->mapId) {
+              			case 1: {x = 0; y = 3;}
+            			break;
+            			case 2: {x = 3; y = 7;}
+                		break;
+            			case 3: {x = 7; y = 11;}
+            		    break;
+            		}
+                    for (int i = x; i < y; i++) {
+                        float yPos = startY + z++ * 100;
+
+                        if (i == selectedSong) {
+                            DrawRectangle(screenWidth / 2 - 300, yPos, 600, 80, (Color){50, 50, 80, 255});
+                        }
+
+                        // Texto da música
+                        DrawTextEx(mainFont, TextFormat("%s - %s", songs[i].artist, songs[i].title),
+                                   (Vector2){screenWidth / 2 - 280, yPos + 20}, 24, 0, WHITE);
+
+                        // Estrelas de dificuldade
+                        for (int j = 0; j < 5; j++) {
+                            DrawCircle(screenWidth / 2 + 200 + j * 20, yPos + 40, 5,
+                                       j < songs[i].difficulty ? YELLOW : (Color){50, 50, 50, 255});
+                        }
+
+                    }
+                    } else {
                     for (int i = 0; i < MAX_SONGS; i++) {
                         float yPos = startY + i * 100;
 
@@ -1147,6 +1210,8 @@ int main(void) {
                             }
                         }
                     }
+                    }
+
 
                     EndScissorMode(); // Finaliza área rolável
 
@@ -1166,15 +1231,11 @@ int main(void) {
 
                 	DrawTexturePro(godBackgroundTex, source, dest, origin, 0.0f, WHITE);
 
-     	           	// Desenha aura vermelha quando o combo está alto
-     	        	if (stats.combo > GOD_MODE_COMBO_THRESHOLD) {
-         	        	// Efeitos de partículas de fogo (sobrepostas à imagem)
-         	        	for (int i = 0; i < 50; i++) {
-         	        	    float x = sin(GetTime() * 2 + i) * screenWidth;
-         	        	    float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
-         	        	    DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.7f));
-         	        	}
-      	        	}
+         	        for (int i = 0; i < 50; i++) {
+         	        	float x = sin(GetTime() * 2 + i) * screenWidth;
+         	        	float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+         	        	DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.5f));
+         	        }
     	        } else {
                     Rectangle source = { quickBackgroundTex.width/2 - (quickBackgroundTex.width/1.3)/2, 0.0f, quickBackgroundTex.width/1.3, quickBackgroundTex.height/1.3 };
                 	Rectangle dest = { 0.0f, 0.0f, (float)screenWidth, (float)screenHeight };
@@ -1421,6 +1482,7 @@ if (godModeActive) {
 
     // Marcador do threshold
     float thresholdPos = GOD_MODE_COMBO_THRESHOLD / (float)GOD_MODE_WIN_COMBO;
+
     DrawLine(barX + barWidth * thresholdPos, barY - 5,
              barX + barWidth * thresholdPos, barY + barHeight + 5,
              Fade(WHITE, 0.5f));
@@ -1472,6 +1534,15 @@ if (godModeActive) {
                 barY + barHeight/2 + sin(angle * (3 + i)) * radius
             };
             DrawCircleV(pos, 2 + pulseIntensity * 3, Fade(RED, 0.7f));
+        }
+    }
+
+    if (stats.combo >= GOD_MODE_COMBO_THRESHOLD) {
+        // Efeitos de partículas de fogo (sobrepostas à imagem)
+        for (int i = 0; i < 50; i++) {
+         	float x = sin(GetTime() * 1.8 + i) * screenWidth;
+         	float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+         	DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.6f));
         }
     }
 }
@@ -1558,7 +1629,7 @@ if (godModeActive) {
                     }
                 }
 
-// ----- AVISO TEMPORÁRIO DE FAMA (sobrepõe tudo) -----
+				// ----- AVISO TEMPORÁRIO DE FAMA (sobrepõe tudo) -----
                 if (tempWarning.timer < tempWarning.showTime) {
                     // Fundo semi-transparente
                     DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.7f));
@@ -1706,34 +1777,16 @@ if (godModeActive) {
 
 case CHALLENGE: {
     storyStartTime = GetTime();  // marca o tempo inicial
-    cutsceneTimer += deltaTime/2;
+    cutsceneTimer += deltaTime;
 
     // Fundo com efeito de fogo
-    if (cutsceneState == 0) {
-          DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
-                          (Color){10, 0, 0, 255},
-                          (Color){40, 0, 0, 255});
-    } else {
-      DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
-    }
-
-    // Desenha o Deus do Rock (apenas no estado 1)
-    if (cutsceneState == 1) {
-        float godAlpha = fminf(0.8f, cutsceneTimer * 0.2f);
-
-        // Desenha a imagem com fade-in e efeito de brilho
-        float godScale = 1.0f;
-        Rectangle godSrc = {0, 0, godTex.width, godTex.height};
-        Rectangle godDest = {
-            screenWidth/2 - (godTex.width * godScale)/2,
-            screenHeight/2 - (godTex.height * godScale)/2,
-            godTex.width * godScale,
-            godTex.height * godScale
-        };
-
-        // Desenha a imagem com fade-in
-        DrawTexturePro(godTex, godSrc, godDest, (Vector2){0}, 0,
-                      Fade(WHITE, godAlpha));
+    if (cutsceneState == 0 || cutsceneState == 1) {
+        DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
+                        (Color){10, 0, 0, 255},
+                        (Color){40, 0, 0, 255});
+    } else if (cutsceneState == 2) {
+        // Apresentação do Deus do Rock
+        DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
     }
 
     // Efeitos de partículas de fogo (sobrepostas à imagem)
@@ -1769,27 +1822,109 @@ case CHALLENGE: {
                          40, 0, Fade(WHITE, alpha3));
             }
 
-            if (cutsceneTimer > 6.0f) {
-              	PlaySound(guitarSound);
-                cutsceneState = 1;
-                cutsceneTimer = 0;
-            }
-
-            // Instrução para pular
-            if (cutsceneTimer > 1.0f) {
-                DrawTextEx(mainFont, "Pressione E para avancar",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione E para avancar", 30, 0).x/2,
-                          screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
-            }
+            // Instrução para continuar
+    		if (cutsceneTimer > 3.5f) { // Mostra depois que todas as chamas apareceram
+    		    DrawTextEx(mainFont, "Pressione E para avancar",
+    		             (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione E para avancar", 30, 0).x/2,
+    		             screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
+    		}
 
             if (IsKeyPressed(KEY_E)) {
-              	PlaySound(guitarSound);
+                PlaySound(guitarSound);
                 cutsceneState = 1;
                 cutsceneTimer = 0;
             }
         } break;
 
-        case 1: { // Apresentação do Deus do Rock
+case 1: { // Explicação das chamas do destino
+    // Título
+    DrawTextEx(titleFont, "CHAMAS DO DESTINO",
+             (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "CHAMAS DO DESTINO", 60, 0).x/2, 80},
+             60, 0, GOLD);
+
+    // Explicação geral
+    DrawTextEx(mainFont, "Para vencer, alcance um combo de 300!",
+             (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Para vencer, alcance um combo de 300!", 30, 0).x/2, 150},
+             30, 0, WHITE);
+
+    // Animação frame (8 frames total)
+    int frame = ((int)(cutsceneTimer * 10) % 8);
+    int frameWidth = burningLoopPurple.width / 8;
+
+    // Configurações para cada chama
+    struct FlameInfo {
+        Texture2D* texture;
+        const char* text;
+        Color color;
+        Vector2 position;
+    } flames[3] = {
+        {&burningLoopPurple, "FOGO ROXO: Se errar, nao ganha combo por 10s", (Color){252, 140, 212, 255}, {screenWidth/2 - 150, 250}},
+        {&burningLoopGreen,  "FOGO VERDE: Se errar, perde INSTANTANEAMENTE", (Color){212, 252, 124, 255}, {screenWidth/2 - 150, 400}},
+        {&burningLoopWhite,  "FOGO BRANCO: Se errar, notas ficam invisiveis por 5s", (Color){228, 252, 252, 255}, {screenWidth/2 - 150, 550}}
+    };
+
+    // Desenha todas as chamas com suas animações
+    for (int i = 0; i < 3; i++) {
+        // Efeito de fade-in sequencial para cada chama
+        float flameAlpha = fminf(1.0f, (cutsceneTimer - i * 1.0f) * 2.0f);
+        float textAlpha = fminf(1.0f, (cutsceneTimer - (i * 1.0f + 0.5f)) * 2.0f);
+
+        if (flameAlpha > 0) {
+            // Desenha a animação da chama
+            Rectangle flameSrc = {frame * frameWidth, 0, frameWidth, flames[i].texture->height};
+            Rectangle flameDest = {screenWidth/2 - 50, flames[i].position.y, 100, 100};
+            DrawTexturePro(*flames[i].texture, flameSrc, flameDest, (Vector2){0}, 0, Fade(WHITE, flameAlpha));
+
+            // Texto explicativo abaixo da chama
+            if (textAlpha > 0) {
+                Vector2 textSize = MeasureTextEx(mainFont, flames[i].text, 28, 0);
+                DrawTextEx(mainFont, flames[i].text,
+                         (Vector2){screenWidth/2 - textSize.x/2, flames[i].position.y + 120},
+                         28, 0, Fade(flames[i].color, textAlpha));
+            }
+        }
+    }
+
+    // Instrução para continuar
+    if (cutsceneTimer > 3.5f) { // Mostra depois que todas as chamas apareceram
+        DrawTextEx(mainFont, "Pressione E para avancar",
+                 (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione E para avancar", 30, 0).x/2,
+                 screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
+    }
+
+    if (IsKeyPressed(KEY_E) && cutsceneTimer > 3.5f) {
+        PlaySound(guitarSound);
+        PlaySound(godSound);
+        cutsceneState = 2;
+        cutsceneTimer = 0;
+    }
+} break;
+
+        case 2: { // Apresentação final do Deus do Rock
+            float godAlpha = fminf(1.0f, cutsceneTimer * 0.2f);
+
+            // Desenha a imagem com fade-in e efeito de brilho
+            float godScale = 1.0f;
+            Rectangle godSrc = {0, 0, godTex.width, godTex.height};
+            Rectangle godDest = {
+                screenWidth/2 - (godTex.width * godScale)/2,
+                screenHeight/2 - (godTex.height * godScale)/2,
+                godTex.width * godScale,
+                godTex.height * godScale
+            };
+
+            // Desenha a imagem com fade-in
+            DrawTexturePro(godTex, godSrc, godDest, (Vector2){0}, 0, Fade(WHITE, godAlpha));
+			DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
+                        (Color){10, 0, 0, 40},
+                        (Color){40, 0, 0, 150});
+    		// Efeitos de partículas de fogo (sobrepostas à imagem)
+    		for (int i = 0; i < 50; i++) {
+    		    float x = sin(GetTime() * 2 + i) * screenWidth;
+    		    float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+    		    DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.7f));
+    		}
+
             // Diálogo
             const char* godText = "\"ENFRENTE-ME SE FOR CAPAZ, CRIATURA!\"";
             float textAlpha = fminf(1.0f, cutsceneTimer * 2.0f);
@@ -1799,11 +1934,11 @@ case CHALLENGE: {
                      screenHeight - 150},
                      50, 0, Fade(WHITE, textAlpha));
 
-            // Instrução
-            if (cutsceneTimer > 2.0f) {
-                DrawTextEx(mainFont, "Pressione ENTER para aceitar o desafio",
-                          (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione ENTER para aceitar o desafio", 30, 0).x/2,
-                          screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
+            // Instrução para começar
+            if (cutsceneTimer > 3.5f) {
+                DrawTextEx(mainFont, "Pressione ENTER para comecar o desafio",
+                         (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Pressione ENTER para comecar o desafio", 30, 0).x/2,
+                         screenHeight - 50}, 30, 0, Fade(GRAY, 0.5f + sin(GetTime()*5)*0.5f));
             }
         } break;
     }
@@ -1817,65 +1952,65 @@ case CHALLENGE: {
 
                 // Vitória no modo Deus
                 if (godModeActive) {
-                    if (!stats.songFailed){
-                    // Captura o tempo apenas uma vez
-                    if (totalTime == 0.0f) {
-                        storyEndTime = GetTime();
-                        totalTime = storyEndTime - storyStartTime;
-                    }
+                    if (!stats.songFailed) {
+                    	// Captura o tempo apenas uma vez
+                    	if (totalTime == 0.0f) {
+                    	    storyEndTime = GetTime();
+                    	    totalTime = storyEndTime - storyStartTime;
+                    	}
 
-                    // Etapa 1: Tela de vitória + entrada de nome
-                    if (!showFinalScoreboard) {
-                        DrawTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!",
-                                   (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!", 70, 0).x/2, 150},
-                                   70, 0, GOLD);
+                    	// Etapa 1: Tela de vitória + entrada de nome
+                    	if (!showFinalScoreboard) {
+                    	    DrawTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!",
+                    	               (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "VOCE VENCEU O DEUS DO ROCK!", 70, 0).x/2, 150},
+                    	               70, 0, GOLD);
 
-                        DrawTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!",
+                    	    DrawTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!",
                                    (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Voce provou ser o verdadeiro Rei do Rock!", 40, 0).x/2, 250},
                                    40, 0, WHITE);
 
 
                         // Entrada de nome
-                        if (!scoreAlreadySaved) enteringName = true;
+                   		    if (!scoreAlreadySaved) enteringName = true;
 
-                        if (enteringName) {
-                            int key = GetCharPressed();
-                            while (key > 0) {
-                                if (key >= 32 && key <= 125 && nameLength < MAX_NAME_LENGTH - 1) {
-                                    playerName[nameLength++] = (char)key;
-                                    playerName[nameLength] = '\0';
-                                }
-                                key = GetCharPressed();
-                            }
+                    	    if (enteringName) {
+                            	int key = GetCharPressed();
+                           		while (key > 0) {
+                            	    if (key >= 32 && key <= 125 && nameLength < MAX_NAME_LENGTH - 1) {
+                           		        playerName[nameLength++] = (char)key;
+                            	        playerName[nameLength] = '\0';
+                            	    }
+                            	    key = GetCharPressed();
+                            	}
 
-                            if (IsKeyPressed(KEY_BACKSPACE) && nameLength > 0) {
-                                nameLength--;
-                                playerName[nameLength] = '\0';
-                            }
+                            	if (IsKeyPressed(KEY_BACKSPACE) && nameLength > 0) {
+                            	    nameLength--;
+                            	    playerName[nameLength] = '\0';
+                            	}
 
-                            const char* tempoStr = TextFormat("Tempo final: %.2f segundos", totalTime);
-                            Vector2 tempoSize = MeasureTextEx(mainFont, tempoStr, 30, 0);
-                            DrawTextEx(mainFont, tempoStr,
+                            	const char* tempoStr = TextFormat("Tempo final: %.2f segundos", totalTime);
+                            	Vector2 tempoSize = MeasureTextEx(mainFont, tempoStr, 30, 0);
+                            	DrawTextEx(mainFont, tempoStr,
                                        (Vector2){screenWidth/2 - tempoSize.x/2, 320}, 30, 0, WHITE);
 
-                            const char* promptStr = "Digite seu nome:";
-                            Vector2 promptSize = MeasureTextEx(mainFont, promptStr, 30, 0);
-                            DrawTextEx(mainFont, promptStr,
+                            	const char* promptStr = "Digite seu nome:";
+                            	Vector2 promptSize = MeasureTextEx(mainFont, promptStr, 30, 0);
+                            	DrawTextEx(mainFont, promptStr,
                                        (Vector2){screenWidth/2 - promptSize.x/2, 370}, 30, 0, WHITE);
 
-                            Vector2 nameSize = MeasureTextEx(mainFont, playerName, 30, 0);
-                            DrawTextEx(mainFont, playerName,
+                            	Vector2 nameSize = MeasureTextEx(mainFont, playerName, 30, 0);
+                            	DrawTextEx(mainFont, playerName,
                                        (Vector2){screenWidth/2 - nameSize.x/2, 410}, 30, 0, YELLOW);
 
-                            if (IsKeyPressed(KEY_ENTER) && nameLength > 0) {
-                                InsertScore(playerName, totalTime);
-                                SaveScoreboardToFile("scoreboard.txt");
-                                enteringName = false;
-                                scoreAlreadySaved = true;
-                                showFinalScoreboard = true;
-                            }
-                        }
-                    }
+                            	if (IsKeyPressed(KEY_ENTER) && nameLength > 0) {
+                            	    InsertScore(playerName, totalTime);
+                            	    SaveScoreboardToFile("scoreboard.txt");
+                            	    enteringName = false;
+                            	    scoreAlreadySaved = true;
+                            	    showFinalScoreboard = true;
+                            	}
+                        	}
+                    	}
 
                         if (showFinalScoreboard) {
                             DrawText("PLACAR DE HERÓIS DO ROCK", screenWidth/2 - 200, 80, 30, YELLOW);
@@ -1939,6 +2074,25 @@ case CHALLENGE: {
                                 }
                             }
                         }
+                        for (int i = 0; i < 50; i++) {
+         					float x = sin(GetTime() * 2 + i) * screenWidth;
+         					float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+         					DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.7f));
+        				}
+                    } else {
+                        DrawTextEx(titleFont, "O DEUS DO ROCK TE DERROTOU!",
+                                  (Vector2){screenWidth/2 - MeasureTextEx(titleFont, "O DEUS DO ROCK TE DERROTOU!", 70, 0).x/2, 150},
+                                  70, 0, RED);
+
+                        DrawTextEx(mainFont, "Tente novamente quando estiver preparado... (C)",
+                                  (Vector2){screenWidth/2 - MeasureTextEx(mainFont, "Tente novamente quando estiver preparado... (C)", 40, 0).x/2, 250},
+                                  40, 0, WHITE);
+
+                        for (int i = 0; i < 50; i++) {
+         					float x = sin(GetTime() * 2 + i) * screenWidth;
+         					float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+         					DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.7f));
+        				}
                     }
                 }
                 else {
@@ -2095,6 +2249,7 @@ case CHALLENGE: {
     UnloadTexture(godBackgroundTex);
     UnloadSound(noteMissSound);
     UnloadSound(guitarSound);
+    UnloadSound(godSound);
     UnloadSound(starPowerSound);
     UnloadSound(menuSelectSound);
     UnloadSound(menuScrollSound);
@@ -2128,17 +2283,17 @@ case CHALLENGE: {
 
 
 void initSongs() {
-    memcpy(songs[0].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[1].charts, SweetChildOMine, sizeof(SweetChildOMine));
-    memcpy(songs[2].charts, BringMeToLife, sizeof(BringMeToLife));
-    memcpy(songs[3].charts, KillerQueen, sizeof(KillerQueen));
-    memcpy(songs[4].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[5].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[6].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[7].charts, TheTrooper, sizeof(TheTrooper));
-    memcpy(songs[8].charts, Livin_Prayer, sizeof(Livin_Prayer));
-    memcpy(songs[9].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[10].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[0].charts, KillerQueen, sizeof(KillerQueen));
+    memcpy(songs[1].charts, Livin_Prayer, sizeof(Livin_Prayer));
+    memcpy(songs[2].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[3].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[4].charts, SweetChildOMine, sizeof(SweetChildOMine));
+    memcpy(songs[5].charts, BringMeToLife, sizeof(BringMeToLife));
+    memcpy(songs[6].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[7].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[8].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[9].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[10].charts, TheTrooper, sizeof(TheTrooper));
 }
 
 // Inicializa o sistema de fama
@@ -2442,9 +2597,9 @@ void CheckForMilestone(Player* player) {
 // Verifica se a música é a favorita do público no mapa atual
 bool IsFavoriteSong(int songIndex, int mapLevel) {
     switch (mapLevel) {
-    case 1: return songIndex == 0; // Thunderstruck no mapa 1
-    case 2: return songIndex == 1; // Sweet Child no mapa 2
-    case 3: return songIndex == 8; // Livin' on a Prayer no mapa 3
+    case 1: return songIndex == 1;
+    case 2: return songIndex == 4;
+    case 3: return songIndex == 8;
     default: return false;
     }
 }
@@ -2546,39 +2701,63 @@ void ShowTempWarning(const char* message, float duration) {
     tempWarning.timer = 0;
 }
 
-void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic) {
+void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic, GameStats* stats) {
   	if (!IsMusicStreamPlaying(*gameMusic)) return;
     // Padrões de riff pré-definidos para o modo Deus
 	if (currentTime == 0) {
           lastRiffTime = 0.0f;
 	}
-    // Gera um riff a cada 5-8 segundos
-    if (currentTime - lastRiffTime > 0.60) {
+
+    // Define o intervalo entre riffs baseado no combo atual
+    float riffInterval;
+    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD) {
+        riffInterval = 0.6f;
+    } else { // Fase 1 - Normal
+        riffInterval = 0.65f;
+    }
+
+    if (currentTime - lastRiffTime > riffInterval) {
         lastRiffTime = currentTime;
 
         // Escolhe um padrão de riff aleatório
         int riffPattern = GetRandomValue(0, 3);
-        float baseTime = currentTime + 1.0f; // Começa 1 segundo depois
+        float baseTime = currentTime; // Começa 1 segundo depois
+
+        // Define a probabilidade de notas especiais baseado no combo
+        int specialNoteChance;
+        if (stats->combo >= GOD_MODE_COMBO_THRESHOLD) { // Fase 2 - 60% chance
+            specialNoteChance = 6;
+        } else { // Fase 1 - 20% chance
+            specialNoteChance = 8;
+        }
 
         switch (riffPattern) {
             case 0: // Riff ascendente
                 for (int i = 0; i < NUM_LANES; i++) {
-                    int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
+                    int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + i*0.1f, type);
+
+                    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD && i == 4) {
+                        AddSpecialNote(notes, maxNotes, 0, baseTime + i*0.1f, type);
+                    }
                 }
                 break;
 
             case 1: // Riff descendente
                 for (int i = NUM_LANES-1; i >= 0; i--) {
-                    int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
+                    int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + (NUM_LANES-1-i)*0.1f, type);
+
+                    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD && i == 0) {
+                        AddSpecialNote(notes, maxNotes, 4, baseTime + (NUM_LANES-1-i)*0.1f, type);
+                    }
                 }
                 break;
 
             case 2: // Notas simultâneas
                 for (int i = 0; i < NUM_LANES; i++) {
                     if (GetRandomValue(0, 1)) { // 50% chance de spawnar em cada lane
-                        int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
+                        int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                         AddSpecialNote(notes, maxNotes, i, baseTime, type);
                         AddSpecialNote(notes, maxNotes, i, baseTime + 0.3f, type);
                     }
@@ -2587,8 +2766,13 @@ void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* g
 
             case 3: // Notas alternadas
                 for (int i = 0; i < NUM_LANES; i += 2) {
-                    int type = (GetRandomValue(0, 9) < 8) ? 0 : GetRandomValue(1, 3);
+                    int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + i*0.1f, type);
+
+                    // Na fase 3, adiciona notas entre as alternadas
+                    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD && i+1 < NUM_LANES) {
+                        AddSpecialNote(notes, maxNotes, i+1, baseTime + i*0.1f + 0.2f, type);
+                    }
                 }
                 break;
         }
@@ -2655,6 +2839,7 @@ void ResetGodModeState(Note* notes, GameStats* stats, Music* gameMusic) {
     comboModeTimer = 0.0f;
     invisibleModeTimer = 0.0f;
     noteSpeedMultiplier = 1.0f;
+    lastRiffTime = 0.0f;
 
     // Para e reseta a música
     StopMusicStream(*gameMusic);

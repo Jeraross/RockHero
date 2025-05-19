@@ -20,7 +20,7 @@ typedef struct {
     float specialTimer; // Para animações especiais
 } Note;
 
-extern Note thunderChart[CHART_SIZE];
+extern Note Thunder[CHART_SIZE];
 extern Note SweetChildOMine[CHART_SIZE];
 extern Note TheTrooper[CHART_SIZE];
 extern Note Livin_Prayer[CHART_SIZE];
