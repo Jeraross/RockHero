@@ -172,9 +172,12 @@ void DrawMap1(MapData *map, Player *player) {
     float time = GetTime();
     float offset = sinf(time * 4.0f) * 10.0f;
 
+    if (player->fama >= 40) {
+        DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
+    }
+
     if (distance2 < 200.0f) {
         DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
-        // Desenha o texto acima da seta
         DrawTextEx(
                 GetFontDefault(),
                 "PRESS G!",
@@ -185,11 +188,11 @@ void DrawMap1(MapData *map, Player *player) {
         );
     }
 
+
     float distance3 = fabs(790 - (player->position.x + FRAME_WIDTH * PLAYER_SCALE));
     if (distance3 < 150.0f) {
         float scale = 0.25f;
 
-        // Desenha a seta
         DrawTexturePro(
                 map->seta,
                 (Rectangle){0, 0, map->seta.width, map->seta.height},

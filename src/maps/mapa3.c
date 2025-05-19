@@ -180,6 +180,27 @@ void DrawMap3(MapData *map, Player *player) {
 
     float time = GetTime();
     float offset = sinf(time * 4.0f) * 10.0f;  // 4.0f = velocidade, 10.0f = quanto mexe
+
+    if (player->fama < 60){
+        float scale = 0.5f;
+        DrawTexturePro(
+                map->seta,
+                (Rectangle){0, 0, map->seta.width, map->seta.height},
+                (Rectangle){
+                        150 + offset,
+                        740,
+                        map->seta.width * scale,
+                        map->seta.height * scale
+                },
+                (Vector2){
+                        (map->seta.width * scale) / 2,
+                        (map->seta.height * scale) / 2
+                },
+                180.0f,
+                WHITE
+        );
+    }
+
     if (player->position.x < 20) {
         float scale = 0.5f;
 

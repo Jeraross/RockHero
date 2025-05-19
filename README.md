@@ -1,6 +1,5 @@
-# 💻 ROCK HERO
+![image](https://github.com/user-attachments/assets/ee33132b-3640-4941-8b4c-a186bb53a1a9)
 
----
 
 ## ⚙️ Requisitos
 
