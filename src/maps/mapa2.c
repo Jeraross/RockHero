@@ -181,6 +181,32 @@ void DrawMap2(MapData *map, Player *player) {
 
     float time = GetTime();
     float offset = sinf(time * 4.0f) * 10.0f;
+
+    if (player->fama >= 70){
+        DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
+    }
+
+    else if (player->fama < 30){
+        float scale = 0.5f;
+
+        DrawTexturePro(
+                map->seta,
+                (Rectangle){0, 0, map->seta.width, map->seta.height},
+                (Rectangle){
+                        150 + offset,
+                        740,
+                        map->seta.width * scale,
+                        map->seta.height * scale
+                },
+                (Vector2){
+                        (map->seta.width * scale) / 2,
+                        (map->seta.height * scale) / 2
+                },
+                180.0f,
+                WHITE
+        );
+    }
+
     if (distance2 < 200.0f) {
         DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
         DrawTextEx(
