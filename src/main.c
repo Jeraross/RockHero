@@ -59,13 +59,13 @@ typedef struct {
     float multiplier;
     int multiplierLevel;
     int streakBonus;
-    float rockMeter; // New: Rock Meter value (0.0 to 1.0)
-    bool songFailed; // New: Track if player failed the song
-    int forgivenessMisses;  // Contador de misses ignorados
-    bool showForgivenessEffect; // Flag para mostrar efeito visual
-    int forgivenessLane;        // Lane onde ocorreu o forgiveness
-    int perfectStreak;      // Contador de Perfects consecutivos
-    int rhythmShields;      // Contador de escudos sonoros
+    float rockMeter;
+    bool songFailed;
+    int forgivenessMisses;
+    bool showForgivenessEffect;
+    int forgivenessLane;
+    int perfectStreak;
+    int rhythmShields;
 } GameStats;
 
 typedef struct {
@@ -81,7 +81,7 @@ typedef struct {
     int lane;
     float timer;
     bool active;
-    bool isStart; // Se é a animação inicial (burning_start) ou final (burning_end)
+    bool isStart;
     bool isForgiveness;
 } HitEffect;
 
@@ -111,7 +111,6 @@ typedef struct {
     float timer;
 } TemporaryWarning;
 
-// No seu arquivo de variáveis globais
 typedef struct {
     bool active;
     float displayTime;
@@ -142,7 +141,7 @@ void ResetScoreboardState() {
     totalTime = 0.0f;
 }
 
-FameWarning fameWarning = {false, 0.2f, 0}; // 0.2s de delay mínimo
+FameWarning fameWarning = {false, 0.2f, 0};
 
 TemporaryWarning tempWarning = {0};
 
@@ -189,50 +188,66 @@ float invisibleModeTimer = 0.0f;
 float noteSpeedMultiplier = 1.0f;
 int currentMapIndex = 1;
 
+// Inicializa os charts das musicas
 void initSongs();
 
 // Inicializa o sistema de fama
 void InitFameSystem(Player* player);
 
+// Desenha o rock meter (vida do jogador)
 void DrawRockMeter(float value, int x, int y, int width, int height, bool hasBlessing);
 
 // Desenha a barra de fama
 void DrawFameMeter(Player* player, int screenWidth, Font font);
 
+// Desenha a tela de controles
 void DrawControlsScreen(int screenWidth, int screenHeight, Font titleFont, Font mainFont);
 
+// Desenha a tela de creditos
 void DrawCreditsScreen(int screenWidth, int screenHeight, Font titleFont, Font mainFont);
 
+// Desenha os efeitos especias de hit de notas e os efeitos de blessings
 void DrawHitEffects(Font mainFont);
 
+// Desenha os shields do jogador
 void DrawShieldIndicator(int shieldsAvailable, int screenWidth, int screenHeight, Font font);
 
+// Ativa efeito visual dos hits
 void SpawnHitEffect(int lane);
 
+// Verifica se o jogador alcançou um novo marco de bênção
 void CheckForMilestone(Player* player);
 
+// Atualiza a animacao dos hits
 void UpdateHitEffects(float deltaTime);
 
-// Aplica os efeitos das bênçãos ativas
+// Aplica os efeitos passivos das bênçãos
 void ApplyBlessings(Player* player, GameStats* stats, float deltaTime);
 
 // Verifica se a música é a favorita do público no mapa atual
 bool IsFavoriteSong(int songIndex, int mapLevel);
 
+// Verifica se o jogador tem uma bênção específica
 bool HasBlessing(Player* player, RockBlessing blessing);
 
+// Ativa efeito visual de escudo
 void SpawnShieldEffect();
 
+// Ativa efeito visual de forgiveness (Aura inabalavel)
 void SpawnForgivenessEffect(int lane, GameStats* stats);
 
+// Verifica se deve ignorar o erro do jogador
 bool ShouldIgnoreMiss(Player *player, GameStats* stats, int lane);
 
 void ShowTempWarning(const char* message, float duration);
 
+// Ativa as notas selecionadas no GenerateGodModeNotes
 void AddSpecialNote(Note* notes, int maxNotes, int lane, float spawnTime, int specialType);
 
+// Gera padroes de notas dentro do boss
 void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic, GameStats* stats);
 
+// Reseta o estado do boss
 void ResetGodModeState(Note* notes, GameStats* stats, Music* gameMusic);
 
 void InsertScore(const char* name, float time);
@@ -250,7 +265,6 @@ int main(void) {
     initSongs();
     SetTargetFPS(60);
 
-    // Get actual screen size after going fullscreen
     int screenWidth = GetScreenWidth();
     int screenHeight = GetScreenHeight();
 
@@ -837,7 +851,7 @@ int main(void) {
             } break;
 
             case MAPAS: {
-                //if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;}
+                //if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0; cutsceneTimer = 0;} //teste do boss
                 // Atualiza o mapa atual
                 if (currentMap->mapId == 1) {
                     UpdateMusicStream(map1Music);
@@ -855,7 +869,7 @@ int main(void) {
 
                     // Fechar com a tecla F
                     if (IsKeyPressed(KEY_F)) {
-                        tempWarning.timer = tempWarning.showTime; // Fecha o aviso
+                        tempWarning.timer = tempWarning.showTime;
                     }
                 }
 
@@ -871,7 +885,6 @@ int main(void) {
                         }
                         else if (IsKeyPressed(KEY_N)) {
                             fameWarning.active = false;
-                            // Lógica adicional se necessário
                         }
                     }
                 }
@@ -1758,7 +1771,6 @@ if (godModeActive) {
 
 
                         float lineY = yBase + nameSize.y + 5;
-                        // Descrição centralizada
                         Vector2 descSize = MeasureTextEx(mainFont, blessingDescs[blessingOptions[i]-1], 28, 0);
                         DrawTextEx(mainFont, blessingDescs[blessingOptions[i]-1],
                                   (Vector2){screenWidth/2 - descSize.x/2, lineY + 15},
@@ -2533,12 +2545,12 @@ void DrawShieldIndicator(int shieldsAvailable, int screenWidth, int screenHeight
         int cy = baseY + 45;
 
         if (i < shieldsAvailable) {
-            DrawCircle(cx, cy, 22, Fade(BLUE, 0.2f));     // Aura
-            DrawCircle(cx, cy, 15, SKYBLUE);              // Corpo
-            DrawCircleLines(cx, cy, 15, WHITE);           // Borda
+            DrawCircle(cx, cy, 22, Fade(BLUE, 0.2f));
+            DrawCircle(cx, cy, 15, SKYBLUE);
+            DrawCircleLines(cx, cy, 15, WHITE);
         } else {
-            DrawCircle(cx, cy, 15, Fade(BLUE, 0.1f));      // Vazio
-            DrawCircleLines(cx, cy, 15, Fade(WHITE, 0.3f)); // Borda mais clara
+            DrawCircle(cx, cy, 15, Fade(BLUE, 0.1f));
+            DrawCircleLines(cx, cy, 15, Fade(WHITE, 0.3f));
         }
     }
 }
@@ -2575,7 +2587,6 @@ void UpdateHitEffects(float deltaTime) {
     }
 }
 
-// Verifica se o jogador alcançou um novo marco de bênção
 void CheckForMilestone(Player* player) {
     int milestones[] = {25, 50, 75};
 
@@ -2594,7 +2605,6 @@ void CheckForMilestone(Player* player) {
     }
 }
 
-// Verifica se a música é a favorita do público no mapa atual
 bool IsFavoriteSong(int songIndex, int mapLevel) {
     switch (mapLevel) {
     case 1: return songIndex == 1;
@@ -2604,19 +2614,16 @@ bool IsFavoriteSong(int songIndex, int mapLevel) {
     }
 }
 
-// Aplica os efeitos das bênçãos ativas
 void ApplyBlessings(Player* player, GameStats* stats, float deltaTime) {
     for (int i = 0; i < player->blessings.count; i++) {
         switch (player->blessings.blessings[i]) {
         case BLESS_ROCK_METER: {
-                // Resistência do Rock - Melhorado
                 if (stats->rockMeter < 1.0f) {
                     stats->rockMeter += 0.06f * deltaTime;
                 }
         } break;
 
         case BLESS_STAR_POWER: {
-                // Explosão Estelar
                 stats->starPower += 0.6f * deltaTime;
         } break;
 
@@ -2638,7 +2645,6 @@ void ApplyBlessings(Player* player, GameStats* stats, float deltaTime) {
     }
 }
 
-// Verifica se o jogador tem uma bênção específica
 bool HasBlessing(Player* player, RockBlessing blessing) {
     for (int i = 0; i < player->blessings.count; i++) {
         if (player->blessings.blessings[i] == blessing) {
@@ -2648,13 +2654,11 @@ bool HasBlessing(Player* player, RockBlessing blessing) {
     return false;
 }
 
-// Efeito visual de escudo
 void SpawnShieldEffect() {
-    // Encontra um slot de efeito vazio
     for (int i = 0; i < MAX_HIT_EFFECTS; i++) {
         if (!hitEffects[i].active) {
-            hitEffects[i].lane = -1; // Efeito central, não associado a uma lane
-            hitEffects[i].timer = 1.0f; // Duração maior para o efeito de escudo
+            hitEffects[i].lane = -1;
+            hitEffects[i].timer = 1.0f;
             hitEffects[i].active = true;
             hitEffects[i].isForgiveness = false;
             hitEffects[i].isStart = false;
@@ -2687,7 +2691,9 @@ bool ShouldIgnoreMiss(Player *player, GameStats* stats, int lane) {
             SpawnForgivenessEffect(lane, stats);
             return true;
         }
-    } else if (HasBlessing(player, BLESS_RHYTHM_SHIELD) && stats->rhythmShields > 0) {
+    }
+    // Escudo Sonoro
+    else if (HasBlessing(player, BLESS_RHYTHM_SHIELD) && stats->rhythmShields > 0) {
         stats->rhythmShields--;
         SpawnShieldEffect();
         return true;
@@ -2703,14 +2709,14 @@ void ShowTempWarning(const char* message, float duration) {
 
 void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* gameMusic, GameStats* stats) {
   	if (!IsMusicStreamPlaying(*gameMusic)) return;
-    // Padrões de riff pré-definidos para o modo Deus
+
 	if (currentTime == 0) {
           lastRiffTime = 0.0f;
 	}
 
     // Define o intervalo entre riffs baseado no combo atual
     float riffInterval;
-    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD) {
+    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD) { // Fase 2 - Dificil!!!
         riffInterval = 0.6f;
     } else { // Fase 1 - Normal
         riffInterval = 0.65f;
@@ -2725,14 +2731,14 @@ void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* g
 
         // Define a probabilidade de notas especiais baseado no combo
         int specialNoteChance;
-        if (stats->combo >= GOD_MODE_COMBO_THRESHOLD) { // Fase 2 - 60% chance
+        if (stats->combo >= GOD_MODE_COMBO_THRESHOLD) { // Fase 2 - 40% chance
             specialNoteChance = 6;
         } else { // Fase 1 - 20% chance
             specialNoteChance = 8;
         }
 
         switch (riffPattern) {
-            case 0: // Riff ascendente
+            case 0: // Riff subindo
                 for (int i = 0; i < NUM_LANES; i++) {
                     int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + i*0.1f, type);
@@ -2743,7 +2749,7 @@ void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* g
                 }
                 break;
 
-            case 1: // Riff descendente
+            case 1: // Riff descendo
                 for (int i = NUM_LANES-1; i >= 0; i--) {
                     int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + (NUM_LANES-1-i)*0.1f, type);
@@ -2769,7 +2775,6 @@ void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime, Music* g
                     int type = (GetRandomValue(0, 9) < specialNoteChance) ? 0 : GetRandomValue(1, 3);
                     AddSpecialNote(notes, maxNotes, i, baseTime + i*0.1f, type);
 
-                    // Na fase 3, adiciona notas entre as alternadas
                     if (stats->combo >= GOD_MODE_COMBO_THRESHOLD && i+1 < NUM_LANES) {
                         AddSpecialNote(notes, maxNotes, i+1, baseTime + i*0.1f + 0.2f, type);
                     }
@@ -2795,8 +2800,8 @@ void AddSpecialNote(Note* notes, int maxNotes, int lane, float spawnTime, int sp
                 NOTE_WIDTH,
                 NOTE_HEIGHT
             };
-            // Define cor base para todos os tipos de notas
 
+            // Define cor base para todos os tipos de notas
             switch (lane) {
                 case 0: notes[i].color = (Color){255, 50, 50, 255}; break;
                 case 1: notes[i].color = (Color){255, 150, 50, 255}; break;
@@ -2804,6 +2809,7 @@ void AddSpecialNote(Note* notes, int maxNotes, int lane, float spawnTime, int sp
                 case 3: notes[i].color = (Color){50, 150, 255, 255}; break;
                 case 4: notes[i].color = (Color){200, 50, 255, 255}; break;
             }
+
             // Se for nota especial, ajusta a cor
             if (specialType > 0) {
                 switch (specialType) {
