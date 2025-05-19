@@ -435,6 +435,7 @@ int main(void) {
                             fameWarning.active = true;
                             fameWarning.timer = 0;
                         } else {
+                          selectedSong = 0;
                             gameState = SONG_SELECT;
                         }
                     }
@@ -454,6 +455,7 @@ int main(void) {
                             fameWarning.active = true;
                             fameWarning.timer = 0;
                         } else {
+                          selectedSong = 3;
                             gameState = SONG_SELECT; // Prossegue direto (aviso temporário)
                         }
                     }
@@ -469,6 +471,7 @@ int main(void) {
                         }
                     }
                     else if (IsKeyPressed(KEY_M)) {
+                      selectedSong = 7;
                         gameState = SONG_SELECT; // Prossegue direto
                     }
                 }
@@ -1160,7 +1163,7 @@ int main(void) {
                     // Lista de músicas
                     int startY = listStartY + 50 - scrollOffset; // scrollOffset ajusta rolagem
                     if (instory) {
-                    int x, y;
+                    int x, y, z = 0;
             		switch (currentMap->mapId) {
               			case 1: {x = 0; y = 3;}
             			break;
@@ -1170,25 +1173,22 @@ int main(void) {
             		    break;
             		}
                     for (int i = x; i < y; i++) {
-                        float yPos = startY + i * 100;
+                        float yPos = startY + z++ * 100;
 
-                        // Verifica se está visível dentro da área
-                        if (yPos > -100 && yPos < screenHeight) {
-                            // Destaque da música selecionada
-                            if (i == selectedSong) {
-                                DrawRectangle(screenWidth / 2 - 300, yPos, 600, 80, (Color){50, 50, 80, 255});
-                            }
-
-                            // Texto da música
-                            DrawTextEx(mainFont, TextFormat("%s - %s", songs[i].artist, songs[i].title),
-                                       (Vector2){screenWidth / 2 - 280, yPos + 20}, 24, 0, WHITE);
-
-                            // Estrelas de dificuldade
-                            for (int j = 0; j < 5; j++) {
-                                DrawCircle(screenWidth / 2 + 200 + j * 20, yPos + 40, 5,
-                                           j < songs[i].difficulty ? YELLOW : (Color){50, 50, 50, 255});
-                            }
+                        if (i == selectedSong) {
+                            DrawRectangle(screenWidth / 2 - 300, yPos, 600, 80, (Color){50, 50, 80, 255});
                         }
+
+                        // Texto da música
+                        DrawTextEx(mainFont, TextFormat("%s - %s", songs[i].artist, songs[i].title),
+                                   (Vector2){screenWidth / 2 - 280, yPos + 20}, 24, 0, WHITE);
+
+                        // Estrelas de dificuldade
+                        for (int j = 0; j < 5; j++) {
+                            DrawCircle(screenWidth / 2 + 200 + j * 20, yPos + 40, 5,
+                                       j < songs[i].difficulty ? YELLOW : (Color){50, 50, 50, 255});
+                        }
+
                     }
                     } else {
                     for (int i = 0; i < MAX_SONGS; i++) {
