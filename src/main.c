@@ -142,23 +142,22 @@ void ResetScoreboardState() {
     totalTime = 0.0f;
 }
 
-
 FameWarning fameWarning = {false, 0.2f, 0}; // 0.2s de delay mínimo
 
 TemporaryWarning tempWarning = {0};
 
 Song songs[MAX_SONGS] = {
-    {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 0.0f, 4},
+    {"Killer Queen", "Queen", {}, "assets/musics/killer_queen.mp3", 114.469f, 1},
+    {"Livin' on a Prayer", "Bon Jovi", {}, "assets/musics/livin_prayer.mp3", 96.2281f, 2},
+    {"Smells Like Teen Spirit", "Nirvana", {}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
+    {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 270.0f, 3},
     {"Sweet Child O'Mine", "Guns N' Roses", {}, "assets/musics/sweet_child.mp3", 90.5f, 3},
     {"Bring Me To Life", "Evanescence", {}, "assets/musics/bring_me_to_life.mp3", 140.0f, 3},
-    {"Killer Queen", "Queen", {}, "assets/musics/killer_queen.mp3", 114.469f, 1},
-    {"Smells Like Teen Spirit", "Nirvana", {}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
-    {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 331.0f, 4},
     {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},
-    {"The Trooper", "Iron Maiden", {}, "assets/musics/trooper.mp3", 97.8397f, 5},
-    {"Livin' on a Prayer", "Bon Jovi", {}, "assets/musics/livin_prayer.mp3", 96.2281f, 2},
-    {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 270.0f, 3},
-    {"Toxicity", "System of a Down", {}, "assets/musics/toxicity.mp3", 214.0f, 4}
+    {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 331.0f, 4},
+    {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 0.0f, 4},
+    {"Toxicity", "System of a Down", {}, "assets/musics/toxicity.mp3", 214.0f, 4},
+    {"The Trooper", "Iron Maiden", {}, "assets/musics/trooper.mp3", 97.8397f, 5}
 };
 
 HitEffect hitEffects[MAX_HIT_EFFECTS];
@@ -302,12 +301,12 @@ int main(void) {
     Music gameMusic = {0};
     Music menuMusic = LoadMusicStream("assets/musics/love_rock.mp3");
     SetMusicVolume(menuMusic, 0.2f);
-    Music map1Music = LoadMusicStream("assets/musics/hell.mp3");
-    SetMusicVolume(map1Music, 0.1f);
+    Music map1Music = LoadMusicStream("assets/musics/bad_name.mp3");
+    SetMusicVolume(map1Music, 0.05f);
     Music map2Music = LoadMusicStream("assets/musics/jungle.mp3");
     SetMusicVolume(map2Music, 0.1f);
-    Music map3Music = LoadMusicStream("assets/musics/bad_name.mp3");
-    SetMusicVolume(map3Music, 0.05f);
+    Music map3Music = LoadMusicStream("assets/musics/hell.mp3");
+    SetMusicVolume(map3Music, 0.1f);
     PlayMusicStream(menuMusic);
     Note* currentChart = NULL;
 
@@ -373,6 +372,7 @@ int main(void) {
         // Update scrolling for song select
         if (gameState == SONG_SELECT) {
             // Handle selection change
+            if (!instory) {
             if (IsKeyPressed(KEY_DOWN) && selectedSong < MAX_SONGS - 1) {
                 selectedSong++;
                 PlaySound(menuScrollSound);
@@ -392,6 +392,37 @@ int main(void) {
             if (fabs(scrollSpeed) < 1.0f) {
                 scrollSpeed = 0.0f;
                 scrollOffset = selectedSong * 37.5; // Ajusta para a posição exata
+            }
+            } else {
+            float rapidez;
+            int x, y;
+            switch (currentMap->mapId) {
+              	case 1: {rapidez = 60.0f; x = 0; y = 3;}
+            	break;
+            	case 2: {rapidez = 80.0f; x = 3; y = 7;}
+                break;
+                case 3: {rapidez = 80.0f; x = 7; y = 11;}
+                break;
+            }
+            if (IsKeyPressed(KEY_DOWN) && selectedSong < y - 1) {
+                selectedSong++;
+                PlaySound(menuScrollSound);
+                scrollSpeed = rapidez;
+            }
+            if (IsKeyPressed(KEY_UP) && selectedSong > x) {
+                selectedSong--;
+                PlaySound(menuScrollSound);
+                scrollSpeed = rapidez * -1;
+            }
+
+            // Smooth scroll
+            scrollOffset += scrollSpeed * deltaTime;
+            scrollSpeed *= 0.9f;
+
+            // Snap to correct position when almost stopped
+            if (fabs(scrollSpeed) < 1.0f) {
+                scrollSpeed = 0.0f;
+            }
             }
         }
 
@@ -603,7 +634,7 @@ int main(void) {
                                     case 1: penalty = ROCK_METER_MISS_PENALTY; break;
                                     case 2: penalty = 0.1f; break;
                                     case 3: penalty = 0.125f; break;
-                                    default: penalty = ROCK_METER_MISS_PENALTY; // Fallback
+                                    default: penalty = ROCK_METER_MISS_PENALTY;
                                 }
 
                                 stats.rockMeter = fmaxf(0, stats.rockMeter - penalty);
@@ -1123,10 +1154,43 @@ int main(void) {
                     // Scissor: delimita a área rolável para a lista de músicas
                     int listStartY = 150; // onde começa a lista (abaixo do título)
                     int listHeight = screenHeight - listStartY - 100; // altura da área rolável
+
                     BeginScissorMode(0, listStartY, screenWidth, listHeight);
 
                     // Lista de músicas
                     int startY = listStartY + 50 - scrollOffset; // scrollOffset ajusta rolagem
+                    if (instory) {
+                    int x, y;
+            		switch (currentMap->mapId) {
+              			case 1: {x = 0; y = 3;}
+            			break;
+            			case 2: {x = 3; y = 7;}
+                		break;
+            			case 3: {x = 7; y = 11;}
+            		    break;
+            		}
+                    for (int i = x; i < y; i++) {
+                        float yPos = startY + i * 100;
+
+                        // Verifica se está visível dentro da área
+                        if (yPos > -100 && yPos < screenHeight) {
+                            // Destaque da música selecionada
+                            if (i == selectedSong) {
+                                DrawRectangle(screenWidth / 2 - 300, yPos, 600, 80, (Color){50, 50, 80, 255});
+                            }
+
+                            // Texto da música
+                            DrawTextEx(mainFont, TextFormat("%s - %s", songs[i].artist, songs[i].title),
+                                       (Vector2){screenWidth / 2 - 280, yPos + 20}, 24, 0, WHITE);
+
+                            // Estrelas de dificuldade
+                            for (int j = 0; j < 5; j++) {
+                                DrawCircle(screenWidth / 2 + 200 + j * 20, yPos + 40, 5,
+                                           j < songs[i].difficulty ? YELLOW : (Color){50, 50, 50, 255});
+                            }
+                        }
+                    }
+                    } else {
                     for (int i = 0; i < MAX_SONGS; i++) {
                         float yPos = startY + i * 100;
 
@@ -1148,6 +1212,8 @@ int main(void) {
                             }
                         }
                     }
+                    }
+
 
                     EndScissorMode(); // Finaliza área rolável
 
@@ -1565,7 +1631,7 @@ if (godModeActive) {
                     }
                 }
 
-// ----- AVISO TEMPORÁRIO DE FAMA (sobrepõe tudo) -----
+				// ----- AVISO TEMPORÁRIO DE FAMA (sobrepõe tudo) -----
                 if (tempWarning.timer < tempWarning.showTime) {
                     // Fundo semi-transparente
                     DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.7f));
@@ -2219,17 +2285,17 @@ case 1: { // Explicação das chamas do destino
 
 
 void initSongs() {
-    memcpy(songs[0].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[1].charts, SweetChildOMine, sizeof(SweetChildOMine));
-    memcpy(songs[2].charts, BringMeToLife, sizeof(BringMeToLife));
-    memcpy(songs[3].charts, KillerQueen, sizeof(KillerQueen));
-    memcpy(songs[4].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[5].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[6].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[7].charts, TheTrooper, sizeof(TheTrooper));
-    memcpy(songs[8].charts, Livin_Prayer, sizeof(Livin_Prayer));
-    memcpy(songs[9].charts, thunderChart, sizeof(thunderChart));
-    memcpy(songs[10].charts, thunderChart, sizeof(thunderChart));
+    memcpy(songs[0].charts, KillerQueen, sizeof(KillerQueen));
+    memcpy(songs[1].charts, Livin_Prayer, sizeof(Livin_Prayer));
+    memcpy(songs[2].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[3].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[4].charts, SweetChildOMine, sizeof(SweetChildOMine));
+    memcpy(songs[5].charts, BringMeToLife, sizeof(BringMeToLife));
+    memcpy(songs[6].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[7].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[8].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[9].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[10].charts, TheTrooper, sizeof(TheTrooper));
 }
 
 // Inicializa o sistema de fama
@@ -2533,9 +2599,9 @@ void CheckForMilestone(Player* player) {
 // Verifica se a música é a favorita do público no mapa atual
 bool IsFavoriteSong(int songIndex, int mapLevel) {
     switch (mapLevel) {
-    case 1: return songIndex == 0; // Thunderstruck no mapa 1
-    case 2: return songIndex == 1; // Sweet Child no mapa 2
-    case 3: return songIndex == 8; // Livin' on a Prayer no mapa 3
+    case 1: return songIndex == 1;
+    case 2: return songIndex == 4;
+    case 3: return songIndex == 8;
     default: return false;
     }
 }
