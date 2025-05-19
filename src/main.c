@@ -148,8 +148,8 @@ TemporaryWarning tempWarning = {0};
 Song songs[MAX_SONGS] = {
     {"Killer Queen", "Queen", {}, "assets/musics/killer_queen.mp3", 114.469f, 1},
     {"Livin' on a Prayer", "Bon Jovi", {}, "assets/musics/livin_prayer.mp3", 96.2281f, 2},
-    {"Smells Like Teen Spirit", "Nirvana", {}, "assets/musics/teen_spirit.mp3", 301.0f, 3},
-    {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 270.0f, 3},
+    {"Smells Like Teen Spirit", "Nirvana", {}, "assets/musics/teen_spirit.mp3", 0.0f, 3},
+    {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 0.0f, 3},
     {"Sweet Child O'Mine", "Guns N' Roses", {}, "assets/musics/sweet_child.mp3", 90.5f, 3},
     {"Bring Me To Life", "Evanescence", {}, "assets/musics/bring_me_to_life.mp3", 140.0f, 3},
     {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},

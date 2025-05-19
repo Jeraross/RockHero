@@ -29,6 +29,7 @@ void InitMap3(MapData *map) {
     map->seta = LoadTexture("assets/sprites/seta.png");
     map->font = LoadFont("assets/font/Vampire Wars.ttf");
     map->keyPrompt = LoadTexture("assets/sprites/individual sprites/keyboard/P.png");
+    map->exclamation = LoadTexture("assets/sprites/exclamation.png");
 }
 
 void UpdateMap3(MapData *map, Player *player) {
@@ -261,6 +262,21 @@ void DrawMap3(MapData *map, Player *player) {
         };
 
         DrawTextEx(map->font, letra, textPos, fontSize, 2.0f, WHITE);
+    }
+
+    if (player->fama >= 70){
+        float exclamationOffset = sinf(GetTime() * 4.0f) * 5.0f;
+        float scaleExclamation = 0.25f;
+        DrawTextureEx(
+                map->exclamation,
+                (Vector2){
+                        map->npc.position.x - 25 + (map->npc.frameWidth * map->npc.scale) / 2 - (map->exclamation.width * scaleExclamation) / 2,
+                        map->npc.position.y + 10 - (map->exclamation.height * scaleExclamation) - 20 + exclamationOffset
+                },
+                0.0f,
+                scaleExclamation,
+                WHITE
+        );
     }
 
 }

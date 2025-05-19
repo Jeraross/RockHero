@@ -30,6 +30,7 @@ void InitMap1(MapData *map) {
     map->seta = LoadTexture("assets/sprites/seta.png");
     map->font = LoadFont("assets/font/Vampire Wars.ttf");
     map->keyPrompt = LoadTexture("assets/sprites/individual sprites/keyboard/P.png");
+    map->exclamation = LoadTexture("assets/sprites/exclamation.png");
 }
 
 void UpdateMap1(MapData *map, Player *player) {
@@ -159,6 +160,19 @@ void DrawMap1(MapData *map, Player *player) {
                 WHITE
         );
     }
+
+    float exclamationOffset = sinf(GetTime() * 4.0f) * 5.0f;
+    float scaleExclamation = 0.25f;
+    DrawTextureEx(
+            map->exclamation,
+            (Vector2){
+                    map->npc.position.x + 10 + (map->npc.frameWidth * map->npc.scale) / 2 - (map->exclamation.width * scaleExclamation) / 2,
+                    map->npc.position.y + 45 - (map->exclamation.height * scaleExclamation) - 20 + exclamationOffset
+            },
+            0.0f,
+            scaleExclamation,
+            WHITE
+    );
 
         if (map->typingQuestion) {
             DrawRectangle(550, SCREEN_HEIGHT - 160, 650, 120, Fade(BLACK, 0.8f));

@@ -13,6 +13,7 @@ typedef struct {
     Font font;
     Texture keyPrompt;
     Texture keyPrompt2;
+    Texture2D exclamation;
 
     bool typingQuestion;
     bool waitingResponse;
