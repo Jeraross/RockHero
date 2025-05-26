@@ -381,7 +381,6 @@ int main(void) {
                 gameState = RESULTS;
             }
 
-            // Check if player failed (rock meter in red zone)
             if (stats.rockMeter <= 0.15f && !stats.songFailed) {
                 stats.songFailed = true;
                 gameState = RESULTS;
@@ -413,21 +412,17 @@ int main(void) {
                     scrollOffset = selectedSong * 37.5;  // Ajusta para a posição exata
                 }
             } else {
-                float rapidez;
                 int x, y;
                 switch (currentMap->mapId) {
                     case 1: {
-                        rapidez = 60.0f;
                         x = 0;
                         y = 3;
                     } break;
                     case 2: {
-                        rapidez = 80.0f;
                         x = 3;
                         y = 7;
                     } break;
                     case 3: {
-                        rapidez = 80.0f;
                         x = 7;
                         y = 11;
                     } break;
@@ -435,21 +430,10 @@ int main(void) {
                 if (IsKeyPressed(KEY_DOWN) && selectedSong < y - 1) {
                     selectedSong++;
                     PlaySound(menuScrollSound);
-                    scrollSpeed = rapidez;
                 }
                 if (IsKeyPressed(KEY_UP) && selectedSong > x) {
                     selectedSong--;
                     PlaySound(menuScrollSound);
-                    scrollSpeed = rapidez * -1;
-                }
-
-                // Smooth scroll
-                scrollOffset += scrollSpeed * deltaTime;
-                scrollSpeed *= 0.9f;
-
-                // Snap to correct position when almost stopped
-                if (fabs(scrollSpeed) < 1.0f) {
-                    scrollSpeed = 0.0f;
                 }
             }
         }
@@ -465,6 +449,7 @@ int main(void) {
                             fameWarning.timer = 0;
                         } else {
                             selectedSong = 0;
+                            scrollOffset = 0;
                             gameState = SONG_SELECT;
                         }
                     }
@@ -484,6 +469,7 @@ int main(void) {
                             fameWarning.timer = 0;
                         } else {
                             selectedSong = 3;
+                            scrollOffset = 0;
                             gameState = SONG_SELECT;  // Prossegue direto (aviso temporário)
                         }
                     }
@@ -499,6 +485,7 @@ int main(void) {
                         }
                     } else if (IsKeyPressed(KEY_M)) {
                         selectedSong = 7;
+                        scrollOffset = 0;
                         gameState = SONG_SELECT;  // Prossegue direto
                     }
                 }
@@ -755,11 +742,11 @@ int main(void) {
                                 if (hitDiff <= hitWindowPixels) {
                                     int hitQuality;
 
-                                    if (hitDiff < hitWindowPixels * 0.3f)
+                                    if (hitDiff < hitWindowPixels * 0.25f)
                                         hitQuality = 0;  // Perfect
                                     else if (hitDiff < hitWindowPixels * 0.45f)
                                         hitQuality = 1;  // Great
-                                    else if (hitDiff < hitWindowPixels * 0.6f)
+                                    else if (hitDiff < hitWindowPixels * 0.65f)
                                         hitQuality = 2;  // Good
                                     else
                                         hitQuality = 3;  // OK
@@ -796,7 +783,7 @@ int main(void) {
                                     // Update rock meter with blessing bonus
                                     float gain = ROCK_METER_HIT_GAIN;
                                     if (HasBlessing(&player, BLESS_ROCK_METER)) {
-                                        gain *= 1.3f;
+                                        gain *= 1.5f;
                                     }
                                     stats.rockMeter = fminf(1.0f, stats.rockMeter + gain);
 
@@ -818,17 +805,12 @@ int main(void) {
                                     if (hitQuality == 0) {
                                         stats.perfectStreak++;
                                         if (HasBlessing(&player, BLESS_RHYTHM_SHIELD) &&
-                                            stats.perfectStreak >= 3) {
+                                            stats.perfectStreak >= 5) {
                                             stats.rhythmShields = fmin(stats.rhythmShields + 1, 3);
                                             stats.perfectStreak = 0;
                                         }
                                     } else {
                                         stats.perfectStreak = 0;
-                                    }
-
-                                    if (HasBlessing(&player, BLESS_SCORE_BOOST) &&
-                                        stats.combo % 10 == 0) {
-                                        stats.score += 500;
                                     }
 
                                     // Clean up note
@@ -1504,8 +1486,7 @@ int main(void) {
                         }
                     }
 
-                    if (HasBlessing(&player, BLESS_SCORE_BOOST) &&
-                        stats.combo % 10 == 0) {
+                    if (HasBlessing(&player, BLESS_SCORE_BOOST)) {
                         int boostedFontSize =
                                 fontSize + 10;  // Aumenta ainda mais o tamanho do texto
                         Vector2 boostedTextPos = {
@@ -1892,12 +1873,12 @@ int main(void) {
                             "ESCUDO SONORO", "COMBO ETERNO",     "ESTRELA CADENTE"};
 
                     const char* blessingDescs[MAX_BLESSINGS] = {
-                            "Ganho maior no Rock Meter e cura passiva",
-                            "Bonus de fame e 500pts a cada 10 hits",
+                            "Ganho maior no Rock Meter e recupera passivamente",
+                            "Bonus de fama por musica tocada",
                             "Ignora os 6 primeiros erros",
-                            "A cada 3 Perfects, ganha 1 escudo (max 3)",
+                            "A cada 5 Perfects, ganha 1 escudo (max 3)",
                             "Multiplicador ate 8x e protege combos",
-                            "Star Power dura +2s e ganho passivo"};
+                            "Star Power dura +2s e recupera passivamente"};
 
                     for (int i = 0; i < 2; i++) {
                         bool isSelected = (i == selectedOption);
@@ -2269,7 +2250,7 @@ int main(void) {
                             }
                         }
 
-                            // Etapa 1: entrada de nome
+                        // Etapa 1: entrada de nome
                         else if (!stats.songFailed) {
                             if (totalTime == 0.0f) {
                                 storyEndTime = GetTime();
@@ -3061,12 +3042,7 @@ void GenerateGodModeNotes(Note* notes, int maxNotes, float currentTime,
     }
 
     // Define o intervalo entre riffs baseado no combo atual
-    float riffInterval;
-    if (stats->combo >= GOD_MODE_COMBO_THRESHOLD) {  // Fase 2 - Dificil!!!
-        riffInterval = 0.6f;
-    } else {  // Fase 1 - Normal
-        riffInterval = 0.65f;
-    }
+    float riffInterval = 0.6f;
 
     if (currentTime - lastRiffTime > riffInterval) {
         lastRiffTime = currentTime;
@@ -3236,7 +3212,6 @@ void InsertScore(const char* name, float time) {
         return;  // tempo não é bom o suficiente
     }
 
-    // Ordenar usando insertion sort
     for (int i = 1; i < numScores; i++) {
         ScoreEntry key = topScores[i];
         int j = i - 1;
