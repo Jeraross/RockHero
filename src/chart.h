@@ -7,7 +7,7 @@
 
 #include "raylib.h"
 
-#define CHART_SIZE 500
+#define CHART_SIZE 600
 
 typedef struct {
     Rectangle rect;
@@ -27,5 +27,6 @@ extern Note Livin_Prayer[CHART_SIZE];
 extern Note BringMeToLife[CHART_SIZE];
 extern Note KillerQueen[CHART_SIZE];
 extern Note EyeOfTheTiger[CHART_SIZE];
+extern Note Toxicity[CHART_SIZE];
 
 #endif //CHART_H

@@ -72,7 +72,7 @@ typedef struct {
 typedef struct {
     char title[50];
     char artist[50];
-    Note charts[500];
+    Note charts[600];
     char musicFile[100];
     float duration;
     int difficulty;
@@ -156,7 +156,7 @@ Song songs[MAX_SONGS] = {
         {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},
         {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 331.0f, 4},
         {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 0.0f, 4},
-        {"Toxicity","System of a Down",{},"assets/musics/toxicity.mp3",214.0f,4},
+        {"Toxicity","System of a Down",{},"assets/musics/toxicity.mp3",169.0f,4},
         {"The Trooper","Iron Maiden",{},"assets/musics/trooper.mp3",97.8397f,5}};
 
 HitEffect hitEffects[MAX_HIT_EFFECTS];
@@ -2581,13 +2581,13 @@ void initSongs() {
     memcpy(songs[0].charts, KillerQueen, sizeof(KillerQueen));
     memcpy(songs[1].charts, Livin_Prayer, sizeof(Livin_Prayer));
     memcpy(songs[2].charts, Thunder, sizeof(Thunder));
-    memcpy(songs[3].charts, EyeOfTheTiger, sizeof(Thunder));
+    memcpy(songs[3].charts, EyeOfTheTiger, sizeof(EyeOfTheTiger));
     memcpy(songs[4].charts, SweetChildOMine, sizeof(SweetChildOMine));
     memcpy(songs[5].charts, BringMeToLife, sizeof(BringMeToLife));
     memcpy(songs[6].charts, Thunder, sizeof(Thunder));
     memcpy(songs[7].charts, Thunder, sizeof(Thunder));
     memcpy(songs[8].charts, Thunder, sizeof(Thunder));
-    memcpy(songs[9].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[9].charts, Toxicity, sizeof(Toxicity));
     memcpy(songs[10].charts, TheTrooper, sizeof(TheTrooper));
 }
 

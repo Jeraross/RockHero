@@ -2048,3 +2048,816 @@ Note EyeOfTheTiger[CHART_SIZE] = {
         // Terminator
         {.lane = -1}
 };
+
+Note Toxicity[CHART_SIZE] = {
+        // First group (0.241f apart) - no changes
+        {.lane = 0, .spawnTime = 1.975f},
+        {.lane = 2, .spawnTime = 2.216f},
+        {.lane = 0, .spawnTime = 2.502f},
+        {.lane = 2, .spawnTime = 2.787f},
+        {.lane = 0, .spawnTime = 3.031f},
+        {.lane = 2, .spawnTime = 3.253f},
+        {.lane = 0, .spawnTime = 3.569f},
+        {.lane = 2, .spawnTime = 3.780f},
+        {.lane = 0, .spawnTime = 4.043f},
+        {.lane = 2, .spawnTime = 4.298f},
+        {.lane = 0, .spawnTime = 4.560f},
+
+        // Next group (0.236f apart) - no changes
+        {.lane = 1, .spawnTime = 5.102f},
+        {.lane = 3, .spawnTime = 5.338f},
+        {.lane = 1, .spawnTime = 5.572f},
+        {.lane = 3, .spawnTime = 5.838f},
+        {.lane = 1, .spawnTime = 6.156f},
+        {.lane = 3, .spawnTime = 6.386f},
+        {.lane = 1, .spawnTime = 6.662f},
+        {.lane = 3, .spawnTime = 6.923f},
+        {.lane = 1, .spawnTime = 7.191f},
+        {.lane = 3, .spawnTime = 7.439f},
+        {.lane = 1, .spawnTime = 7.671f},
+
+        // Next group - no changes
+        {.lane = 0, .spawnTime = 8.268f},
+        {.lane = 2, .spawnTime = 8.505f},
+        {.lane = 0, .spawnTime = 8.760f},
+        {.lane = 2, .spawnTime = 9.032f},
+        {.lane = 0, .spawnTime = 9.250f},
+        {.lane = 2, .spawnTime = 9.496f},
+        {.lane = 3, .spawnTime = 9.746f},
+        {.lane = 3, .spawnTime = 10.294f},
+        {.lane = 2, .spawnTime = 10.516f},
+        {.lane = 2, .spawnTime = 11.054f},
+        {.lane = 1, .spawnTime = 11.286f},
+        {.lane = 1, .spawnTime = 11.838f},
+        {.lane = 4, .spawnTime = 12.023f},
+        {.lane = 4, .spawnTime = 12.566f},
+        {.lane = 3, .spawnTime = 12.794f},
+        {.lane = 3, .spawnTime = 13.356f},
+        {.lane = 2, .spawnTime = 13.552f},
+        {.lane = 2, .spawnTime = 14.079f},
+
+        // Close notes (0.013f apart) - made equal
+        {.lane = 0, .spawnTime = 14.330f},
+        {.lane = 1, .spawnTime = 14.330f},
+
+        {.lane = 3, .spawnTime = 15.864f},
+        {.lane = 2, .spawnTime = 16.057f},
+
+        // Close notes (0.003f apart) - made equal
+        {.lane = 0, .spawnTime = 16.343f},
+        {.lane = 1, .spawnTime = 16.343f},
+
+        // Close notes (0.010f apart) - made equal
+        {.lane = 2, .spawnTime = 17.247f},
+        {.lane = 4, .spawnTime = 17.247f},
+
+        // Close notes (0.009f apart) - made equal
+        {.lane = 4, .spawnTime = 18.059f},
+        {.lane = 2, .spawnTime = 18.059f},
+
+        // Close notes (0.013f apart) - made equal
+        {.lane = 4, .spawnTime = 18.338f},
+        {.lane = 2, .spawnTime = 18.338f},
+
+        {.lane = 4, .spawnTime = 18.559f},
+        {.lane = 2, .spawnTime = 18.559f},
+        {.lane = 3, .spawnTime = 18.855f},
+
+        // Close notes (0.022f apart) - made equal
+        {.lane = 1, .spawnTime = 18.877f},
+        {.lane = 1, .spawnTime = 18.877f},
+
+        // Close notes (0.003f apart) - made equal
+        {.lane = 1, .spawnTime = 19.231f},
+        {.lane = 3, .spawnTime = 19.231f},
+
+        // Close notes (0.012f apart) - made equal
+        {.lane = 1, .spawnTime = 19.602f},
+        {.lane = 3, .spawnTime = 19.602f},
+
+        // Close notes (0.003f apart) - made equal
+        {.lane = 1, .spawnTime = 19.873f},
+        {.lane = 3, .spawnTime = 19.873f},
+
+        // Close notes (0.012f apart) - made equal
+        {.lane = 1, .spawnTime = 20.082f},
+        {.lane = 3, .spawnTime = 20.082f},
+
+        {.lane = 0, .spawnTime = 20.336f},
+        {.lane = 3, .spawnTime = 21.842f},
+        {.lane = 2, .spawnTime = 22.092f},
+        {.lane = 0, .spawnTime = 22.341f},
+
+        // Close notes (0.002f apart) - made equal
+        {.lane = 1, .spawnTime = 22.341f},
+
+        {.lane = 4, .spawnTime = 23.263f},
+
+        // Close notes (0.007f apart) - made equal
+        {.lane = 2, .spawnTime = 23.263f},
+
+        {.lane = 4, .spawnTime = 24.007f},
+
+        // Close notes (0.013f apart) - made equal
+        {.lane = 2, .spawnTime = 24.007f},
+
+        {.lane = 4, .spawnTime = 24.257f},
+
+        // Close notes (0.012f apart) - made equal
+        {.lane = 2, .spawnTime = 24.257f},
+
+        {.lane = 2, .spawnTime = 24.498f},
+
+        // Close notes (0.006f apart) - made equal
+        {.lane = 4, .spawnTime = 24.498f},
+
+        {.lane = 3, .spawnTime = 24.738f},
+
+        // Close notes (0.017f apart) - made equal
+        {.lane = 1, .spawnTime = 24.738f},
+
+        {.lane = 3, .spawnTime = 25.520f},
+
+        // Close notes (0.006f apart) - made equal
+        {.lane = 1, .spawnTime = 25.520f},
+
+        {.lane = 3, .spawnTime = 25.741f},
+
+        // Close notes (0.008f apart) - made equal
+        {.lane = 1, .spawnTime = 25.741f},
+
+        {.lane = 3, .spawnTime = 25.983f},
+
+        // Close notes (0.023f apart) - made equal
+        {.lane = 1, .spawnTime = 25.983f},
+
+        {.lane = 3, .spawnTime = 26.254f},
+        {.lane = 2, .spawnTime = 26.507f},
+        {.lane = 0, .spawnTime = 26.772f},
+        {.lane = 3, .spawnTime = 27.009f},
+        {.lane = 2, .spawnTime = 27.236f},
+        {.lane = 0, .spawnTime = 27.542f},
+        {.lane = 3, .spawnTime = 27.744f},
+        {.lane = 2, .spawnTime = 27.976f},
+        {.lane = 0, .spawnTime = 28.244f},
+        {.lane = 3, .spawnTime = 28.454f},
+        {.lane = 2, .spawnTime = 28.680f},
+        {.lane = 0, .spawnTime = 28.901f},
+        {.lane = 2, .spawnTime = 29.097f},
+
+        // Close notes (0.012f apart) - made equal
+        {.lane = 4, .spawnTime = 29.097f},
+
+        {.lane = 4, .spawnTime = 29.852f},
+
+        // Close notes (0.007f apart) - made equal
+        {.lane = 2, .spawnTime = 29.852f},
+
+        {.lane = 4, .spawnTime = 30.131f},
+
+        // Close notes (0.016f apart) - made equal
+        {.lane = 2, .spawnTime = 30.131f},
+
+        {.lane = 2, .spawnTime = 30.366f},
+
+        // Close notes (0.003f apart) - made equal
+        {.lane = 4, .spawnTime = 30.366f},
+
+        {.lane = 3, .spawnTime = 30.631f},
+
+        // Close notes (0.036f apart) - made equal
+        {.lane = 1, .spawnTime = 30.631f},
+
+        {.lane = 3, .spawnTime = 31.417f},
+
+        // Close notes (0.014f apart) - made equal
+        {.lane = 1, .spawnTime = 31.417f},
+
+        {.lane = 1, .spawnTime = 31.673f},
+
+        // Close notes (0.007f apart) - made equal
+        {.lane = 3, .spawnTime = 31.673f},
+
+        {.lane = 3, .spawnTime = 31.902f},
+
+        // Close notes (0.012f apart) - made equal
+        {.lane = 1, .spawnTime = 31.902f},
+
+        {.lane = 1, .spawnTime = 32.172f},
+
+        // Close notes (0.002f apart) - made equal
+        {.lane = 0, .spawnTime = 32.172f},
+
+        {.lane = 3, .spawnTime = 33.615f},
+        {.lane = 2, .spawnTime = 33.837f},
+        {.lane = 0, .spawnTime = 34.149f},
+
+        // Close notes (0.003f apart) - made equal
+        {.lane = 1, .spawnTime = 34.149f},
+
+        {.lane = 4, .spawnTime = 35.093f},
+
+        // Close notes (0.004f apart) - made equal
+        {.lane = 2, .spawnTime = 35.093f},
+
+        {.lane = 4, .spawnTime = 35.833f},
+
+        // Close notes (0.005f apart) - made equal
+        {.lane = 2, .spawnTime = 35.833f},
+
+        {.lane = 4, .spawnTime = 36.071f},
+
+        // Close notes (0.004f apart) - made equal
+        {.lane = 2, .spawnTime = 36.071f},
+
+        {.lane = 2, .spawnTime = 36.286f},
+
+        // Close notes (0.008f apart) - made equal
+        {.lane = 4, .spawnTime = 36.286f},
+
+        {.lane = 3, .spawnTime = 36.569f},
+
+        // Close notes (0.021f apart) - made equal
+        {.lane = 1, .spawnTime = 36.569f},
+
+        {.lane = 1, .spawnTime = 36.943f},
+
+        // Close notes (0.019f apart) - made equal
+        {.lane = 3, .spawnTime = 36.943f},
+
+        {.lane = 1, .spawnTime = 37.385f},
+
+        // Close notes (0.009f apart) - made equal
+        {.lane = 3, .spawnTime = 37.385f},
+
+        {.lane = 1, .spawnTime = 37.585f},
+
+        // Close notes (0.008f apart) - made equal
+        {.lane = 3, .spawnTime = 37.585f},
+
+        {.lane = 1, .spawnTime = 37.783f},
+
+        // Close notes (0.010f apart) - made equal
+        {.lane = 3, .spawnTime = 37.783f},
+
+        {.lane = 0, .spawnTime = 38.123f},
+        {.lane = 2, .spawnTime = 38.310f},
+        {.lane = 0, .spawnTime = 38.611f},
+        {.lane = 2, .spawnTime = 38.822f},
+        {.lane = 0, .spawnTime = 39.142f},
+        {.lane = 2, .spawnTime = 39.359f},
+        {.lane = 0, .spawnTime = 39.608f},
+        {.lane = 2, .spawnTime = 39.863f},
+        {.lane = 0, .spawnTime = 40.106f},
+        {.lane = 2, .spawnTime = 40.379f},
+        {.lane = 0, .spawnTime = 40.587f},
+        {.lane = 1, .spawnTime = 41.154f},
+        {.lane = 3, .spawnTime = 41.416f},
+        {.lane = 1, .spawnTime = 41.662f},
+        {.lane = 3, .spawnTime = 41.888f},
+        {.lane = 1, .spawnTime = 42.177f},
+        {.lane = 3, .spawnTime = 42.420f},
+        {.lane = 1, .spawnTime = 42.694f},
+        {.lane = 3, .spawnTime = 42.948f},
+        {.lane = 1, .spawnTime = 43.256f},
+        {.lane = 3, .spawnTime = 43.485f},
+        {.lane = 1, .spawnTime = 43.736f},
+        {.lane = 0, .spawnTime = 44.297f},
+        {.lane = 2, .spawnTime = 44.521f},
+        {.lane = 0, .spawnTime = 44.805f},
+        {.lane = 2, .spawnTime = 45.032f},
+        {.lane = 0, .spawnTime = 45.308f},
+        {.lane = 2, .spawnTime = 45.550f},
+        {.lane = 3, .spawnTime = 45.833f},
+        {.lane = 3, .spawnTime = 46.370f},
+        {.lane = 2, .spawnTime = 46.613f},
+        {.lane = 2, .spawnTime = 47.197f},
+        {.lane = 1, .spawnTime = 47.413f},
+        {.lane = 1, .spawnTime = 47.936f},
+        {.lane = 4, .spawnTime = 48.163f},
+        {.lane = 4, .spawnTime = 48.721f},
+        {.lane = 3, .spawnTime = 48.976f},
+        {.lane = 3, .spawnTime = 49.526f},
+        {.lane = 2, .spawnTime = 49.768f},
+        {.lane = 2, .spawnTime = 50.318f},
+        {.lane = 0, .spawnTime = 50.588f},
+        {.lane = 2, .spawnTime = 50.854f},
+        {.lane = 0, .spawnTime = 51.109f},
+        {.lane = 2, .spawnTime = 51.410f},
+        {.lane = 0, .spawnTime = 51.680f},
+        {.lane = 2, .spawnTime = 51.928f},
+        {.lane = 0, .spawnTime = 52.171f},
+        {.lane = 2, .spawnTime = 52.462f},
+        {.lane = 0, .spawnTime = 52.688f},
+        {.lane = 2, .spawnTime = 52.938f},
+        {.lane = 0, .spawnTime = 53.161f},
+        {.lane = 1, .spawnTime = 53.647f},
+        {.lane = 3, .spawnTime = 53.912f},
+        {.lane = 1, .spawnTime = 54.151f},
+        {.lane = 4, .spawnTime = 54.425f},
+        {.lane = 1, .spawnTime = 55.008f},
+        {.lane = 4, .spawnTime = 55.178f},
+        {.lane = 2, .spawnTime = 55.704f},
+        {.lane = 3, .spawnTime = 55.940f},
+        {.lane = 2, .spawnTime = 56.226f},
+        {.lane = 1, .spawnTime = 56.462f},
+        {.lane = 0, .spawnTime = 56.771f},
+        {.lane = 2, .spawnTime = 56.996f},
+        {.lane = 0, .spawnTime = 57.277f},
+        {.lane = 2, .spawnTime = 57.541f},
+        {.lane = 2, .spawnTime = 58.085f},
+        {.lane = 3, .spawnTime = 58.322f},
+        {.lane = 3, .spawnTime = 58.908f},
+        {.lane = 2, .spawnTime = 59.109f},
+        {.lane = 2, .spawnTime = 59.702f},
+        {.lane = 1, .spawnTime = 59.900f},
+        {.lane = 1, .spawnTime = 60.452f},
+        {.lane = 4, .spawnTime = 60.674f},
+        {.lane = 4, .spawnTime = 61.249f},
+        {.lane = 3, .spawnTime = 61.457f},
+        {.lane = 3, .spawnTime = 62.035f},
+        {.lane = 2, .spawnTime = 62.264f},
+        {.lane = 1, .spawnTime = 62.515f},
+        {.lane = 2, .spawnTime = 62.799f},
+        {.lane = 0, .spawnTime = 63.064f},
+        {.lane = 0, .spawnTime = 63.422f},
+        {.lane = 0, .spawnTime = 63.806f},
+        {.lane = 0, .spawnTime = 64.099f},
+        {.lane = 0, .spawnTime = 64.319f},
+        {.lane = 0, .spawnTime = 64.592f},
+        {.lane = 0, .spawnTime = 64.989f},
+        {.lane = 0, .spawnTime = 65.432f},
+        {.lane = 0, .spawnTime = 65.710f},
+        {.lane = 0, .spawnTime = 65.940f},
+        {.lane = 1, .spawnTime = 66.251f},
+        {.lane = 1, .spawnTime = 66.652f},
+        {.lane = 1, .spawnTime = 66.987f},
+        {.lane = 1, .spawnTime = 67.279f},
+        {.lane = 1, .spawnTime = 67.555f},
+        {.lane = 1, .spawnTime = 67.852f},
+        {.lane = 1, .spawnTime = 68.222f},
+        {.lane = 1, .spawnTime = 68.652f},
+        {.lane = 1, .spawnTime = 68.923f},
+        {.lane = 1, .spawnTime = 69.132f},
+        {.lane = 0, .spawnTime = 69.364f},
+        {.lane = 0, .spawnTime = 69.784f},
+        {.lane = 0, .spawnTime = 70.211f},
+        {.lane = 0, .spawnTime = 70.501f},
+        {.lane = 0, .spawnTime = 70.737f},
+        {.lane = 0, .spawnTime = 70.992f},
+        {.lane = 0, .spawnTime = 71.380f},
+        {.lane = 0, .spawnTime = 71.794f},
+        {.lane = 0, .spawnTime = 72.026f},
+        {.lane = 0, .spawnTime = 72.278f},
+        {.lane = 1, .spawnTime = 72.584f},
+        {.lane = 1, .spawnTime = 72.977f},
+        {.lane = 1, .spawnTime = 73.386f},
+        {.lane = 1, .spawnTime = 73.609f},
+        {.lane = 1, .spawnTime = 73.830f},
+        {.lane = 1, .spawnTime = 74.115f},
+        {.lane = 1, .spawnTime = 74.530f},
+        {.lane = 1, .spawnTime = 74.932f},
+        {.lane = 1, .spawnTime = 75.181f},
+        {.lane = 1, .spawnTime = 75.385f},
+
+        // Close notes (0.008f apart) - made equal
+        {.lane = 0, .spawnTime = 75.629f},
+        {.lane = 1, .spawnTime = 75.629f},
+
+        {.lane = 3, .spawnTime = 77.151f},
+        {.lane = 2, .spawnTime = 77.408f},
+        {.lane = 0, .spawnTime = 77.643f},
+
+        // Close notes (0.010f apart) - made equal
+        {.lane = 1, .spawnTime = 77.643f},
+
+        {.lane = 2, .spawnTime = 78.601f},
+
+        // Close notes (0.005f apart) - made equal
+        {.lane = 4, .spawnTime = 78.601f},
+
+        {.lane = 2, .spawnTime = 79.310f},
+
+        // Close notes (0.007f apart) - made equal
+        {.lane = 4, .spawnTime = 79.310f},
+
+        {.lane = 2, .spawnTime = 79.607f},
+
+        // Close notes (0.002f apart) - made equal
+        {.lane = 4, .spawnTime = 79.607f},
+
+        {.lane = 4, .spawnTime = 79.837f},
+
+        // Close notes (0.012f apart) - made equal
+        {.lane = 2, .spawnTime = 79.837f},
+
+        {.lane = 3, .spawnTime = 80.138f},
+
+        // Close notes (0.024f apart) - made equal
+        {.lane = 1, .spawnTime = 80.138f},
+
+        {.lane = 3, .spawnTime = 80.540f},
+
+        // Close notes (0.003f apart) - made equal
+        {.lane = 1, .spawnTime = 80.540f},
+
+        {.lane = 1, .spawnTime = 80.923f},
+
+        // Close notes (0.009f apart) - made equal
+        {.lane = 3, .spawnTime = 80.923f},
+
+        {.lane = 1, .spawnTime = 81.128f},
+
+        // Close notes (0.033f apart) - made equal
+        {.lane = 3, .spawnTime = 81.128f},
+
+        {.lane = 1, .spawnTime = 81.363f},
+
+        // Close notes (0.000f apart) - made equal
+        {.lane = 3, .spawnTime = 81.363f},
+
+        {.lane = 0, .spawnTime = 81.618f},
+
+        // Close notes (0.003f apart) - made equal
+        {.lane = 1, .spawnTime = 81.618f},
+
+        {.lane = 3, .spawnTime = 83.202f},
+        {.lane = 2, .spawnTime = 83.418f},
+        {.lane = 0, .spawnTime = 83.661f},
+
+        // Close notes (0.016f apart) - made equal
+        {.lane = 1, .spawnTime = 83.661f},
+
+        {.lane = 2, .spawnTime = 84.610f},
+
+        // Close notes (0.004f apart) - made equal
+        {.lane = 4, .spawnTime = 84.610f},
+
+        {.lane = 4, .spawnTime = 85.331f},
+
+        // Close notes (0.005f apart) - made equal
+        {.lane = 2, .spawnTime = 85.331f},
+
+        {.lane = 2, .spawnTime = 85.602f},
+
+        // Close notes (0.012f apart) - made equal
+        {.lane = 4, .spawnTime = 85.602f},
+
+        {.lane = 4, .spawnTime = 85.855f},
+
+        // Close notes (0.003f apart) - made equal
+        {.lane = 2, .spawnTime = 85.855f},
+
+        {.lane = 3, .spawnTime = 86.166f},
+
+        // Close notes (0.022f apart) - made equal
+        {.lane = 1, .spawnTime = 86.166f},
+
+        {.lane = 1, .spawnTime = 86.834f},
+
+        // Close notes (0.002f apart) - made equal
+        {.lane = 3, .spawnTime = 86.834f},
+
+        {.lane = 3, .spawnTime = 87.379f},
+
+        // Close notes (0.009f apart) - made equal
+        {.lane = 1, .spawnTime = 87.379f},
+
+        {.lane = 3, .spawnTime = 87.635f},
+        {.lane = 2, .spawnTime = 87.889f},
+        {.lane = 0, .spawnTime = 88.158f},
+        {.lane = 3, .spawnTime = 88.396f},
+        {.lane = 2, .spawnTime = 88.640f},
+        {.lane = 0, .spawnTime = 88.906f},
+        {.lane = 3, .spawnTime = 89.107f},
+        {.lane = 2, .spawnTime = 89.345f},
+        {.lane = 0, .spawnTime = 89.631f},
+        {.lane = 3, .spawnTime = 89.859f},
+        {.lane = 2, .spawnTime = 90.071f},
+        {.lane = 0, .spawnTime = 90.362f},
+
+        // Close notes (0.002f apart) - made equal
+        {.lane = 4, .spawnTime = 90.362f},
+        {.lane = 2, .spawnTime = 90.362f},
+
+        {.lane = 2, .spawnTime = 91.270f},
+
+        // Close notes (0.000f apart) - made equal
+        {.lane = 4, .spawnTime = 91.270f},
+
+        {.lane = 4, .spawnTime = 91.527f},
+
+        // Close notes (0.003f apart) - made equal
+        {.lane = 2, .spawnTime = 91.527f},
+
+        {.lane = 4, .spawnTime = 91.765f},
+
+        // Close notes (0.006f apart) - made equal
+        {.lane = 2, .spawnTime = 91.765f},
+
+        {.lane = 3, .spawnTime = 92.092f},
+
+        // Close notes (0.027f apart) - made equal
+        {.lane = 1, .spawnTime = 92.092f},
+
+        {.lane = 3, .spawnTime = 92.834f},
+
+        // Close notes (0.013f apart) - made equal
+        {.lane = 1, .spawnTime = 92.834f},
+
+        {.lane = 3, .spawnTime = 93.114f},
+
+        // Close notes (0.024f apart) - made equal
+        {.lane = 1, .spawnTime = 93.114f},
+
+        {.lane = 3, .spawnTime = 93.324f},
+
+        // Close notes (0.024f apart) - made equal
+        {.lane = 1, .spawnTime = 93.324f},
+
+        {.lane = 0, .spawnTime = 93.611f},
+
+        // Close notes (0.000f apart) - made equal
+        {.lane = 1, .spawnTime = 93.611f},
+
+        {.lane = 3, .spawnTime = 95.154f},
+        {.lane = 2, .spawnTime = 95.353f},
+        {.lane = 0, .spawnTime = 95.643f},
+
+        // Close notes (0.007f apart) - made equal
+        {.lane = 1, .spawnTime = 95.643f},
+
+        {.lane = 2, .spawnTime = 96.607f},
+
+        // Close notes (0.013f apart) - made equal
+        {.lane = 4, .spawnTime = 96.607f},
+
+        {.lane = 2, .spawnTime = 97.321f},
+
+        // Close notes (0.011f apart) - made equal
+        {.lane = 4, .spawnTime = 97.321f},
+
+        {.lane = 2, .spawnTime = 97.577f},
+
+        // Close notes (0.017f apart) - made equal
+        {.lane = 4, .spawnTime = 97.577f},
+
+        {.lane = 4, .spawnTime = 97.817f},
+
+        // Close notes (0.006f apart) - made equal
+        {.lane = 2, .spawnTime = 97.817f},
+
+        {.lane = 3, .spawnTime = 98.110f},
+
+        // Close notes (0.022f apart) - made equal
+        {.lane = 1, .spawnTime = 98.110f},
+
+        {.lane = 3, .spawnTime = 98.861f},
+
+        // Close notes (0.026f apart) - made equal
+        {.lane = 1, .spawnTime = 98.861f},
+
+        {.lane = 3, .spawnTime = 99.142f},
+
+        // Close notes (0.003f apart) - made equal
+        {.lane = 1, .spawnTime = 99.142f},
+
+        {.lane = 3, .spawnTime = 99.360f},
+
+        // Close notes (0.004f apart) - made equal
+        {.lane = 1, .spawnTime = 99.360f},
+
+        {.lane = 0, .spawnTime = 99.686f},
+        {.lane = 2, .spawnTime = 99.938f},
+        {.lane = 0, .spawnTime = 100.244f},
+        {.lane = 2, .spawnTime = 100.533f},
+        {.lane = 0, .spawnTime = 100.767f},
+        {.lane = 2, .spawnTime = 101.053f},
+        {.lane = 0, .spawnTime = 101.282f},
+        {.lane = 2, .spawnTime = 101.584f},
+        {.lane = 0, .spawnTime = 101.833f},
+        {.lane = 2, .spawnTime = 102.077f},
+        {.lane = 0, .spawnTime = 102.342f},
+        {.lane = 1, .spawnTime = 102.808f},
+        {.lane = 3, .spawnTime = 103.075f},
+        {.lane = 1, .spawnTime = 103.364f},
+        {.lane = 3, .spawnTime = 103.632f},
+        {.lane = 1, .spawnTime = 103.898f},
+        {.lane = 3, .spawnTime = 104.157f},
+        {.lane = 1, .spawnTime = 104.430f},
+        {.lane = 3, .spawnTime = 104.632f},
+        {.lane = 1, .spawnTime = 104.921f},
+        {.lane = 3, .spawnTime = 105.203f},
+        {.lane = 1, .spawnTime = 105.434f},
+        {.lane = 0, .spawnTime = 105.996f},
+        {.lane = 2, .spawnTime = 106.206f},
+        {.lane = 0, .spawnTime = 106.506f},
+        {.lane = 2, .spawnTime = 106.757f},
+        {.lane = 0, .spawnTime = 107.029f},
+        {.lane = 2, .spawnTime = 107.275f},
+        {.lane = 3, .spawnTime = 107.536f},
+        {.lane = 3, .spawnTime = 108.076f},
+        {.lane = 2, .spawnTime = 108.329f},
+        {.lane = 2, .spawnTime = 108.874f},
+        {.lane = 1, .spawnTime = 109.121f},
+        {.lane = 1, .spawnTime = 109.688f},
+        {.lane = 4, .spawnTime = 109.916f},
+        {.lane = 4, .spawnTime = 110.456f},
+        {.lane = 3, .spawnTime = 110.708f},
+        {.lane = 3, .spawnTime = 111.287f},
+        {.lane = 2, .spawnTime = 111.550f},
+        {.lane = 1, .spawnTime = 111.808f},
+        {.lane = 2, .spawnTime = 112.088f},
+        {.lane = 0, .spawnTime = 112.368f},
+        {.lane = 2, .spawnTime = 112.636f},
+        {.lane = 0, .spawnTime = 112.926f},
+        {.lane = 2, .spawnTime = 113.177f},
+        {.lane = 0, .spawnTime = 113.406f},
+        {.lane = 2, .spawnTime = 113.680f},
+        {.lane = 3, .spawnTime = 113.932f},
+        {.lane = 3, .spawnTime = 114.432f},
+        {.lane = 2, .spawnTime = 114.675f},
+        {.lane = 2, .spawnTime = 115.235f},
+        {.lane = 1, .spawnTime = 115.518f},
+        {.lane = 1, .spawnTime = 116.066f},
+        {.lane = 3, .spawnTime = 116.295f},
+        {.lane = 1, .spawnTime = 116.810f},
+        {.lane = 4, .spawnTime = 117.065f},
+        {.lane = 2, .spawnTime = 117.602f},
+        {.lane = 3, .spawnTime = 117.846f},
+        {.lane = 2, .spawnTime = 118.112f},
+        {.lane = 1, .spawnTime = 118.378f},
+        {.lane = 0, .spawnTime = 118.649f},
+        {.lane = 2, .spawnTime = 118.951f},
+        {.lane = 0, .spawnTime = 119.234f},
+        {.lane = 2, .spawnTime = 119.495f},
+        {.lane = 0, .spawnTime = 119.732f},
+        {.lane = 2, .spawnTime = 119.945f},
+        {.lane = 3, .spawnTime = 120.249f},
+        {.lane = 3, .spawnTime = 120.732f},
+        {.lane = 2, .spawnTime = 121.021f},
+        {.lane = 2, .spawnTime = 121.594f},
+        {.lane = 1, .spawnTime = 121.815f},
+        {.lane = 1, .spawnTime = 122.373f},
+        {.lane = 4, .spawnTime = 122.586f},
+        {.lane = 4, .spawnTime = 123.165f},
+        {.lane = 3, .spawnTime = 123.389f},
+        {.lane = 3, .spawnTime = 123.978f},
+        {.lane = 2, .spawnTime = 124.232f},
+        {.lane = 1, .spawnTime = 124.481f},
+        {.lane = 2, .spawnTime = 124.738f},
+        {.lane = 0, .spawnTime = 125.008f},
+        {.lane = 0, .spawnTime = 125.413f},
+        {.lane = 0, .spawnTime = 125.793f},
+        {.lane = 0, .spawnTime = 126.043f},
+        {.lane = 0, .spawnTime = 126.291f},
+        {.lane = 0, .spawnTime = 126.578f},
+        {.lane = 0, .spawnTime = 126.977f},
+        {.lane = 0, .spawnTime = 127.428f},
+        {.lane = 0, .spawnTime = 127.674f},
+        {.lane = 0, .spawnTime = 127.915f},
+        {.lane = 1, .spawnTime = 128.202f},
+        {.lane = 1, .spawnTime = 128.618f},
+        {.lane = 1, .spawnTime = 129.075f},
+        {.lane = 1, .spawnTime = 129.251f},
+        {.lane = 1, .spawnTime = 129.510f},
+        {.lane = 1, .spawnTime = 129.801f},
+        {.lane = 1, .spawnTime = 130.217f},
+        {.lane = 1, .spawnTime = 130.642f},
+        {.lane = 1, .spawnTime = 130.906f},
+        {.lane = 1, .spawnTime = 131.146f},
+        {.lane = 0, .spawnTime = 131.400f},
+        {.lane = 0, .spawnTime = 131.834f},
+        {.lane = 0, .spawnTime = 132.222f},
+        {.lane = 0, .spawnTime = 132.501f},
+        {.lane = 0, .spawnTime = 132.718f},
+        {.lane = 0, .spawnTime = 132.967f},
+        {.lane = 0, .spawnTime = 133.349f},
+        {.lane = 0, .spawnTime = 133.756f},
+        {.lane = 0, .spawnTime = 134.003f},
+        {.lane = 0, .spawnTime = 134.241f},
+        {.lane = 1, .spawnTime = 134.563f},
+        {.lane = 1, .spawnTime = 134.979f},
+        {.lane = 1, .spawnTime = 135.382f},
+        {.lane = 1, .spawnTime = 135.598f},
+        {.lane = 1, .spawnTime = 135.839f},
+        {.lane = 1, .spawnTime = 136.137f},
+        {.lane = 1, .spawnTime = 136.503f},
+        {.lane = 1, .spawnTime = 136.899f},
+        {.lane = 1, .spawnTime = 137.129f},
+        {.lane = 1, .spawnTime = 137.346f},
+        {.lane = 0, .spawnTime = 137.661f},
+        {.lane = 1, .spawnTime = 137.661f},
+        {.lane = 3, .spawnTime = 139.203f},
+        {.lane = 2, .spawnTime = 139.447f},
+        {.lane = 0, .spawnTime = 139.717f},
+        {.lane = 1, .spawnTime = 139.717f},
+        {.lane = 2, .spawnTime = 140.588f},
+        {.lane = 4, .spawnTime = 140.588f},
+        {.lane = 4, .spawnTime = 141.337f},
+        {.lane = 2, .spawnTime = 141.337f},
+        {.lane = 4, .spawnTime = 141.626f},
+        {.lane = 2, .spawnTime = 141.626f},
+        {.lane = 4, .spawnTime = 141.868f},
+        {.lane = 2, .spawnTime = 141.868f},
+        {.lane = 3, .spawnTime = 142.147f},
+        {.lane = 1, .spawnTime = 142.147f},
+        {.lane = 3, .spawnTime = 142.911f},
+        {.lane = 1, .spawnTime = 142.911f},
+        {.lane = 3, .spawnTime = 143.222f},
+        {.lane = 1, .spawnTime = 143.222f},
+        {.lane = 1, .spawnTime = 143.411f},
+        {.lane = 3, .spawnTime = 143.411f},
+        {.lane = 0, .spawnTime = 143.653f},
+        {.lane = 1, .spawnTime = 143.653f},
+        {.lane = 3, .spawnTime = 145.245f},
+        {.lane = 2, .spawnTime = 145.483f},
+        {.lane = 1, .spawnTime = 145.777f},
+        {.lane = 0, .spawnTime = 145.777f},
+        {.lane = 2, .spawnTime = 146.634f},
+        {.lane = 4, .spawnTime = 146.634f},
+        {.lane = 4, .spawnTime = 147.406f},
+        {.lane = 2, .spawnTime = 147.406f},
+        {.lane = 2, .spawnTime = 147.682f},
+        {.lane = 4, .spawnTime = 147.682f},
+        {.lane = 4, .spawnTime = 147.926f},
+        {.lane = 2, .spawnTime = 147.926f},
+        {.lane = 3, .spawnTime = 148.235f},
+        {.lane = 1, .spawnTime = 148.235f},
+        {.lane = 3, .spawnTime = 148.969f},
+        {.lane = 1, .spawnTime = 148.969f},
+        {.lane = 1, .spawnTime = 149.203f},
+        {.lane = 3, .spawnTime = 149.241f},
+        {.lane = 3, .spawnTime = 149.455f},
+        {.lane = 1, .spawnTime = 149.455f},
+        {.lane = 3, .spawnTime = 149.690f},
+        {.lane = 2, .spawnTime = 149.947f},
+        {.lane = 0, .spawnTime = 150.207f},
+        {.lane = 3, .spawnTime = 150.443f},
+        {.lane = 2, .spawnTime = 150.692f},
+        {.lane = 0, .spawnTime = 150.972f},
+        {.lane = 3, .spawnTime = 151.203f},
+        {.lane = 2, .spawnTime = 151.429f},
+        {.lane = 0, .spawnTime = 151.688f},
+        {.lane = 3, .spawnTime = 151.883f},
+        {.lane = 2, .spawnTime = 152.109f},
+        {.lane = 0, .spawnTime = 152.362f},
+        {.lane = 4, .spawnTime = 152.586f},
+        {.lane = 2, .spawnTime = 152.586f},
+        {.lane = 2, .spawnTime = 153.377f},
+        {.lane = 4, .spawnTime = 153.377f},
+        {.lane = 4, .spawnTime = 153.635f},
+        {.lane = 2, .spawnTime = 153.635f},
+        {.lane = 4, .spawnTime = 153.883f},
+        {.lane = 2, .spawnTime = 153.883f},
+        {.lane = 3, .spawnTime = 154.182f},
+        {.lane = 1, .spawnTime = 154.182f},
+        {.lane = 3, .spawnTime = 154.913f},
+        {.lane = 1, .spawnTime = 154.913f},
+        {.lane = 3, .spawnTime = 155.204f},
+        {.lane = 1, .spawnTime = 155.204f},
+        {.lane = 3, .spawnTime = 155.416f},
+        {.lane = 1, .spawnTime = 155.416f},
+        {.lane = 0, .spawnTime = 155.669f},
+        {.lane = 1, .spawnTime = 155.669f},
+        {.lane = 3, .spawnTime = 157.156f},
+        {.lane = 2, .spawnTime = 157.392f},
+        {.lane = 0, .spawnTime = 157.654f},
+        {.lane = 1, .spawnTime = 157.653f},
+        {.lane = 2, .spawnTime = 158.604f},
+        {.lane = 4, .spawnTime = 158.604f},
+        {.lane = 4, .spawnTime = 159.314f},
+        {.lane = 2, .spawnTime = 159.314f},
+        {.lane = 2, .spawnTime = 159.584f},
+        {.lane = 4, .spawnTime = 159.584f},
+        {.lane = 4, .spawnTime = 159.820f},
+        {.lane = 2, .spawnTime = 159.820f},
+        {.lane = 3, .spawnTime = 160.146f},
+        {.lane = 1, .spawnTime = 160.146f},
+        {.lane = 3, .spawnTime = 160.522f},
+        {.lane = 1, .spawnTime = 160.532f},
+        {.lane = 3, .spawnTime = 160.882f},
+        {.lane = 1, .spawnTime = 160.882f},
+        {.lane = 1, .spawnTime = 161.174f},
+        {.lane = 3, .spawnTime = 161.174f},
+        {.lane = 3, .spawnTime = 161.386f},
+        {.lane = 1, .spawnTime = 161.415f},
+        {.lane = 2, .spawnTime = 161.650f},
+        {.lane = 2, .spawnTime = 161.992f},
+        {.lane = 4, .spawnTime = 162.314f},
+        {.lane = 3, .spawnTime = 162.686f},
+        {.lane = 2, .spawnTime = 163.060f},
+        {.lane = 2, .spawnTime = 163.356f},
+        {.lane = 4, .spawnTime = 163.707f},
+        {.lane = 3, .spawnTime = 164.045f},
+        {.lane = 2, .spawnTime = 164.437f},
+        {.lane = 2, .spawnTime = 164.770f},
+        {.lane = 4, .spawnTime = 165.099f},
+        {.lane = 3, .spawnTime = 165.485f},
+        {.lane = 2, .spawnTime = 165.843f},
+        {.lane = 2, .spawnTime = 166.138f},
+        {.lane = 4, .spawnTime = 166.528f},
+        {.lane = 3, .spawnTime = 166.943f},
+
+        {.lane = -1}
+};
