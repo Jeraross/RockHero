@@ -26,5 +26,6 @@ extern Note TheTrooper[CHART_SIZE];
 extern Note Livin_Prayer[CHART_SIZE];
 extern Note BringMeToLife[CHART_SIZE];
 extern Note KillerQueen[CHART_SIZE];
+extern Note EyeOfTheTiger[CHART_SIZE];
 
 #endif //CHART_H
