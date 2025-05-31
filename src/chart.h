@@ -29,5 +29,6 @@ extern Note KillerQueen[CHART_SIZE];
 extern Note EyeOfTheTiger[CHART_SIZE];
 extern Note Toxicity[CHART_SIZE];
 extern Note Sandman[CHART_SIZE];
+extern Note TeenSpirit[CHART_SIZE];
 
 #endif //CHART_H

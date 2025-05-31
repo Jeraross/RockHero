@@ -149,7 +149,7 @@ TemporaryWarning tempWarning = {0};
 Song songs[MAX_SONGS] = {
         {"Killer Queen","Queen",{},"assets/musics/killer_queen.mp3",114.469f,1},
         {"Livin' on a Prayer","Bon Jovi",{},"assets/musics/livin_prayer.mp3",96.2281f,2},
-        {"Smells Like Teen Spirit","Nirvana",{},"assets/musics/teen_spirit.mp3",0.0f,3},
+        {"Smells Like Teen Spirit","Nirvana",{},"assets/musics/teen_spirit.mp3",104.2f,3},
         {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 151.234f, 3},
         {"Sweet Child O'Mine","Guns N' Roses",{},"assets/musics/sweet_child.mp3",90.5f,3},
         {"Bring Me To Life","Evanescence",{},"assets/musics/bring_me_to_life.mp3",140.0f,3},
@@ -2580,7 +2580,7 @@ int main(void) {
 void initSongs() {
     memcpy(songs[0].charts, KillerQueen, sizeof(KillerQueen));
     memcpy(songs[1].charts, Livin_Prayer, sizeof(Livin_Prayer));
-    memcpy(songs[2].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[2].charts, TeenSpirit, sizeof(TeenSpirit));
     memcpy(songs[3].charts, EyeOfTheTiger, sizeof(EyeOfTheTiger));
     memcpy(songs[4].charts, SweetChildOMine, sizeof(SweetChildOMine));
     memcpy(songs[5].charts, BringMeToLife, sizeof(BringMeToLife));
