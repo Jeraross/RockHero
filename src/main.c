@@ -153,7 +153,7 @@ Song songs[MAX_SONGS] = {
         {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 151.234f, 3},
         {"Sweet Child O'Mine","Guns N' Roses",{},"assets/musics/sweet_child.mp3",90.5f,3},
         {"Bring Me To Life","Evanescence",{},"assets/musics/bring_me_to_life.mp3",140.0f,3},
-        {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},
+        {"Carry On Wayward Son", "Kansas", {}, "assets/musics/carry_on.mp3", 124.172f, 3},
         {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 126.18f, 4},
         {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 0.0f, 4},
         {"Toxicity","System of a Down",{},"assets/musics/toxicity.mp3",169.0f,4},
@@ -2584,7 +2584,7 @@ void initSongs() {
     memcpy(songs[3].charts, EyeOfTheTiger, sizeof(EyeOfTheTiger));
     memcpy(songs[4].charts, SweetChildOMine, sizeof(SweetChildOMine));
     memcpy(songs[5].charts, BringMeToLife, sizeof(BringMeToLife));
-    memcpy(songs[6].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[6].charts, CarryOn, sizeof(CarryOn));
     memcpy(songs[7].charts, Sandman, sizeof(Sandman));
     memcpy(songs[8].charts, Thunder, sizeof(Thunder));
     memcpy(songs[9].charts, Toxicity, sizeof(Toxicity));
