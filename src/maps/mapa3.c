@@ -227,7 +227,7 @@ void DrawMap3(MapData *map, Player *player) {
         // Texto acima da seta da esquerda
         DrawTextEx(
                 GetFontDefault(),
-                "PRESS G!",
+                "PRESS X!",
                 (Vector2){130 + offset - 20, 725},  // ajuste posição conforme necessário
                 20.0f,
                 2.0f,
@@ -255,16 +255,16 @@ void DrawMap3(MapData *map, Player *player) {
                 270.0f,
                 WHITE
         );
-        const char* letra = "M";
+        const char* letra = "O";
         int fontSize = 20;
-        Vector2 textSize = MeasureTextEx(map->font, letra, fontSize, 2.0f);
+        Vector2 textSize = MeasureTextEx(GetFontDefault(), letra, fontSize, 2.0f);
 
         Vector2 textPos = {
                 486 - textSize.x / 2,
                 (790 + offset) - textSize.y / 2
         };
 
-        DrawTextEx(map->font, letra, textPos, fontSize, 2.0f, WHITE);
+        DrawTextEx(GetFontDefault(), letra, textPos, fontSize, 2.0f, WHITE);
     }
 
     //Desenha a exclamação caso o NPC possa dar a dica

@@ -22,16 +22,16 @@ void UpdatePlayer(Player *player) {
         return;
     }
     Vector2 movement = {0};
-    if (IsKeyDown(KEY_RIGHT)) {
+    if (IsKeyDown(KEY_RIGHT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT)) {
         movement.x = 1;
         player->facingRight = false;
     }
-    if (IsKeyDown(KEY_LEFT)) {
+    if (IsKeyDown(KEY_LEFT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT)) {
         movement.x = -1;
         player->facingRight = true;
     }
-    if (IsKeyDown(KEY_UP)) movement.y = -1;
-    if (IsKeyDown(KEY_DOWN)) movement.y = 1;
+    if (IsKeyDown(KEY_UP) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) movement.y = -1;
+    if (IsKeyDown(KEY_DOWN) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) movement.y = 1;
 
     if (movement.x != 0 && movement.y != 0) {
         movement.x *= 0.7071f;

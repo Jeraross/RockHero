@@ -118,6 +118,28 @@ typedef struct {
     float timer;
 } FameWarning;
 
+typedef enum {
+    INPUT_KEYBOARD,
+    INPUT_GAMEPAD
+} InputType;
+
+typedef struct {
+    int keyboardKey;
+    int gamepadButton;
+} ControlScheme;
+
+ControlScheme defaultControls[NUM_LANES] = {
+    {KEY_A, GAMEPAD_BUTTON_LEFT_TRIGGER_2},   // Lane 1 (L2 no PS4)
+    {KEY_S, GAMEPAD_BUTTON_LEFT_TRIGGER_1},   // Lane 2 (L1 no PS4)
+    {KEY_J, GAMEPAD_BUTTON_RIGHT_TRIGGER_1},  // Lane 3 (R1 no PS4)
+    {KEY_K, GAMEPAD_BUTTON_RIGHT_TRIGGER_2},  // Lane 4 (R2 no PS4)
+    {KEY_L, GAMEPAD_BUTTON_RIGHT_FACE_DOWN}  // Lane 5 (X no PS4)
+};
+
+ControlScheme currentControls[NUM_LANES];
+InputType currentInputType = INPUT_KEYBOARD;
+bool controllerConnected = false;
+
 ScoreEntry topScores[MAX_SCORES];
 int numScores = 0;
 
@@ -190,6 +212,12 @@ int currentMapIndex = 1;
 
 // Inicializa os charts das musicas
 void initSongs();
+
+void InitControls();
+
+const char* GetKeyNameCustom(int key);
+
+const char* GetGamepadButtonName(int button);
 
 // Inicializa o sistema de fama
 void InitFameSystem(Player* player);
@@ -264,11 +292,16 @@ void SaveScoreboardToFile(const char* filename);
 
 void LoadScoreboardFromFile(const char* filename);
 
+bool IsLanePressed(int lane);
+
+bool IsLaneDown(int lane);
+
 int main(void) {
     SetConfigFlags(FLAG_FULLSCREEN_MODE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ROCK HERO");
     InitAudioDevice();
     initSongs();
+    InitControls();
     SetTargetFPS(60);
 
     int screenWidth = GetScreenWidth();
@@ -282,7 +315,6 @@ int main(void) {
     Sound menuSelectSound = LoadSound("assets/sounds/select.wav");
     Sound menuScrollSound = LoadSound("assets/sounds/scroll.wav");
     Sound guitarSound = LoadSound("assets/sounds/guitar_scream.wav");
-    Sound godSound = LoadSound("assets/sounds/criatura.wav");
 
     // Load fonts
     Font titleFont = LoadFontEx("assets/font/Vampire Wars.ttf", 72, 0, 0);
@@ -354,9 +386,6 @@ int main(void) {
             (Color){255, 100, 100, 255}   // OK - Red
     };
 
-    // Key bindings
-    int laneKeys[NUM_LANES] = {KEY_A, KEY_S, KEY_J, KEY_K, KEY_L};
-
     Player player;
     InitPlayer(&player);
     player.frozen = false;
@@ -387,16 +416,21 @@ int main(void) {
             }
         }
 
+        if (IsKeyPressed(KEY_T)) {
+            currentInputType = currentInputType == INPUT_KEYBOARD ? INPUT_GAMEPAD : INPUT_KEYBOARD;
+            PlaySound(menuSelectSound);
+        }
+
         // Update scrolling for song select
         if (gameState == SONG_SELECT) {
             // Handle selection change
             if (!instory) {
-                if (IsKeyPressed(KEY_DOWN) && selectedSong < MAX_SONGS - 1) {
+                if ((IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) && selectedSong < MAX_SONGS - 1) {
                     selectedSong++;
                     PlaySound(menuScrollSound);
                     scrollSpeed = 220.0f;
                 }
-                if (IsKeyPressed(KEY_UP) && selectedSong > 0) {
+                if ((IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) && selectedSong > 0) {
                     selectedSong--;
                     PlaySound(menuScrollSound);
                     scrollSpeed = -220.0f;
@@ -427,11 +461,11 @@ int main(void) {
                         y = 11;
                     } break;
                 }
-                if (IsKeyPressed(KEY_DOWN) && selectedSong < y - 1) {
+                if ((IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) && selectedSong < y - 1) {
                     selectedSong++;
                     PlaySound(menuScrollSound);
                 }
-                if (IsKeyPressed(KEY_UP) && selectedSong > x) {
+                if ((IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) && selectedSong > x) {
                     selectedSong--;
                     PlaySound(menuScrollSound);
                 }
@@ -443,7 +477,7 @@ int main(void) {
                 float distance2 =
                         fabs(790 - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
                 if (distance2 < 150.0f) {
-                    if (IsKeyPressed(KEY_M)) {
+                    if (IsKeyPressed(KEY_O) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
                         if (player.fama >= 40) {
                             fameWarning.active = true;
                             fameWarning.timer = 0;
@@ -460,10 +494,10 @@ int main(void) {
                 if (distance2 < 150.0f) {
                     if (player.fama < 30) {
                         // Aviso temporário se fama < 30 (não deixa prosseguir)
-                        if (IsKeyPressed(KEY_M)) {
+                        if (IsKeyPressed(KEY_O) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
                             ShowTempWarning("Voce precisa de pelo menos 30 de fama!", 2.0f);
                         }
-                    } else if (IsKeyPressed(KEY_M)) {
+                    } else if (IsKeyPressed(KEY_O) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
                         if (player.fama >= 70) {
                             fameWarning.active = true;
                             fameWarning.timer = 0;
@@ -480,10 +514,10 @@ int main(void) {
                 if (distance2 < 150.0f) {
                     if (player.fama < 60) {
                         // Aviso temporário se fama < 60 (não deixa prosseguir)
-                        if (IsKeyPressed(KEY_M)) {
+                        if (IsKeyPressed(KEY_O) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
                             ShowTempWarning("Voce precisa de pelo menos 60 de fama!", 2.0f);
                         }
-                    } else if (IsKeyPressed(KEY_M)) {
+                    } else if (IsKeyPressed(KEY_O) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
                         selectedSong = 7;
                         scrollOffset = 0;
                         gameState = SONG_SELECT;  // Prossegue direto
@@ -510,7 +544,7 @@ int main(void) {
                     break;
             }
 
-            if (IsKeyPressed(KEY_ENTER)) {
+            if (IsKeyPressed(KEY_ENTER) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
                 inSubMenu = false;
                 PlaySound(menuSelectSound);
             }
@@ -522,7 +556,7 @@ int main(void) {
         switch (gameState) {
             case MAIN_MENU: {
                 UpdateMusicStream(menuMusic);
-                if (IsKeyPressed(KEY_ENTER)) {
+                if (IsKeyPressed(KEY_ENTER) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
                     PlaySound(menuSelectSound);
                     switch (currentMenuOption) {
                         case MENU_STORY:
@@ -555,7 +589,7 @@ int main(void) {
             } break;
 
             case SONG_SELECT: {
-                if (IsKeyPressed(KEY_ENTER)) {
+                if (IsKeyPressed(KEY_ENTER) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
                     PlaySound(menuSelectSound);
 
                     // Load selected song
@@ -725,8 +759,8 @@ int main(void) {
                 }
 
                 for (int lane = 0; lane < NUM_LANES; lane++) {
-                    keysPressed[lane] = IsKeyPressed(laneKeys[lane]);
-                    keysDown[lane] = IsKeyDown(laneKeys[lane]);
+                    keysPressed[lane] = IsLanePressed(lane);
+    				keysDown[lane] = IsLaneDown(lane);
 
                     if (keysPressed[lane] && keysDown[lane]) {
                         bool hit = false;
@@ -865,8 +899,6 @@ int main(void) {
             } break;
 
             case MAPAS: {
-                // if (IsKeyPressed(KEY_C)) {gameState = CHALLENGE; cutsceneState = 0;
-                // cutsceneTimer = 0;} //teste do boss
                 //  Atualiza o mapa atual
                 if (currentMap->mapId == 1) {
                     UpdateMusicStream(map1Music);
@@ -894,10 +926,10 @@ int main(void) {
 
                     // Só permite fechar após o tempo mínimo
                     if (fameWarning.timer >= fameWarning.displayTime) {
-                        if (IsKeyPressed(KEY_Y)) {
+                        if (IsKeyPressed(KEY_Y) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1)) {
                             fameWarning.active = false;
                             gameState = SONG_SELECT;
-                        } else if (IsKeyPressed(KEY_N)) {
+                        } else if (IsKeyPressed(KEY_N) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1)) {
                             fameWarning.active = false;
                         }
                     }
@@ -907,7 +939,7 @@ int main(void) {
                         SCREEN_WIDTH - (player.position.x + FRAME_WIDTH * PLAYER_SCALE));
                 static Music* currentMusic = NULL;
 
-                if (IsKeyPressed(KEY_G)) {
+                if (IsKeyPressed(KEY_X) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
                     bool changedMap = false;
 
                     if (distance2 < 200.0f && currentMap->next != NULL &&
@@ -949,13 +981,13 @@ int main(void) {
             case BLESS: {
                 if (inBlessingSelection) {
                     // Atualiza a seleção
-                    if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_UP)) {
+                    if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) {
                         PlaySound(menuScrollSound);
                         selectedOption = 1 - selectedOption;
                     }
 
                     // Confirma seleção
-                    if (IsKeyPressed(KEY_ENTER)) {
+                    if (IsKeyPressed(KEY_ENTER) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
                         PlaySound(menuSelectSound);
                         player.blessings.blessings[player.blessings.count] =
                                 blessingOptions[selectedOption];
@@ -970,7 +1002,7 @@ int main(void) {
             } break;
 
             case CHALLENGE: {
-                if (IsKeyPressed(KEY_ENTER)) {
+                if (IsKeyPressed(KEY_ENTER) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
                     PlaySound(guitarSound);
                     ResetGodModeState(notes, &stats, &gameMusic);
 
@@ -991,7 +1023,7 @@ int main(void) {
 
             case RESULTS: {
                 if (instory && !godModeActive) {
-                    if (IsKeyPressed(KEY_SPACE)) {
+                    if (IsKeyPressed(KEY_SPACE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
                         int totalHits =
                                 stats.hits[0] + stats.hits[1] + stats.hits[2] + stats.hits[3];
                         int totalNotes = totalHits + stats.misses;
@@ -1081,7 +1113,7 @@ int main(void) {
                             gameState = BLESS;
                     }
                 } else {
-                    if (IsKeyPressed(KEY_SPACE) && godModeActive && !stats.songFailed) {
+                    if ((IsKeyPressed(KEY_SPACE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) && godModeActive && !stats.songFailed) {
                         for (int i = 0; i < 3; i++) {
                             player.blessings.blessings[i] = BLESS_NONE;
                         }
@@ -1091,10 +1123,10 @@ int main(void) {
                         instory = false;
                         godModeActive = false;
                         gameState = MAIN_MENU;
-                    } else if (IsKeyPressed(KEY_SPACE) && !godModeActive) {
+                    } else if ((IsKeyPressed(KEY_SPACE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) && !godModeActive) {
                         gameState = MAIN_MENU;
                     }
-                    if (IsKeyPressed(KEY_C) && stats.songFailed && godModeActive) {
+                    if ((IsKeyPressed(KEY_C) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) && stats.songFailed && godModeActive) {
                         cutsceneState = 2;
                         cutsceneTimer = 0;
                         gameState = CHALLENGE;
@@ -1133,8 +1165,8 @@ int main(void) {
                 DrawTextEx(titleFont, titleText, titlePos, 200, 0, WHITE);
 
                 // Menu options
-                const char* menuOptions[] = {"STORY",   "QUICKPLAY",  "CONTROLS",
-                                             "CREDITS", "SCOREBOARD", "EXIT"};
+                const char* menuOptions[] = {"HISTORIA",   "QUICKPLAY",  "CONTROLES",
+                                             "CREDITOS", "SCOREBOARD", "SAIR"};
                 int numOptions = sizeof(menuOptions) / sizeof(menuOptions[0]);
 
                 int startY = 340;
@@ -1153,16 +1185,16 @@ int main(void) {
                 }
 
                 // Navigation
-                if (IsKeyPressed(KEY_DOWN)) {
+                if (IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) {
                     currentMenuOption = (currentMenuOption + 1) % numOptions;
                     PlaySound(menuScrollSound);
                 }
-                if (IsKeyPressed(KEY_UP)) {
+                if (IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) {
                     currentMenuOption = (currentMenuOption - 1 + numOptions) % numOptions;
                     PlaySound(menuScrollSound);
                 }
 
-                if (IsKeyPressed(KEY_ENTER)) {
+                if (IsKeyPressed(KEY_ENTER) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
                     PlaySound(menuSelectSound);
 
                     switch (currentMenuOption) {
@@ -1193,7 +1225,7 @@ int main(void) {
 
                 // Draw instructions
                 const char* instructionText =
-                        "Use ARROWS to navigate | ENTER to select";
+                        "Use Setas para navegar | ENTER/X para selecionar";
                 DrawTextEx(
                         mainFont, instructionText,
                         (Vector2){screenWidth / 2 -
@@ -1209,11 +1241,17 @@ int main(void) {
                                        (Color){10, 10, 20, 255});
 
                 // Título
-                const char* title = "SELECT SONG";
+                const char* title = "SELECIONE MUSICA";
                 Vector2 titleSize = MeasureTextEx(titleFont, title, 80, 0);
                 DrawTextEx(titleFont, title,
                            (Vector2){screenWidth / 2 - titleSize.x / 2, 50}, 80, 0,
                            WHITE);
+
+                // Mostrar tipo de input atual
+    			const char* inputText = currentInputType == INPUT_KEYBOARD ? "TECLADO (T para trocar)" : "CONTROLE (T para trocar)";
+    			DrawTextEx(mainFont, inputText,
+               (Vector2){screenWidth / 2 - MeasureTextEx(mainFont, inputText, 20, 0).x / 2, 125},
+               20, 0, GRAY);
 
                 // Scissor: delimita a área rolável para a lista de músicas
                 int listStartY = 150;  // onde começa a lista (abaixo do título)
@@ -1293,10 +1331,10 @@ int main(void) {
                 EndScissorMode();  // Finaliza área rolável
 
                 // Instruções na parte inferior
-                DrawText("Press ENTER to play",
-                         screenWidth / 2 - MeasureText("Press ENTER to play", 20) / 2,
+                DrawText("Pressione ENTER/X para jogar",
+                         screenWidth / 2 - MeasureText("Pressione ENTER/X para jogar", 20) / 2,
                          screenHeight - 40, 20, GRAY);
-                DrawText("UP/DOWN to select song", 50, screenHeight - 40, 20, GRAY);
+                DrawText("Setas para selecionar musica", 50, screenHeight - 40, 20, GRAY);
             } break;
 
             case PLAYING: {
@@ -1419,7 +1457,7 @@ int main(void) {
                 } else {
                     // Flash when ready
                     float flash = sin(GetTime() * 10) * 0.5f + 0.5f;
-                    DrawTextEx(mainFont, "STAR POWER READY!", (Vector2){50, 85}, 25, 2,
+                    DrawTextEx(mainFont, "STAR POWER PRONTO!", (Vector2){50, 85}, 25, 2,
                                (Color){255, 255, 0, (unsigned char)(flash * 255)});
                 }
 
@@ -1632,7 +1670,7 @@ int main(void) {
 
                     if (comboModeTimer > 0) {
                         DrawTextEx(mainFont,
-                                   TextFormat("NO RESPECT: %.1fs", comboModeTimer),
+                                   TextFormat("SEM RESPEITO: %.1fs", comboModeTimer),
                                    (Vector2){50, yPos}, 30, 0,
                                    ColorAlpha((Color){255, 100, 100, 255},
                                               0.8f + sin(GetTime() * 10) * 0.2f));
@@ -1641,7 +1679,7 @@ int main(void) {
 
                     if (invisibleModeTimer > 0) {
                         DrawTextEx(mainFont,
-                                   TextFormat("INVISIBLE NOTES: %.1fs", invisibleModeTimer),
+                                   TextFormat("NOTAS INVISIVEIS: %.1fs", invisibleModeTimer),
                                    (Vector2){50, yPos}, 30, 0,
                                    ColorAlpha((Color){100, 100, 255, 255},
                                               0.8f + sin(GetTime() * 8) * 0.2f));
@@ -1737,27 +1775,27 @@ int main(void) {
 
                     // Textos dos botões (ajuste fino de centralização)
                     DrawTextEx(
-                            titleFont, "SIM (Y)",
+                            titleFont, "SIM (Y/L1)",
                             (Vector2){btnYes.x + btnYes.width / 2 -
-                                      MeasureTextEx(titleFont, "SIM (Y)", 24, 1).x / 2,
+                                      MeasureTextEx(titleFont, "SIM (Y/L1)", 24, 1).x / 2,
                                       btnYes.y + btnYes.height / 2 - 12},
                             24, 1, WHITE);
 
                     DrawTextEx(
-                            titleFont, "NAO (N)",
+                            titleFont, "NAO (N/R1)",
                             (Vector2){btnNo.x + btnNo.width / 2 -
-                                      MeasureTextEx(titleFont, "NÃO (N)", 24, 1).x / 2,
+                                      MeasureTextEx(titleFont, "NÃO (N/R1)", 24, 1).x / 2,
                                       btnNo.y + btnNo.height / 2 - 12},
                             24, 1, WHITE);
 
                     // Controles (só funcionam após o delay)
                     if (fameWarning.timer >= fameWarning.displayTime) {
-                        if (IsKeyPressed(KEY_Y) ||
+                        if (IsKeyPressed(KEY_Y) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN) ||
                             (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
                              CheckCollisionPointRec(GetMousePosition(), btnYes))) {
                             fameWarning.active = false;
                             gameState = SONG_SELECT;
-                        } else if (IsKeyPressed(KEY_N) ||
+                        } else if (IsKeyPressed(KEY_N) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT) ||
                                    (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
                                     CheckCollisionPointRec(GetMousePosition(), btnNo))) {
                             fameWarning.active = false;
@@ -1816,7 +1854,7 @@ int main(void) {
                 }
 
                 // Instrução de retorno
-                const char* backText = "PRESS SPACE TO RETURN";
+                const char* backText = "PRESSIONE SPACE/BOLA PARA RETORNAR";
                 Vector2 backSize = MeasureTextEx(mainFont, backText, 24, 0);
                 DrawTextEx(
                         mainFont, backText,
@@ -1824,7 +1862,7 @@ int main(void) {
                         0, GRAY);
 
                 // Voltar ao menu
-                if (IsKeyPressed(KEY_SPACE)) {
+                if (IsKeyPressed(KEY_SPACE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
                     gameState = MAIN_MENU;
                 }
             } break;
@@ -1902,7 +1940,7 @@ int main(void) {
 
                     // Instruções na parte inferior
                     const char* instructions =
-                            "USE AS SETAS PARA SELECIONAR  |  PRESSIONE ENTER PARA CONFIRMAR";
+                            "USE AS SETAS PARA SELECIONAR  |  PRESSIONE ENTER/X PARA CONFIRMAR";
                     Vector2 instrSize = MeasureTextEx(mainFont, instructions, 28, 0);
                     DrawTextEx(
                             mainFont, instructions,
@@ -1973,17 +2011,17 @@ int main(void) {
                         if (cutsceneTimer >
                             3.5f) {  // Mostra depois que todas as chamas apareceram
                             DrawTextEx(
-                                    mainFont, "Pressione E para avancar",
+                                    mainFont, "Pressione E/TRIANGULO para avancar",
                                     (Vector2){screenWidth / 2 -
                                               MeasureTextEx(mainFont,
-                                                            "Pressione E para avancar", 30, 0)
+                                                            "Pressione E/TRIANGULO para avancar", 30, 0)
                                                       .x /
                                               2,
                                               screenHeight - 50},
                                     30, 0, Fade(GRAY, 0.5f + sin(GetTime() * 5) * 0.5f));
                         }
 
-                        if (IsKeyPressed(KEY_E)) {
+                        if (IsKeyPressed(KEY_E) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_UP)) {
                             PlaySound(guitarSound);
                             cutsceneState = 1;
                             cutsceneTimer = 0;
@@ -2070,19 +2108,18 @@ int main(void) {
                         if (cutsceneTimer >
                             3.5f) {  // Mostra depois que todas as chamas apareceram
                             DrawTextEx(
-                                    mainFont, "Pressione E para avancar",
+                                    mainFont, "Pressione E/TRIANGULO para avancar",
                                     (Vector2){screenWidth / 2 -
                                               MeasureTextEx(mainFont,
-                                                            "Pressione E para avancar", 30, 0)
+                                                            "Pressione E/TRIANGULO para avancar", 30, 0)
                                                       .x /
                                               2,
                                               screenHeight - 50},
                                     30, 0, Fade(GRAY, 0.5f + sin(GetTime() * 5) * 0.5f));
                         }
 
-                        if (IsKeyPressed(KEY_E) && cutsceneTimer > 3.5f) {
+                        if ((IsKeyPressed(KEY_E) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_UP)) && cutsceneTimer > 3.5f) {
                             PlaySound(guitarSound);
-                            PlaySound(godSound);
                             cutsceneState = 2;
                             cutsceneTimer = 0;
                         }
@@ -2105,6 +2142,13 @@ int main(void) {
                         DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
                                                (Color){10, 0, 0, 40},
                                                (Color){40, 0, 0, 150});
+
+                        // Mostrar tipo de input atual
+    					const char* inputText = currentInputType == INPUT_KEYBOARD ? "TECLADO (T para trocar)" : "CONTROLE (T para trocar)";
+    					DrawTextEx(mainFont, inputText,
+               				(Vector2){200 - MeasureTextEx(mainFont, inputText, 20, 0).x / 2, 50},
+               				20, 0, GRAY);
+
                         // Efeitos de partículas de fogo (sobrepostas à imagem)
                         for (int i = 0; i < 50; i++) {
                             float x = sin(GetTime() * 2 + i) * screenWidth;
@@ -2127,12 +2171,12 @@ int main(void) {
                         // Instrução para começar
                         if (cutsceneTimer > 3.5f) {
                             DrawTextEx(
-                                    mainFont, "Pressione ENTER para comecar o desafio",
+                                    mainFont, "Pressione ENTER/X para comecar o desafio",
                                     (Vector2){
                                             screenWidth / 2 -
                                             MeasureTextEx(
                                                     mainFont,
-                                                    "Pressione ENTER para comecar o desafio", 30, 0)
+                                                    "Pressione ENTER/X para comecar o desafio", 30, 0)
                                                     .x /
                                             2,
                                             screenHeight - 50},
@@ -2228,14 +2272,14 @@ int main(void) {
                         }
 
                         if (showFinalScoreboard) {
-                            DrawText("PLACAR DE HERÓIS DO ROCK", screenWidth / 2 - 200, 80,
+                            DrawText("PLACAR DE HEROIS DO ROCK", screenWidth / 2 - 200, 80,
                                      30, YELLOW);
                             DrawScoreboard(mainFont, screenWidth / 2 - 200, 130);
 
-                            DrawText("Pressione ESPAÇO para voltar ao menu",
+                            DrawText("Pressione SPACE/BOLA para voltar ao menu",
                                      screenWidth / 2 - 200, 500, 20, GRAY);
 
-                            if (IsKeyPressed(KEY_SPACE)) {
+                            if (IsKeyPressed(KEY_SPACE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
                                 // Resetar tudo
                                 showFinalScoreboard = false;
                                 scoreAlreadySaved = false;
@@ -2323,12 +2367,12 @@ int main(void) {
                                    70, 0, RED);
 
                         DrawTextEx(
-                                mainFont, "Tente novamente quando estiver preparado... (C)",
+                                mainFont, "Tente novamente quando estiver preparado... (C/QUADRADO)",
                                 (Vector2){
                                         screenWidth / 2 -
                                         MeasureTextEx(
                                                 mainFont,
-                                                "Tente novamente quando estiver preparado... (C)",
+                                                "Tente novamente quando estiver preparado... (C/QUADRADO)",
                                                 40, 0)
                                                 .x /
                                         2,
@@ -2354,32 +2398,32 @@ int main(void) {
                     const char* rating;
                     Color ratingColor;
                     if (stats.songFailed) {
-                        rating = "FAILED!";
+                        rating = "FALHOU!";
                         ratingColor = RED;
                     } else if (accuracy >= 95.0f) {
-                        rating = "5 STARS!";
+                        rating = "5 ESTRELAS!";
                         ratingColor = GOLD;
                     } else if (accuracy >= 90.0f) {
-                        rating = "4 STARS";
+                        rating = "4 ESTRELAS";
                         ratingColor = ORANGE;
                     } else if (accuracy >= 80.0f) {
-                        rating = "3 STARS";
+                        rating = "3 ESTRELAS";
                         ratingColor = YELLOW;
                     } else if (accuracy >= 70.0f) {
-                        rating = "2 STARS";
+                        rating = "2 ESTRELAS";
                         ratingColor = WHITE;
                     } else {
-                        rating = "1 STAR";
+                        rating = "1 ESTRELA";
                         ratingColor = GRAY;
                     }
 
                     // Draw title
                     DrawTextEx(
-                            titleFont, stats.songFailed ? "SONG FAILED!" : "SONG COMPLETE!",
+                            titleFont, stats.songFailed ? "EXPLUSO DO PALCO!" : "MUSICA COMPLETA!",
                             (Vector2){screenWidth / 2 - MeasureTextEx(titleFont,
                                                                       stats.songFailed
-                                                                      ? "SONG FAILED!"
-                                                                      : "SONG COMPLETE!",
+                                                                      ? "EXPLUSO DO PALCO!"
+                                                                      : "MUSICA COMPLETA!",
                                                                       80, 0)
                                                                 .x /
                                                         2,
@@ -2403,7 +2447,7 @@ int main(void) {
                                WHITE);
                     startY += spacing;
 
-                    DrawTextEx(mainFont, TextFormat("ACCURACY: %.2f%%", accuracy),
+                    DrawTextEx(mainFont, TextFormat("PRECISAO: %.2f%%", accuracy),
                                (Vector2){screenWidth / 2 - 300, (float)startY}, 40, 0,
                                WHITE);
                     startY += spacing;
@@ -2490,17 +2534,17 @@ int main(void) {
 
                     if (!instory) {
                         // Hit breakdown
-                        DrawTextEx(mainFont, TextFormat("PERFECT: %d", stats.hits[0]),
+                        DrawTextEx(mainFont, TextFormat("PERFEITO: %d", stats.hits[0]),
                                    (Vector2){screenWidth / 2 - 300, (float)startY}, 40, 0,
                                    hitColors[0]);
                         startY += spacing;
 
-                        DrawTextEx(mainFont, TextFormat("GREAT: %d", stats.hits[1]),
+                        DrawTextEx(mainFont, TextFormat("OTIMO: %d", stats.hits[1]),
                                    (Vector2){screenWidth / 2 - 300, (float)startY}, 40, 0,
                                    hitColors[1]);
                         startY += spacing;
 
-                        DrawTextEx(mainFont, TextFormat("GOOD: %d", stats.hits[2]),
+                        DrawTextEx(mainFont, TextFormat("BOM: %d", stats.hits[2]),
                                    (Vector2){screenWidth / 2 - 300, (float)startY}, 40, 0,
                                    hitColors[2]);
                         startY += spacing;
@@ -2510,7 +2554,7 @@ int main(void) {
                                    hitColors[3]);
                         startY += spacing;
 
-                        DrawTextEx(mainFont, TextFormat("MISS: %d", stats.misses),
+                        DrawTextEx(mainFont, TextFormat("ERROS: %d", stats.misses),
                                    (Vector2){screenWidth / 2 - 300, (float)startY}, 40, 0,
                                    RED);
                         startY += spacing;
@@ -2518,10 +2562,10 @@ int main(void) {
 
                     // Continue prompt
                     DrawTextEx(
-                            mainFont, "Press SPACE to Continue",
+                            mainFont, "Pressione SPACE/BOLA para Continuar",
                             (Vector2){
                                     screenWidth / 2 -
-                                    MeasureTextEx(mainFont, "Press SPACE to Continue", 30, 2)
+                                    MeasureTextEx(mainFont, "Pressione SPACE/BOLA para Continuar", 30, 2)
                                             .x /
                                     2,
                                     screenHeight - 50},
@@ -2545,7 +2589,6 @@ int main(void) {
     UnloadTexture(godBackgroundTex);
     UnloadSound(noteMissSound);
     UnloadSound(guitarSound);
-    UnloadSound(godSound);
     UnloadSound(starPowerSound);
     UnloadSound(menuSelectSound);
     UnloadSound(menuScrollSound);
@@ -2686,9 +2729,9 @@ void DrawControlsScreen(int screenWidth, int screenHeight, Font titleFont,
                            (Color){20, 20, 40, 255}, (Color){10, 10, 20, 255});
 
     // Título
-    DrawTextEx(titleFont, "CONTROLS",
+    DrawTextEx(titleFont, "CONTROLES",
                (Vector2){screenWidth / 2 -
-                         MeasureTextEx(titleFont, "CONTROLS", 80, 0).x / 2,
+                         MeasureTextEx(titleFont, "CONTROLES", 80, 0).x / 2,
                          100},
                80, 0, WHITE);
 
@@ -2696,32 +2739,39 @@ void DrawControlsScreen(int screenWidth, int screenHeight, Font titleFont,
     int startY = 250;
     int spacing = 40;
 
-    DrawTextEx(mainFont,
-               "NOTES GAMEPLAY:", (Vector2){screenWidth / 2 - 300, (float)startY},
-               30, 0, YELLOW);
+    // Mostra o tipo de input atual
+    const char* inputTypeText = currentInputType == INPUT_KEYBOARD ? "TECLADO" : "CONTROLE";
+    DrawTextEx(mainFont, TextFormat("MODO: %s", inputTypeText),
+              (Vector2){screenWidth / 2 - 100, startY}, 30, 0, YELLOW);
+    startY += spacing * 2;
+
+    DrawTextEx(mainFont, "CONTROLES:", (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, YELLOW);
     startY += spacing;
 
-    DrawTextEx(mainFont, "LANE 1 (RED):    A KEY",
-               (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, WHITE);
+    for (int i = 0; i < NUM_LANES; i++) {
+        if (currentInputType == INPUT_KEYBOARD) {
+            const char* keyName = GetKeyNameCustom(currentControls[i].keyboardKey);
+            DrawTextEx(mainFont, TextFormat("LANE %d: %s", i + 1, keyName),
+                      (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, WHITE);
+        } else {
+            const char* buttonName = GetGamepadButtonName(currentControls[i].gamepadButton);
+            DrawTextEx(mainFont, TextFormat("LANE %d: %s", i + 1, buttonName),
+                      (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, WHITE);
+        }
+        startY += spacing;
+    }
+
+    // Instruções
     startY += spacing;
-    DrawTextEx(mainFont, "LANE 2 (ORANGE): S KEY",
-               (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, WHITE);
-    startY += spacing;
-    DrawTextEx(mainFont, "LANE 3 (GREEN):  J KEY",
-               (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, WHITE);
-    startY += spacing;
-    DrawTextEx(mainFont, "LANE 4 (BLUE):   K KEY",
-               (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, WHITE);
-    startY += spacing;
-    DrawTextEx(mainFont, "LANE 5 (PURPLE): L KEY",
-               (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, WHITE);
+    DrawTextEx(mainFont, "Pressione T para trocar entre teclado/controle",
+              (Vector2){screenWidth / 2 - 350, (float)startY}, 30, 0, GRAY);
 
     // Voltar
     DrawTextEx(
-            mainFont, "Press ENTER to return",
+            mainFont, "Pressione ENTER/X para voltar",
             (Vector2){
                     screenWidth / 2 -
-                    MeasureTextEx(mainFont, "Press ENTER to return", 25, 2).x / 2,
+                    MeasureTextEx(mainFont, "Pressione ENTER/X para voltar", 25, 2).x / 2,
                     screenHeight - 100},
             25, 2, GRAY);
 }
@@ -2733,9 +2783,9 @@ void DrawCreditsScreen(int screenWidth, int screenHeight, Font titleFont,
                            (Color){20, 20, 40, 255}, (Color){10, 10, 20, 255});
 
     // Título
-    DrawTextEx(titleFont, "CREDITS",
+    DrawTextEx(titleFont, "CREDITOS",
                (Vector2){screenWidth / 2 -
-                         MeasureTextEx(titleFont, "CREDITS", 80, 0).x / 2,
+                         MeasureTextEx(titleFont, "CREDITOS", 80, 0).x / 2,
                          100},
                80, 0, WHITE);
 
@@ -2748,28 +2798,28 @@ void DrawCreditsScreen(int screenWidth, int screenHeight, Font titleFont,
     startY += spacing * 2;
 
     DrawTextEx(mainFont,
-               "Developed by:", (Vector2){screenWidth / 2 - 300, (float)startY},
+               "Desenvolvido por:", (Vector2){screenWidth / 2 - 300, (float)startY},
                30, 0, WHITE);
     startY += spacing;
-    DrawTextEx(mainFont, "JERAROSS AND JP",
+    DrawTextEx(mainFont, "JERAROSS e JP",
                (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, SKYBLUE);
     startY += spacing * 2;
 
-    DrawTextEx(mainFont, "Special thanks to:",
+    DrawTextEx(mainFont, "Agradecimentos especiais para:",
                (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, WHITE);
     startY += spacing;
     DrawTextEx(mainFont, "Raylib - Simple and easy-to-use library",
                (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, GRAY);
     startY += spacing;
-    DrawTextEx(mainFont, "All the artists for the music",
+    DrawTextEx(mainFont, "Todos os artistas pelas musicas e artes do jogo",
                (Vector2){screenWidth / 2 - 300, (float)startY}, 30, 0, GRAY);
 
     // Voltar
     DrawTextEx(
-            mainFont, "Press ENTER to return",
+            mainFont, "Pressione ENTER/X para voltar",
             (Vector2){
                     screenWidth / 2 -
-                    MeasureTextEx(mainFont, "Press ENTER to return", 25, 2).x / 2,
+                    MeasureTextEx(mainFont, "Pressione ENTER/X para voltar", 25, 2).x / 2,
                     screenHeight - 100},
             25, 2, GRAY);
 }
@@ -2803,7 +2853,7 @@ void DrawHitEffects(Font mainFont) {
                 }
 
                 // Texto "FORGIVEN" menor e mais pra baixo/direita
-                const char* text = "FORGIVEN";
+                const char* text = "ESQUECIDO";
                 int fontSize = 20;
                 Vector2 textSize = MeasureTextEx(mainFont, text, fontSize, 0);
                 DrawTextEx(mainFont, text,
@@ -3255,4 +3305,154 @@ void LoadScoreboardFromFile(const char* filename) {
     }
 
     fclose(file);
+}
+
+void InitControls() {
+    // Copia os controles padrão
+    memcpy(currentControls, defaultControls, sizeof(defaultControls));
+
+    // Verifica se há um controle conectado
+    controllerConnected = IsGamepadAvailable(0);
+}
+
+bool IsLanePressed(int lane) {
+    if (currentInputType == INPUT_KEYBOARD) {
+        return IsKeyPressed(currentControls[lane].keyboardKey);
+    } else {
+        return IsGamepadButtonPressed(0, currentControls[lane].gamepadButton);
+    }
+}
+
+bool IsLaneDown(int lane) {
+    if (currentInputType == INPUT_KEYBOARD) {
+        return IsKeyDown(currentControls[lane].keyboardKey);
+    } else {
+        return IsGamepadButtonDown(0, currentControls[lane].gamepadButton);
+    }
+}
+
+const char* GetKeyNameCustom(int key) {
+    switch(key) {
+        case KEY_APOSTROPHE: return "'";
+        case KEY_COMMA: return ",";
+        case KEY_MINUS: return "-";
+        case KEY_PERIOD: return ".";
+        case KEY_SLASH: return "/";
+        case KEY_ZERO: return "0";
+        case KEY_ONE: return "1";
+        case KEY_TWO: return "2";
+        case KEY_THREE: return "3";
+        case KEY_FOUR: return "4";
+        case KEY_FIVE: return "5";
+        case KEY_SIX: return "6";
+        case KEY_SEVEN: return "7";
+        case KEY_EIGHT: return "8";
+        case KEY_NINE: return "9";
+        case KEY_SEMICOLON: return ";";
+        case KEY_EQUAL: return "=";
+        case KEY_A: return "A";
+        case KEY_B: return "B";
+        case KEY_C: return "C";
+        case KEY_D: return "D";
+        case KEY_E: return "E";
+        case KEY_F: return "F";
+        case KEY_G: return "G";
+        case KEY_H: return "H";
+        case KEY_I: return "I";
+        case KEY_J: return "J";
+        case KEY_K: return "K";
+        case KEY_L: return "L";
+        case KEY_M: return "M";
+        case KEY_N: return "N";
+        case KEY_O: return "O";
+        case KEY_P: return "P";
+        case KEY_Q: return "Q";
+        case KEY_R: return "R";
+        case KEY_S: return "S";
+        case KEY_T: return "T";
+        case KEY_U: return "U";
+        case KEY_V: return "V";
+        case KEY_W: return "W";
+        case KEY_X: return "X";
+        case KEY_Y: return "Y";
+        case KEY_Z: return "Z";
+        case KEY_SPACE: return "SPACE";
+        case KEY_ESCAPE: return "ESC";
+        case KEY_ENTER: return "ENTER";
+        case KEY_TAB: return "TAB";
+        case KEY_BACKSPACE: return "BACKSPACE";
+        case KEY_INSERT: return "INSERT";
+        case KEY_DELETE: return "DELETE";
+        case KEY_RIGHT: return "RIGHT";
+        case KEY_LEFT: return "LEFT";
+        case KEY_DOWN: return "DOWN";
+        case KEY_UP: return "UP";
+        case KEY_LEFT_BRACKET: return "[";
+        case KEY_BACKSLASH: return "\\";
+        case KEY_RIGHT_BRACKET: return "]";
+        case KEY_GRAVE: return "`";
+        case KEY_CAPS_LOCK: return "CAPS";
+        case KEY_SCROLL_LOCK: return "SCROLL";
+        case KEY_NUM_LOCK: return "NUM";
+        case KEY_PRINT_SCREEN: return "PRINT";
+        case KEY_PAUSE: return "PAUSE";
+        case KEY_F1: return "F1";
+        case KEY_F2: return "F2";
+        case KEY_F3: return "F3";
+        case KEY_F4: return "F4";
+        case KEY_F5: return "F5";
+        case KEY_F6: return "F6";
+        case KEY_F7: return "F7";
+        case KEY_F8: return "F8";
+        case KEY_F9: return "F9";
+        case KEY_F10: return "F10";
+        case KEY_F11: return "F11";
+        case KEY_F12: return "F12";
+        case KEY_LEFT_SHIFT: return "LSHIFT";
+        case KEY_LEFT_CONTROL: return "LCTRL";
+        case KEY_LEFT_ALT: return "LALT";
+        case KEY_RIGHT_SHIFT: return "RSHIFT";
+        case KEY_RIGHT_CONTROL: return "RCTRL";
+        case KEY_RIGHT_ALT: return "RALT";
+        case KEY_KP_0: return "KP0";
+        case KEY_KP_1: return "KP1";
+        case KEY_KP_2: return "KP2";
+        case KEY_KP_3: return "KP3";
+        case KEY_KP_4: return "KP4";
+        case KEY_KP_5: return "KP5";
+        case KEY_KP_6: return "KP6";
+        case KEY_KP_7: return "KP7";
+        case KEY_KP_8: return "KP8";
+        case KEY_KP_9: return "KP9";
+        case KEY_KP_DECIMAL: return "KP.";
+        case KEY_KP_DIVIDE: return "KP/";
+        case KEY_KP_MULTIPLY: return "KP*";
+        case KEY_KP_SUBTRACT: return "KP-";
+        case KEY_KP_ADD: return "KP+";
+        case KEY_KP_ENTER: return "KPENTER";
+        default: return "UNKNOWN";
+    }
+}
+
+const char* GetGamepadButtonName(int button) {
+    switch(button) {
+        case GAMEPAD_BUTTON_LEFT_FACE_UP: return "UP";
+        case GAMEPAD_BUTTON_LEFT_FACE_RIGHT: return "RIGHT";
+        case GAMEPAD_BUTTON_LEFT_FACE_DOWN: return "DOWN";
+        case GAMEPAD_BUTTON_LEFT_FACE_LEFT: return "LEFT";
+        case GAMEPAD_BUTTON_RIGHT_FACE_UP: return "TRIANGLE";
+        case GAMEPAD_BUTTON_RIGHT_FACE_RIGHT: return "CIRCLE";
+        case GAMEPAD_BUTTON_RIGHT_FACE_DOWN: return "CROSS";
+        case GAMEPAD_BUTTON_RIGHT_FACE_LEFT: return "SQUARE";
+        case GAMEPAD_BUTTON_LEFT_TRIGGER_1: return "L1";
+        case GAMEPAD_BUTTON_LEFT_TRIGGER_2: return "L2";
+        case GAMEPAD_BUTTON_RIGHT_TRIGGER_1: return "R1";
+        case GAMEPAD_BUTTON_RIGHT_TRIGGER_2: return "R2";
+        case GAMEPAD_BUTTON_MIDDLE_LEFT: return "SHARE";
+        case GAMEPAD_BUTTON_MIDDLE: return "HOME";
+        case GAMEPAD_BUTTON_MIDDLE_RIGHT: return "OPTIONS";
+        case GAMEPAD_BUTTON_LEFT_THUMB: return "L3";
+        case GAMEPAD_BUTTON_RIGHT_THUMB: return "R3";
+        default: return "UNKNOWN";
+    }
 }

@@ -197,7 +197,7 @@ void DrawMap1(MapData *map, Player *player) {
         DrawTextureEx(map->seta, (Vector2){SCREEN_WIDTH - 250 + offset, 650}, 0.0f, 0.5f, WHITE);
         DrawTextEx(
                 GetFontDefault(),
-                "PRESS G!",
+                "PRESS X!",
                 (Vector2){SCREEN_WIDTH - 195 + offset - 20, 710},  // posição (ajuste -20 se centralizar)
                 20.0f,  // tamanho da fonte
                 2.0f,   // espaçamento
@@ -227,16 +227,16 @@ void DrawMap1(MapData *map, Player *player) {
                 WHITE
         );
 
-        const char* letra = "M";
+        const char* letra = "O";
         int fontSize = 20;
-        Vector2 textSize = MeasureTextEx(map->font, letra, fontSize, 2.0f);
+        Vector2 textSize = MeasureTextEx(GetFontDefault(), letra, fontSize, 2.0f);
 
         Vector2 textPos = {
                 736 - textSize.x / 2,
                 (790 + offset) - textSize.y / 2
         };
 
-        DrawTextEx(map->font, letra, textPos, fontSize, 2.0f, WHITE);
+        DrawTextEx(GetFontDefault(), letra, textPos, fontSize, 2.0f, WHITE);
     }
 
 
