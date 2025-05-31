@@ -72,7 +72,7 @@ typedef struct {
 typedef struct {
     char title[50];
     char artist[50];
-    Note charts[500];
+    Note charts[600];
     char musicFile[100];
     float duration;
     int difficulty;
@@ -171,14 +171,14 @@ TemporaryWarning tempWarning = {0};
 Song songs[MAX_SONGS] = {
         {"Killer Queen","Queen",{},"assets/musics/killer_queen.mp3",114.469f,1},
         {"Livin' on a Prayer","Bon Jovi",{},"assets/musics/livin_prayer.mp3",96.2281f,2},
-        {"Smells Like Teen Spirit","Nirvana",{},"assets/musics/teen_spirit.mp3",0.0f,3},
-        {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 0.0f, 3},
+        {"Smells Like Teen Spirit","Nirvana",{},"assets/musics/teen_spirit.mp3",104.2f,3},
+        {"Eye of the Tiger", "Survivor", {}, "assets/musics/tiger.mp3", 151.234f, 3},
         {"Sweet Child O'Mine","Guns N' Roses",{},"assets/musics/sweet_child.mp3",90.5f,3},
         {"Bring Me To Life","Evanescence",{},"assets/musics/bring_me_to_life.mp3",140.0f,3},
-        {"Paranoid", "Black Sabbath", {}, "assets/musics/paranoid.mp3", 171.0f, 3},
-        {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 331.0f, 4},
+        {"Carry On Wayward Son", "Kansas", {}, "assets/musics/carry_on.mp3", 124.172f, 3},
+        {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 126.18f, 4},
         {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 0.0f, 4},
-        {"Toxicity","System of a Down",{},"assets/musics/toxicity.mp3",214.0f,4},
+        {"Toxicity","System of a Down",{},"assets/musics/toxicity.mp3",169.0f,4},
         {"The Trooper","Iron Maiden",{},"assets/musics/trooper.mp3",97.8397f,5}};
 
 HitEffect hitEffects[MAX_HIT_EFFECTS];
@@ -2623,14 +2623,14 @@ int main(void) {
 void initSongs() {
     memcpy(songs[0].charts, KillerQueen, sizeof(KillerQueen));
     memcpy(songs[1].charts, Livin_Prayer, sizeof(Livin_Prayer));
-    memcpy(songs[2].charts, Thunder, sizeof(Thunder));
-    memcpy(songs[3].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[2].charts, TeenSpirit, sizeof(TeenSpirit));
+    memcpy(songs[3].charts, EyeOfTheTiger, sizeof(EyeOfTheTiger));
     memcpy(songs[4].charts, SweetChildOMine, sizeof(SweetChildOMine));
     memcpy(songs[5].charts, BringMeToLife, sizeof(BringMeToLife));
-    memcpy(songs[6].charts, Thunder, sizeof(Thunder));
-    memcpy(songs[7].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[6].charts, CarryOn, sizeof(CarryOn));
+    memcpy(songs[7].charts, Sandman, sizeof(Sandman));
     memcpy(songs[8].charts, Thunder, sizeof(Thunder));
-    memcpy(songs[9].charts, Thunder, sizeof(Thunder));
+    memcpy(songs[9].charts, Toxicity, sizeof(Toxicity));
     memcpy(songs[10].charts, TheTrooper, sizeof(TheTrooper));
 }
 
