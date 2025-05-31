@@ -136,6 +136,18 @@ ControlScheme defaultControls[NUM_LANES] = {
     {KEY_L, GAMEPAD_BUTTON_RIGHT_FACE_DOWN}  // Lane 5 (X no PS4)
 };
 
+#define MAX_MAP1_FRAMES 10
+Texture2D map1Frames[MAX_MAP1_FRAMES];
+Texture2D map2Frames[MAX_MAP1_FRAMES];
+Texture2D map3Frames[MAX_MAP1_FRAMES];
+float map1FrameTimer = 0;
+float map2FrameTimer = 0;
+float map3FrameTimer = 0;
+const float map1FrameDuration = 0.1f; // 10 FPS (ajuste conforme necessário)
+int currentMap1Frame = 0;
+int currentMap2Frame = 0;
+int currentMap3Frame = 0;
+
 ControlScheme currentControls[NUM_LANES];
 InputType currentInputType = INPUT_KEYBOARD;
 bool controllerConnected = false;
@@ -214,6 +226,12 @@ int currentMapIndex = 1;
 void initSongs();
 
 void InitControls();
+
+void LoadMap1BackgroundFrames();
+
+void LoadMap2BackgroundFrames();
+
+void LoadMap3BackgroundFrames();
 
 const char* GetKeyNameCustom(int key);
 
@@ -296,11 +314,20 @@ bool IsLanePressed(int lane);
 
 bool IsLaneDown(int lane);
 
+void UnloadMap1BackgroundFrames();
+
+void UnloadMap2BackgroundFrames();
+
+void UnloadMap3BackgroundFrames();
+
 int main(void) {
     SetConfigFlags(FLAG_FULLSCREEN_MODE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ROCK HERO");
     InitAudioDevice();
     initSongs();
+    LoadMap1BackgroundFrames();
+    LoadMap2BackgroundFrames();
+    LoadMap3BackgroundFrames();
     InitControls();
     SetTargetFPS(60);
 
@@ -1356,16 +1383,112 @@ int main(void) {
                                   fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
                         DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.5f));
                     }
-                } else {
-                    Rectangle source = {quickBackgroundTex.width / 2 -
-                                        (quickBackgroundTex.width / 1.3) / 2,
-                                        0.0f, quickBackgroundTex.width / 1.3,
-                                        quickBackgroundTex.height / 1.3};
-                    Rectangle dest = {0.0f, 0.0f, (float)screenWidth,
-                                      (float)screenHeight};
+                } else if (instory && currentMap->mapId == 1) {
+    				// Atualiza o timer da animação
+    				map1FrameTimer += GetFrameTime();
+    				if (map1FrameTimer >= map1FrameDuration) {
+    					map1FrameTimer = 0;
+    					currentMap1Frame = (currentMap1Frame + 1) % MAX_MAP1_FRAMES;
+    				}
+    				float scale = fminf((float)screenWidth / map1Frames[currentMap1Frame].width,
+    				                   (float)screenHeight / map1Frames[currentMap1Frame].height);
+
+    				Rectangle source = {125.0f, 0.0f, (float)map1Frames[currentMap1Frame].width / 1.5,
+    				                              (float)map1Frames[currentMap1Frame].height};
+    				Rectangle dest = {
+    				    screenWidth/2 - (map1Frames[currentMap1Frame].width * scale)/2,
+    				    screenHeight/2 - (map1Frames[currentMap1Frame].height * scale)/2,
+    				    map1Frames[currentMap1Frame].width * scale,
+    				    map1Frames[currentMap1Frame].height * scale
+    				};
+    				Vector2 origin = {0.0f, 0.0f};
+
+    				DrawTexturePro(map1Frames[currentMap1Frame], source, dest, origin, 0.0f, WHITE);
+
+                    for (int i = 0; i < 50; i++) {
+                        float x = sin(GetTime() * 2 + i) * screenWidth;
+                        float y = screenHeight -
+                                  fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+                        DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.25f));
+                    }
+                } else if (instory && currentMap->mapId == 2) {
+    				// Atualiza o timer da animação
+    				map2FrameTimer += GetFrameTime();
+    				if (map2FrameTimer >= map1FrameDuration) {
+    					map2FrameTimer = 0;
+    					currentMap2Frame = (currentMap2Frame + 1) % MAX_MAP1_FRAMES;
+    				}
+    				float scale = fminf((float)screenWidth / map2Frames[currentMap2Frame].width,
+    				                   (float)screenHeight / map2Frames[currentMap2Frame].height);
+
+    				Rectangle source = {125.0f, 0.0f, (float)map2Frames[currentMap2Frame].width / 1.5,
+    				                              (float)map2Frames[currentMap2Frame].height};
+    				Rectangle dest = {
+    				    screenWidth/2 - (map2Frames[currentMap2Frame].width * scale)/2,
+    				    screenHeight/2 - (map2Frames[currentMap2Frame].height * scale)/2,
+    				    map2Frames[currentMap2Frame].width * scale,
+    				    map2Frames[currentMap2Frame].height * scale
+    				};
+    				Vector2 origin = {0.0f, 0.0f};
+
+    				DrawTexturePro(map2Frames[currentMap2Frame], source, dest, origin, 0.0f, WHITE);
+
+                    for (int i = 0; i < 50; i++) {
+                        float x = sin(GetTime() * 2 + i) * screenWidth;
+                        float y = screenHeight -
+                                  fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+                        DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.25f));
+                    }
+                } else if (instory && currentMap->mapId == 3) {
+                    // Atualiza o timer da animação
+                    map3FrameTimer += GetFrameTime();
+                    if (map3FrameTimer >= map1FrameDuration) { // Usa a mesma duração de frame dos outros mapas
+                        map3FrameTimer = 0;
+                        currentMap3Frame = (currentMap3Frame + 1) % MAX_MAP1_FRAMES;
+                    }
+
+                    // Calcula a escala para manter proporção
+                    float scale = fminf((float)screenWidth / map3Frames[currentMap3Frame].width,
+                                       (float)screenHeight / map3Frames[currentMap3Frame].height);
+
+                    // Define a área de origem (com ajuste de 125px na esquerda e escala de 1.5)
+                    Rectangle source = {
+                        125.0f,
+                        0.0f,
+                        (float)map3Frames[currentMap3Frame].width / 1.5,
+                        (float)map3Frames[currentMap3Frame].height
+                    };
+
+                    // Centraliza na tela
+                    Rectangle dest = {
+                        screenWidth/2 - (map3Frames[currentMap3Frame].width * scale)/2,
+                        screenHeight/2 - (map3Frames[currentMap3Frame].height * scale)/2,
+                        map3Frames[currentMap3Frame].width * scale,
+                        map3Frames[currentMap3Frame].height * scale
+                    };
+
                     Vector2 origin = {0.0f, 0.0f};
 
-                    DrawTexturePro(quickBackgroundTex, source, dest, origin, 0.0f, WHITE);
+                    // Desenha o frame atual
+                    DrawTexturePro(map3Frames[currentMap3Frame], source, dest, origin, 0.0f, WHITE);
+
+                    // Efeitos visuais (partículas laranjas)
+                    for (int i = 0; i < 50; i++) {
+                        float x = sin(GetTime() * 2 + i) * screenWidth;
+                        float y = screenHeight - fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+                        DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(ORANGE, 0.25f));
+                    }
+                } else {
+                	DrawRectangleGradientV(0, 0, screenWidth, screenHeight,
+                                       (Color){20, 20, 40, 255},
+                                       (Color){10, 10, 20, 255});
+
+                    for (int i = 0; i < 50; i++) {
+                        float x = sin(GetTime() * 2 + i) * screenWidth;
+                        float y = screenHeight -
+                                  fmodf(cutsceneTimer * 100 + i * 10, screenHeight);
+                        DrawCircle(x, y, 3 + sin(GetTime() + i), Fade(BLUE, 0.3f));
+                    }
                 }
 
                 DrawRectangle(HIGHWAY_LEFT, 0, HIGHWAY_WIDTH, screenHeight,
@@ -2600,6 +2723,9 @@ int main(void) {
     UnloadFont(titleFont);
     UnloadFont(mainFont);
     UnloadTexture(currentMap->data.npc.spriteSheet);
+    UnloadMap1BackgroundFrames();
+    UnloadMap2BackgroundFrames();
+    UnloadMap3BackgroundFrames();
     if (mapList != NULL) {
         MapNode* current = mapList;
         do {
@@ -3454,5 +3580,77 @@ const char* GetGamepadButtonName(int button) {
         case GAMEPAD_BUTTON_LEFT_THUMB: return "L3";
         case GAMEPAD_BUTTON_RIGHT_THUMB: return "R3";
         default: return "UNKNOWN";
+    }
+}
+
+void LoadMap1BackgroundFrames() {
+    for (int i = 0; i < MAX_MAP1_FRAMES; i++) {
+        char filename[256];
+        sprintf(filename, "assets/map1-split/ezgif-frame-%03d.jpg", i+1);
+
+        if (FileExists(filename)) {
+            map1Frames[i] = LoadTexture(filename);
+        } else {
+            // Se não encontrar um frame, carrega um fallback
+            Image blank = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLANK);
+            map1Frames[i] = LoadTextureFromImage(blank);
+            UnloadImage(blank);
+        }
+    }
+}
+
+void UnloadMap1BackgroundFrames() {
+    for (int i = 0; i < MAX_MAP1_FRAMES; i++) {
+        if (map1Frames[i].id != 0) {
+            UnloadTexture(map1Frames[i]);
+        }
+    }
+}
+
+void LoadMap2BackgroundFrames() {
+    for (int i = 0; i < MAX_MAP1_FRAMES; i++) {
+        char filename[256];
+        sprintf(filename, "assets/map2-split/ezgif-frame-%03d.jpg", i+1);
+
+        if (FileExists(filename)) {
+            map2Frames[i] = LoadTexture(filename);
+        } else {
+            // Se não encontrar um frame, carrega um fallback
+            Image blank = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLANK);
+            map2Frames[i] = LoadTextureFromImage(blank);
+            UnloadImage(blank);
+        }
+    }
+}
+
+void UnloadMap2BackgroundFrames() {
+    for (int i = 0; i < MAX_MAP1_FRAMES; i++) {
+        if (map2Frames[i].id != 0) {
+            UnloadTexture(map2Frames[i]);
+        }
+    }
+}
+
+void LoadMap3BackgroundFrames() {
+    for (int i = 0; i < MAX_MAP1_FRAMES; i++) {
+        char filename[256];
+        sprintf(filename, "assets/map3-split/ezgif-frame-%03d.jpg", i+1);
+
+        if (FileExists(filename)) {
+            map3Frames[i] = LoadTexture(filename);
+        } else {
+            // Fallback se o frame não existir
+            Image blank = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
+            map3Frames[i] = LoadTextureFromImage(blank);
+            UnloadImage(blank);
+        }
+    }
+}
+
+void UnloadMap3BackgroundFrames() {
+    for (int i = 0; i < MAX_MAP1_FRAMES; i++) {
+        if (map3Frames[i].id != 0) {
+            UnloadTexture(map3Frames[i]);
+        }
     }
 }
