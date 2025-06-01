@@ -2542,10 +2542,10 @@ int main(void) {
 
                     // Draw title
                     DrawTextEx(
-                            titleFont, stats.songFailed ? "EXPLUSO DO PALCO!" : "MUSICA COMPLETA!",
+                            titleFont, stats.songFailed ? "EXPULSO DO PALCO!" : "MUSICA COMPLETA!",
                             (Vector2){screenWidth / 2 - MeasureTextEx(titleFont,
                                                                       stats.songFailed
-                                                                      ? "EXPLUSO DO PALCO!"
+                                                                      ? "EXPULSO DO PALCO!"
                                                                       : "MUSICA COMPLETA!",
                                                                       80, 0)
                                                                 .x /
