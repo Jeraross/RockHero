@@ -1,5 +1,10 @@
-![image](https://github.com/user-attachments/assets/ee33132b-3640-4941-8b4c-a186bb53a1a9)
+![ROCK HERO](https://github.com/user-attachments/assets/1611c5a1-6d13-49e8-b7f4-9934a2709fb0)
 
+
+https://github.com/user-attachments/assets/3e78b4e1-9d42-4840-b0e4-1e94984b1eb0
+
+
+---
 
 ## ⚙️ Requisitos
 
@@ -32,10 +37,10 @@ Acesse o site oficial da Raylib:
 
 ### 3. Compile o jogo
 
-Abra o terminal `w64devkit` e digite duas vezes no diretório do seu jogo:
+Abra o terminal `w64devkit` e digite os comandos no diretório do jogo:
 
 ```bash
+make
 make run
 ```
-
 
