@@ -5,7 +5,7 @@
 #include "cJSON.h"
 #include "gemini.h"
 
-#define API_KEY "AIzaSyAkemfBmv9bedIy-mrNx8tG_S_mw7jxxjM"
+#define API_KEY "AIzaSyAxKRWOn9tkbhCrypd95ilUlXAUhKpWFBg"
 #define MAX_RESPOSTA  1024
 
 typedef struct {
@@ -54,7 +54,7 @@ void respt(const char *prompt, char *out) {
 
     const char *url =
         "https://generativelanguage.googleapis.com/"
-        "v1beta/models/gemini-1.5-flash-latest:generateContent?key=" API_KEY;
+        "v1beta/models/gemini-2.5-flash:generateContent?key=" API_KEY;
 
     struct curl_slist *hdrs = NULL;
     hdrs = curl_slist_append(hdrs, "Content-Type: application/json; charset=utf-8");
