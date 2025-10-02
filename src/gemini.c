@@ -54,7 +54,7 @@ void respt(const char *prompt, char *out) {
 
     const char *url =
         "https://generativelanguage.googleapis.com/"
-        "v1beta/models/gemini-2.5-flash:generateContent?key=" API_KEY;
+        "v1beta/models/gemini-2.5-flash-lite:generateContent?key=" API_KEY;
 
     struct curl_slist *hdrs = NULL;
     hdrs = curl_slist_append(hdrs, "Content-Type: application/json; charset=utf-8");
