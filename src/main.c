@@ -47,6 +47,8 @@
 #define SPECIAL_NOTE_FIRE 1
 #define SPECIAL_NOTE_POISON 2
 #define SPECIAL_NOTE_INVISIBLE 3
+#define MAX_CUTSCENES 5
+#define CUTSCENE_DURATION 5.0f
 
 typedef struct {
     int score;
@@ -69,6 +71,14 @@ typedef struct {
     int rhythmShields;
 } GameStats;
 
+// Estrutura para representar uma cutscene
+typedef struct {
+    Texture2D image;
+    const char* text;
+    float duration;
+    bool shown;
+} Cutscene;
+
 typedef struct {
     char title[50];
     char artist[50];
@@ -88,6 +98,7 @@ typedef struct {
 
 typedef enum {
     MAIN_MENU,
+    CUTSCENE,
     SONG_SELECT,
     PLAYING,
     MAPAS,
@@ -127,6 +138,9 @@ typedef struct {
     int keyboardKey;
     int gamepadButton;
 } ControlScheme;
+
+// Array de cutscenes
+Cutscene cutscenes[MAX_CUTSCENES];
 
 ControlScheme defaultControls[NUM_LANES] = {
     {KEY_A, GAMEPAD_BUTTON_LEFT_TRIGGER_2},   // Lane 1 (L2 no PS4)
@@ -189,7 +203,7 @@ Song songs[MAX_SONGS] = {
         {"Bring Me To Life","Evanescence",{},"assets/musics/bring_me_to_life.mp3",140.0f,3},
         {"Carry On Wayward Son", "Kansas", {}, "assets/musics/carry_on.mp3", 124.172f, 3},
         {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 126.18f, 4},
-        {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 0.0f, 4},
+        {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 85.0f, 4},
         {"Toxicity","System of a Down",{},"assets/musics/toxicity.mp3",169.0f,4},
         {"The Trooper","Iron Maiden",{},"assets/musics/trooper.mp3",97.8397f,5}};
 
@@ -221,6 +235,18 @@ float comboModeTimer = 0.0f;
 float invisibleModeTimer = 0.0f;
 float noteSpeedMultiplier = 1.0f;
 int currentMapIndex = 1;
+
+// Variáveis para controle da cutscene atual
+int currentCutscene = -1;
+float cutsceneTimer2 = 0.0f;
+bool inCutscene = false;
+
+// Protótipos das novas funções
+void InitializeCutscenes();
+void StartCutscene(int cutsceneIndex, GameState* gameState);
+void UpdateCutscene(GameState* gameState);
+void DrawCutscene(Font mainFont);
+void UnloadCutscenes();
 
 // Inicializa os charts das musicas
 void initSongs();
@@ -325,6 +351,7 @@ int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ROCK HERO");
     InitAudioDevice();
     initSongs();
+    InitializeCutscenes();
     LoadMap1BackgroundFrames();
     LoadMap2BackgroundFrames();
     LoadMap3BackgroundFrames();
@@ -508,6 +535,10 @@ int main(void) {
                         if (player.fama >= 40) {
                             fameWarning.active = true;
                             fameWarning.timer = 0;
+                        } else if (!cutscenes[1].shown) {
+                            selectedSong = 0;
+                            scrollOffset = 0;
+                            StartCutscene(1, &gameState);
                         } else {
                             selectedSong = 0;
                             scrollOffset = 0;
@@ -524,6 +555,8 @@ int main(void) {
                         if (IsKeyPressed(KEY_O) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
                             ShowTempWarning("Voce precisa de pelo menos 30 de fama!", 2.0f);
                         }
+                    } else if (!cutscenes[3].shown) {
+                        StartCutscene(3, &gameState);
                     } else if (IsKeyPressed(KEY_O) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
                         if (player.fama >= 70) {
                             fameWarning.active = true;
@@ -544,7 +577,9 @@ int main(void) {
                         if (IsKeyPressed(KEY_O) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
                             ShowTempWarning("Voce precisa de pelo menos 60 de fama!", 2.0f);
                         }
-                    } else if (IsKeyPressed(KEY_O) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
+                    } else if (!cutscenes[4].shown) {
+                        StartCutscene(4, &gameState);
+                    }  else if (IsKeyPressed(KEY_O) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
                         selectedSong = 7;
                         scrollOffset = 0;
                         gameState = SONG_SELECT;  // Prossegue direto
@@ -581,6 +616,7 @@ int main(void) {
         }
 
         switch (gameState) {
+
             case MAIN_MENU: {
                 UpdateMusicStream(menuMusic);
                 if (IsKeyPressed(KEY_ENTER) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
@@ -591,7 +627,8 @@ int main(void) {
                             PlayMusicStream(map1Music);
                             InitPlayer(&player);
                             InitFameSystem(&player);
-                            gameState = MAPAS;
+                            // Inicia a cutscene 1 ao começar a história
+                            StartCutscene(0, &gameState);
                             break;
 
                         case MENU_QUICKPLAY:
@@ -613,6 +650,10 @@ int main(void) {
                             break;
                     }
                 }
+            } break;
+
+            case CUTSCENE: {
+                    UpdateCutscene(&gameState);
             } break;
 
             case SONG_SELECT: {
@@ -1136,6 +1177,8 @@ int main(void) {
                             cutsceneState = 0;
                             cutsceneTimer = 0;
                             gameState = CHALLENGE;
+                        } else if (currentMap->mapId == 1 && !cutscenes[2].shown && !stats.songFailed) {
+                            StartCutscene(2, &gameState);
                         } else
                             gameState = BLESS;
                     }
@@ -1259,6 +1302,10 @@ int main(void) {
                                   MeasureTextEx(mainFont, instructionText, 25, 2).x / 2,
                                   screenHeight - 50},
                         25, 2, GRAY);
+            } break;
+
+            case CUTSCENE: {
+                    DrawCutscene(GetFontDefault());
             } break;
 
             case SONG_SELECT: {
@@ -2726,6 +2773,8 @@ int main(void) {
     UnloadMap1BackgroundFrames();
     UnloadMap2BackgroundFrames();
     UnloadMap3BackgroundFrames();
+    UnloadCutscenes();
+
     if (mapList != NULL) {
         MapNode* current = mapList;
         do {
@@ -3651,6 +3700,126 @@ void UnloadMap3BackgroundFrames() {
     for (int i = 0; i < MAX_MAP1_FRAMES; i++) {
         if (map3Frames[i].id != 0) {
             UnloadTexture(map3Frames[i]);
+        }
+    }
+}
+
+void InitializeCutscenes() {
+    // Cutscene 1: O Chamado as Armas (inicio do modo historia)
+    cutscenes[0].image = LoadTexture("assets/cutscenes/cutscene1.png"); // Imagem do The Muddy Pickup
+    cutscenes[0].text = "Bem-vindo ao fundo do poco, Aspirante. O Muddy Pickup e onde as lendas\nse sujam e os sonhos se afogam. Voce tem a atitude, mas atitude nao paga\nas contas. Por aqui, apenas uma coisa move a agulha: FAMA.\n\nVoce precisa ficar tao famoso, tao inegavel, que o proprio Deus do Rock\nseja forcado a atender ao chamado. Va fazer barulho.";
+    cutscenes[0].duration = 35.0f;
+    cutscenes[0].shown = false;
+
+    // Cutscene 2: O Fogo da Performance (antes do primeiro show)
+    cutscenes[1].image = LoadTexture("assets/cutscenes/cutscene2.png"); // Imagem do palco vazio
+    cutscenes[1].text = "TECNICA DE SOM: Antes de subir no palco, voce precisa entender o pulso do local. Nao e sobre o quao alto voce toca;\ne sobre o quanto eles acreditam.\n\nEnquanto voce estiver tocando aparecera um medidor na tela, esse e o Rock Meter. Nao e sua barra de saude; e a Fe da plateia. \nCada nota perfeita o recarrega; Voce erra? Voce perde o ritmo? A fe deles se esvai rapidamente. Mantenha esse medidor cheio.\nNao deixe a crenca deles cair a zero, ou acabou o show.";
+    cutscenes[1].duration = 40.0f;
+    cutscenes[1].shown = false;
+
+    // Cutscene 3: A Centelha da Lenda (apos primeira musica)
+    cutscenes[2].image = LoadTexture("assets/cutscenes/cutscene3.png"); // Imagem do gerente
+    cutscenes[2].text = "GERENTE: Bom som, garoto. Mas o som nao dura. Lendas precisam de destino escrito em seus contratos. Voce conquistou seu primeiro\nvislumbre do poder real. Fama nao e apenas um numero. Em certos marcos, o universo concede a voce uma Blessing of Rock. \n\nMais tarde, quando for famoso o suficiente, voce desbloqueara diversas habilidades. Nesse momento voce deixa de ser um musico e passa\na ser uma forca da natureza. Escolha sabiamente; quanto mais alto voce sobe, mais dificeis sao as escolhas.";
+    cutscenes[2].duration = 45.0f;
+    cutscenes[2].shown = false;
+
+    // Cutscene 4: O Som do Sucesso (transicao para mapa 2)
+    cutscenes[3].image = LoadTexture("assets/cutscenes/cutscene4.png"); // Imagem do The Chrome Hall
+    cutscenes[3].text = "O ar aqui e eletrico, mais rarefeito. Nao ha mais murmurios de um pequeno bar; este e o som de milhares de criticos. \nCada palco e um passo mais perto do Deus do Rock, mas tambem um passo mais alto no pedestal.\n\nVoce esta pronto para o holofote, ou apenas para o calor?";
+    cutscenes[3].duration = 30.0f;
+    cutscenes[3].shown = false;
+
+    // Cutscene 5: Os Portoes do Olimpo (transicao para mapa 3)
+    cutscenes[4].image = LoadTexture("assets/cutscenes/cutscene5.png"); // Imagem do templo do rock
+    cutscenes[4].text = "Jotaro: Voce conseguiu, Aspirante. O caminho e circular, permitindo que os pequenos retornem, mas voce alcancou o apice. \nEste e o ultimo palco antes do acerto de contas.\n\nO Deus do Rock nao toca musica; ele dita o destino. Sua sinfonia final de puro caos completamente aleatoria, totalmente injusta.\nToda essa Fama, todos esses palcos, foram apenas instrumentos para aprimorar sua arma: suas Blessings.\n\nVa agora... Atinja o maximo de fama porque quando as cortinas se levantarem, nenhum roteiro podera salva-lo.";
+    cutscenes[4].duration = 45.0f;
+    cutscenes[4].shown = false;
+}
+
+void StartCutscene(int cutsceneIndex, GameState* gameState) {
+    if (cutsceneIndex >= 0 && cutsceneIndex < MAX_CUTSCENES && !cutscenes[cutsceneIndex].shown) {
+        currentCutscene = cutsceneIndex;
+        cutsceneTimer = 0.0f;
+        inCutscene = true;
+        *gameState = CUTSCENE;
+        cutscenes[cutsceneIndex].shown = true;
+    }
+}
+
+void UpdateCutscene(GameState* gameState) {
+    if (inCutscene) {
+        cutsceneTimer2 += GetFrameTime();
+
+        // Avança a cutscene com qualquer tecla ou após o tempo determinado
+        if (cutsceneTimer2 >= cutscenes[currentCutscene].duration ||
+            IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER) ||
+            IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
+
+            inCutscene = false;
+
+            *gameState = MAPAS;
+
+        }
+    }
+}
+
+void DrawCutscene(Font mainFont) {
+    if (inCutscene && currentCutscene >= 0) {
+        Cutscene current = cutscenes[currentCutscene];
+
+        // Normaliza tempo da cutscene
+        float elapsed = cutsceneTimer2;
+        float duration = current.duration;
+        float progress = elapsed / (duration - 10.0f);
+
+        // FADE IN/OUT suave
+        float fadeAlpha = 1.0f;
+        if (elapsed < 1.0f) fadeAlpha = elapsed;              // 1s fade in
+        else if (elapsed > duration - 1.0f) fadeAlpha = duration - elapsed; // 1s fade out
+        if (fadeAlpha < 0.0f) fadeAlpha = 0.0f;
+
+        // Imagem ocupando a tela toda (scaled)
+        float scaleX = (float)SCREEN_WIDTH / current.image.width;
+        float scaleY = (float)SCREEN_HEIGHT / current.image.height;
+        float scale = fmaxf(scaleX, scaleY); // cobre toda a tela
+        DrawTextureEx(current.image, (Vector2){0, 0}, 0.0f, scale, Fade(WHITE, fadeAlpha));
+
+        // Caixa de diálogo na parte inferior
+        int boxHeight = 220;
+        int margin = 40;
+        Rectangle dialogBox = { margin, SCREEN_HEIGHT - boxHeight - margin, SCREEN_WIDTH - margin*2, boxHeight };
+
+        DrawRectangleRounded(dialogBox, 0.1f, 8, Fade(BLACK, 0.5f * fadeAlpha));
+        DrawRectangleRoundedLines(dialogBox, 0.1f, 8, Fade(GOLD, fadeAlpha));
+
+        // Texto com efeito "typewriter"
+        int totalChars = strlen(current.text);
+        int charsToShow = (int)(progress * totalChars); // letras reveladas pelo progresso
+
+        char buffer[2048];
+        if (charsToShow > totalChars) charsToShow = totalChars;
+        strncpy(buffer, current.text, charsToShow);
+        buffer[charsToShow] = '\0';
+
+        DrawTextEx(mainFont, buffer,
+            (Vector2){ dialogBox.x + 20, dialogBox.y + 20 },
+            26, 2, Fade(WHITE, fadeAlpha));
+
+        // "Pressione para continuar" piscando
+        float alpha = 0.5f + sin(GetTime() * 5) * 0.5f;
+        if (charsToShow >= totalChars - 1) { // só aparece quando o texto acabou
+            DrawTextEx(mainFont, "Pressione SPACE/ENTER para continuar",
+                (Vector2){ SCREEN_WIDTH - 420, SCREEN_HEIGHT - 40 },
+                20, 1, Fade(WHITE, alpha * fadeAlpha));
+        }
+    }
+}
+
+
+void UnloadCutscenes() {
+    for (int i = 0; i < MAX_CUTSCENES; i++) {
+        if (cutscenes[i].image.id != 0) {
+            UnloadTexture(cutscenes[i].image);
         }
     }
 }
