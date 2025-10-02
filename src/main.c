@@ -3739,7 +3739,7 @@ void InitializeCutscenes() {
 void StartCutscene(int cutsceneIndex, GameState* gameState) {
     if (cutsceneIndex >= 0 && cutsceneIndex < MAX_CUTSCENES && !cutscenes[cutsceneIndex].shown) {
         currentCutscene = cutsceneIndex;
-        cutsceneTimer = 0.0f;
+        cutsceneTimer2 = 0.0f;
         inCutscene = true;
         *gameState = CUTSCENE;
         cutscenes[cutsceneIndex].shown = true;
