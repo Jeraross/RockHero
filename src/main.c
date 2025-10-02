@@ -203,7 +203,7 @@ Song songs[MAX_SONGS] = {
         {"Bring Me To Life","Evanescence",{},"assets/musics/bring_me_to_life.mp3",140.0f,3},
         {"Carry On Wayward Son", "Kansas", {}, "assets/musics/carry_on.mp3", 124.172f, 3},
         {"Enter Sandman", "Metallica", {}, "assets/musics/sandman.mp3", 126.18f, 4},
-        {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 85.0f, 4},
+        {"Thunderstruck", "AC/DC", {}, "assets/musics/thunderstruck.mp3", 164.0f, 5},
         {"Toxicity","System of a Down",{},"assets/musics/toxicity.mp3",169.0f,4},
         {"The Trooper","Iron Maiden",{},"assets/musics/trooper.mp3",97.8397f,5}};
 

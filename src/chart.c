@@ -4,429 +4,390 @@
 
 #include "chart.h"
 
+// Versão FRENÉTICA FINAL de "Thunderstruck"
+// Segunda metade do chart refeita para replicar a intensidade e complexidade da primeira.
 Note Thunder[CHART_SIZE] = {
-    // Opening riff (16th notes at ~130 BPM)
-    {.lane = 0, .spawnTime = 1.0f},
-    {.lane = 2, .spawnTime = 1.15f},
-    {.lane = 1, .spawnTime = 1.3f},
-    {.lane = 3, .spawnTime = 1.45f},
-
-    {.lane = 0, .spawnTime = 2.0f},
-    {.lane = 2, .spawnTime = 2.15f},
-    {.lane = 1, .spawnTime = 2.3f},
-    {.lane = 3, .spawnTime = 2.45f},
-
-    // Repeat with variation
-    {.lane = 0, .spawnTime = 3.0f},
-    {.lane = 2, .spawnTime = 3.15f},
-    {.lane = 1, .spawnTime = 3.3f},
-    {.lane = 3, .spawnTime = 3.45f},
-
-    {.lane = 0, .spawnTime = 4.0f},
-    {.lane = 1, .spawnTime = 4.15f},
-    {.lane = 2, .spawnTime = 4.3f},
-    {.lane = 3, .spawnTime = 4.45f},
-    {.lane = 0, .spawnTime = 5.0f},
-    {.lane = 2, .spawnTime = 5.15f},
-    {.lane = 1, .spawnTime = 5.3f},
-    {.lane = 3, .spawnTime = 5.45f},
-
-    {.lane = 0, .spawnTime = 6.0f},
-    {.lane = 2, .spawnTime = 6.15f},
-    {.lane = 1, .spawnTime = 6.3f},
-    {.lane = 3, .spawnTime = 6.45f},
-
-    {.lane = 0, .spawnTime = 7.0f},
-    {.lane = 1, .spawnTime = 7.15f},
-    {.lane = 2, .spawnTime = 7.3f},
-    {.lane = 3, .spawnTime = 7.45f},
-
-    {.lane = 0, .spawnTime = 8.0f},
-    {.lane = 2, .spawnTime = 8.15f},
-    {.lane = 1, .spawnTime = 8.3f},
-    {.lane = 3, .spawnTime = 8.45f},
-
-    // Pequena quebra para preparação do verso
-    {.lane = 1, .spawnTime = 9.0f},
-    {.lane = 1, .spawnTime = 9.3f},
-    {.lane = 2, .spawnTime = 9.6f},
-
-    // Refrão forte (acordes simultâneos)
-    {.lane = 0, .spawnTime = 10.0f},
-    {.lane = 1, .spawnTime = 10.0f},
-    {.lane = 2, .spawnTime = 10.5f},
-    {.lane = 3, .spawnTime = 10.5f},
-
-    {.lane = 0, .spawnTime = 11.0f},
-    {.lane = 1, .spawnTime = 11.0f},
-    {.lane = 2, .spawnTime = 11.5f},
-    {.lane = 3, .spawnTime = 11.5f},
-
-    {.lane = 1, .spawnTime = 12.0f},
-    {.lane = 3, .spawnTime = 12.15f},
-    {.lane = 2, .spawnTime = 12.3f},
-    {.lane = 0, .spawnTime = 12.45f},
-
-    // Riff retorna (com nova combinação)
-    {.lane = 0, .spawnTime = 13.0f},
-    {.lane = 2, .spawnTime = 13.15f},
-    {.lane = 1, .spawnTime = 13.3f},
-    {.lane = 3, .spawnTime = 13.45f},
-
-    {.lane = 0, .spawnTime = 14.0f},
-    {.lane = 1, .spawnTime = 14.15f},
-    {.lane = 2, .spawnTime = 14.3f},
-    {.lane = 3, .spawnTime = 14.45f},
-
-    // Transição
-    {.lane = 1, .spawnTime = 15.0f},
-    {.lane = 1, .spawnTime = 15.2f},
-    {.lane = 1, .spawnTime = 15.4f},
-
-    // Solo de guitarra – notas rápidas
-    {.lane = 2, .spawnTime = 16.0f},
-    {.lane = 2, .spawnTime = 16.1f},
-    {.lane = 3, .spawnTime = 16.2f},
-    {.lane = 1, .spawnTime = 16.3f},
-    {.lane = 2, .spawnTime = 16.4f},
-    {.lane = 3, .spawnTime = 16.5f},
-    {.lane = 0, .spawnTime = 16.6f},
-    {.lane = 1, .spawnTime = 16.7f},
-
-    // Riff volta com intensidade
-    {.lane = 0, .spawnTime = 20.0f},
-    {.lane = 2, .spawnTime = 20.15f},
-    {.lane = 1, .spawnTime = 20.3f},
-    {.lane = 3, .spawnTime = 20.45f},
-
-    // Continuação do chart após o .spawnTime = 20.45f
-    {.lane = 0, .spawnTime = 20.6f},
-    {.lane = 1, .spawnTime = 20.75f},
-    {.lane = 2, .spawnTime = 20.9f},
-    {.lane = 3, .spawnTime = 21.05f},
-
-    {.lane = 1, .spawnTime = 21.2f},
-    {.lane = 0, .spawnTime = 21.35f},
-    {.lane = 2, .spawnTime = 21.5f},
-    {.lane = 3, .spawnTime = 21.65f},
-
-    {.lane = 0, .spawnTime = 21.8f},
-    {.lane = 2, .spawnTime = 21.95f},
-    {.lane = 1, .spawnTime = 22.1f},
-    {.lane = 3, .spawnTime = 22.25f},
-
-    {.lane = 0, .spawnTime = 22.4f},
-    {.lane = 1, .spawnTime = 22.55f},
-    {.lane = 2, .spawnTime = 22.7f},
-    {.lane = 3, .spawnTime = 22.85f},
-
-    // Mini pausa rítmica
-    {.lane = 1, .spawnTime = 23.5f},
-    {.lane = 2, .spawnTime = 23.7f},
-    {.lane = 1, .spawnTime = 23.9f},
-
-    // Acordes simultâneos
-    {.lane = 0, .spawnTime = 24.5f},
-    {.lane = 1, .spawnTime = 24.5f},
-    {.lane = 2, .spawnTime = 25.0f},
-    {.lane = 3, .spawnTime = 25.0f},
-
-    {.lane = 0, .spawnTime = 25.5f},
-    {.lane = 1, .spawnTime = 25.5f},
-    {.lane = 2, .spawnTime = 26.0f},
-    {.lane = 3, .spawnTime = 26.0f},
-
-    // Novo riff (mais rápido)
-    {.lane = 2, .spawnTime = 27.0f},
-    {.lane = 3, .spawnTime = 27.1f},
-    {.lane = 2, .spawnTime = 27.2f},
-    {.lane = 3, .spawnTime = 27.3f},
-    {.lane = 2, .spawnTime = 27.4f},
-    {.lane = 3, .spawnTime = 27.5f},
-    {.lane = 1, .spawnTime = 27.6f},
-    {.lane = 0, .spawnTime = 27.7f},
-
-    {.lane = 1, .spawnTime = 28.0f},
-    {.lane = 2, .spawnTime = 28.15f},
-    {.lane = 3, .spawnTime = 28.3f},
-    {.lane = 0, .spawnTime = 28.45f},
-
-    {.lane = 0, .spawnTime = 29.0f},
-    {.lane = 1, .spawnTime = 29.15f},
-    {.lane = 2, .spawnTime = 29.3f},
-    {.lane = 3, .spawnTime = 29.45f},
-
-    // Destaque no refrão com quebra de padrão
-    {.lane = 0, .spawnTime = 30.0f},
-    {.lane = 1, .spawnTime = 30.0f},
-    {.lane = 2, .spawnTime = 30.25f},
-    {.lane = 3, .spawnTime = 30.25f},
-
-    {.lane = 0, .spawnTime = 30.5f},
-    {.lane = 2, .spawnTime = 30.65f},
-    {.lane = 1, .spawnTime = 30.8f},
-    {.lane = 3, .spawnTime = 30.95f},
-
-    {.lane = 0, .spawnTime = 31.1f},
-    {.lane = 1, .spawnTime = 31.25f},
-    {.lane = 2, .spawnTime = 31.4f},
-    {.lane = 3, .spawnTime = 31.55f},
-
-    // Solo – aumento de densidade
-    {.lane = 1, .spawnTime = 32.0f},
-    {.lane = 2, .spawnTime = 32.1f},
-    {.lane = 1, .spawnTime = 32.2f},
-    {.lane = 2, .spawnTime = 32.3f},
-    {.lane = 3, .spawnTime = 32.4f},
-    {.lane = 0, .spawnTime = 32.5f},
-    {.lane = 3, .spawnTime = 32.6f},
-    {.lane = 1, .spawnTime = 32.7f},
-
-    // Clímax e retorno do riff
-    {.lane = 0, .spawnTime = 33.0f},
-    {.lane = 2, .spawnTime = 33.15f},
-    {.lane = 1, .spawnTime = 33.3f},
-    {.lane = 3, .spawnTime = 33.45f},
-
-    {.lane = 0, .spawnTime = 34.0f},
-    {.lane = 1, .spawnTime = 34.15f},
-    {.lane = 2, .spawnTime = 34.3f},
-    {.lane = 3, .spawnTime = 34.45f},
-
-    // Adiciona groove
-    {.lane = 1, .spawnTime = 35.0f},
-    {.lane = 3, .spawnTime = 35.15f},
-    {.lane = 1, .spawnTime = 35.3f},
-    {.lane = 0, .spawnTime = 35.45f},
-
-    // Trecho mais "calmo"
-    {.lane = 2, .spawnTime = 36.0f},
-    {.lane = 3, .spawnTime = 36.3f},
-    {.lane = 1, .spawnTime = 36.6f},
-    {.lane = 0, .spawnTime = 36.9f},
-
-    // Reentrada no solo com velocidade
-    {.lane = 0, .spawnTime = 37.0f},
-    {.lane = 1, .spawnTime = 37.1f},
-    {.lane = 2, .spawnTime = 37.2f},
-    {.lane = 3, .spawnTime = 37.3f},
-    {.lane = 0, .spawnTime = 37.4f},
-    {.lane = 1, .spawnTime = 37.5f},
-    {.lane = 2, .spawnTime = 37.6f},
-    {.lane = 3, .spawnTime = 37.7f},
-
-    // Seção final do bloco (até ~50s)
-    {.lane = 0, .spawnTime = 39.0f},
-    {.lane = 2, .spawnTime = 39.15f},
-    {.lane = 1, .spawnTime = 39.3f},
-    {.lane = 3, .spawnTime = 39.45f},
-
-    {.lane = 0, .spawnTime = 40.0f},
-    {.lane = 2, .spawnTime = 40.15f},
-    {.lane = 1, .spawnTime = 40.3f},
-    {.lane = 3, .spawnTime = 40.45f},
-
-    // Sobe tensão até 50s
-    {.lane = 0, .spawnTime = 42.0f},
-    {.lane = 1, .spawnTime = 42.15f},
-    {.lane = 2, .spawnTime = 42.3f},
-    {.lane = 3, .spawnTime = 42.45f},
-
-    {.lane = 0, .spawnTime = 43.0f},
-    {.lane = 1, .spawnTime = 43.15f},
-    {.lane = 2, .spawnTime = 43.3f},
-    {.lane = 3, .spawnTime = 43.45f},
-
-    {.lane = 0, .spawnTime = 45.0f},
-    {.lane = 1, .spawnTime = 45.1f},
-    {.lane = 2, .spawnTime = 45.2f},
-    {.lane = 3, .spawnTime = 45.3f},
-
-    {.lane = 0, .spawnTime = 47.0f},
-    {.lane = 1, .spawnTime = 47.15f},
-    {.lane = 2, .spawnTime = 47.3f},
-    {.lane = 3, .spawnTime = 47.45f},
-
-    {.lane = 1, .spawnTime = 49.0f},
-    {.lane = 2, .spawnTime = 49.15f},
-    {.lane = 3, .spawnTime = 49.3f},
-    {.lane = 0, .spawnTime = 49.45f},
-
-    {.lane = 0, .spawnTime = 50.0f},
+    // === PRIMEIRA PARTE (0s - 79s) - Alta Densidade Mantida ===
+    {.lane = 1, .spawnTime = 1.0f}, {.lane = 2, .spawnTime = 1.125f}, {.lane = 1, .spawnTime = 1.25f}, {.lane = 2, .spawnTime = 1.375f},
+    {.lane = 4, .spawnTime = 1.5f}, {.lane = 0, .spawnTime = 1.625f},
+    {.lane = 1, .spawnTime = 1.75f}, {.lane = 2, .spawnTime = 1.875f},
+    {.lane = 4, .spawnTime = 2.25f}, {.lane = 0, .spawnTime = 2.375f},
+    {.lane = 1, .spawnTime = 2.5f}, {.lane = 2, .spawnTime = 2.625f}, {.lane = 1, .spawnTime = 2.75f}, {.lane = 2, .spawnTime = 2.875f},
+    {.lane = 4, .spawnTime = 3.0f}, {.lane = 0, .spawnTime = 3.125f},
+    {.lane = 1, .spawnTime = 3.25f}, {.lane = 2, .spawnTime = 3.375f},
+    {.lane = 4, .spawnTime = 3.75f}, {.lane = 0, .spawnTime = 3.875f},
+    {.lane = 1, .spawnTime = 4.0f}, {.lane = 2, .spawnTime = 4.125f}, {.lane = 1, .spawnTime = 4.25f}, {.lane = 2, .spawnTime = 4.375f},
+    {.lane = 0, .spawnTime = 4.5f}, {.lane = 4, .spawnTime = 4.5f},
+    {.lane = 1, .spawnTime = 4.75f}, {.lane = 2, .spawnTime = 4.875f},
+    {.lane = 1, .spawnTime = 5.5f}, {.lane = 2, .spawnTime = 5.625f}, {.lane = 1, .spawnTime = 5.75f}, {.lane = 2, .spawnTime = 5.875f},
+    {.lane = 0, .spawnTime = 6.0f}, {.lane = 4, .spawnTime = 6.0f},
+    {.lane = 1, .spawnTime = 6.25f}, {.lane = 3, .spawnTime = 6.5f}, {.lane = 1, .spawnTime = 6.75f},
+    {.lane = 0, .spawnTime = 7.0f}, {.lane = 1, .spawnTime = 7.15f}, {.lane = 2, .spawnTime = 7.3f}, {.lane = 3, .spawnTime = 7.45f},
+    {.lane = 4, .spawnTime = 7.5f},
+    {.lane = 0, .spawnTime = 7.65f}, {.lane = 1, .spawnTime = 7.8f}, {.lane = 2, .spawnTime = 7.95f},
+    {.lane = 4, .spawnTime = 8.2f}, {.lane = 3, .spawnTime = 8.5f}, {.lane = 2, .spawnTime = 8.65f}, {.lane = 1, .spawnTime = 8.8f},
+    {.lane = 4, .spawnTime = 9.0f}, {.lane = 0, .spawnTime = 9.25f}, {.lane = 4, .spawnTime = 9.5f},
+    {.lane = 0, .spawnTime = 10.0f}, {.lane = 2, .spawnTime = 10.0f}, {.lane = 4, .spawnTime = 10.0f},
+    {.lane = 1, .spawnTime = 10.5f}, {.lane = 3, .spawnTime = 10.5f},
+    {.lane = 4, .spawnTime = 10.75f},
+    {.lane = 0, .spawnTime = 11.0f}, {.lane = 2, .spawnTime = 11.0f}, {.lane = 4, .spawnTime = 11.0f},
+    {.lane = 1, .spawnTime = 11.5f}, {.lane = 3, .spawnTime = 11.5f},
+    {.lane = 4, .spawnTime = 11.75f},
+    {.lane = 1, .spawnTime = 12.0f}, {.lane = 2, .spawnTime = 12.125f}, {.lane = 1, .spawnTime = 12.25f}, {.lane = 2, .spawnTime = 12.375f},
+    {.lane = 4, .spawnTime = 12.5f},
+    {.lane = 1, .spawnTime = 13.0f}, {.lane = 2, .spawnTime = 13.125f}, {.lane = 1, .spawnTime = 13.25f},
+    {.lane = 4, .spawnTime = 13.5f},
+    {.lane = 0, .spawnTime = 14.0f}, {.lane = 1, .spawnTime = 14.15f}, {.lane = 2, .spawnTime = 14.3f}, {.lane = 3, .spawnTime = 14.45f},
+    {.lane = 4, .spawnTime = 14.6f},
+    {.lane = 0, .spawnTime = 14.8f}, {.lane = 1, .spawnTime = 14.95f},
+    {.lane = 4, .spawnTime = 15.2f}, {.lane = 2, .spawnTime = 15.65f}, {.lane = 4, .spawnTime = 16.1f}, {.lane = 0, .spawnTime = 16.3f},
+    {.lane = 2, .spawnTime = 16.55f},
+    {.lane = 1, .spawnTime = 17.0f}, {.lane = 2, .spawnTime = 17.15f}, {.lane = 3, .spawnTime = 17.3f}, {.lane = 2, .spawnTime = 17.45f},
+    {.lane = 4, .spawnTime = 17.6f},
+    {.lane = 1, .spawnTime = 18.0f}, {.lane = 2, .spawnTime = 18.15f}, {.lane = 3, .spawnTime = 18.3f}, {.lane = 0, .spawnTime = 18.45f},
+    {.lane = 4, .spawnTime = 18.6f},
+    {.lane = 2, .spawnTime = 19.0f}, {.lane = 4, .spawnTime = 19.45f}, {.lane = 2, .spawnTime = 19.9f},
+    {.lane = 0, .spawnTime = 20.0f}, {.lane = 2, .spawnTime = 20.15f}, {.lane = 1, .spawnTime = 20.3f}, {.lane = 3, .spawnTime = 20.45f},
+    {.lane = 4, .spawnTime = 20.5f},
+    {.lane = 0, .spawnTime = 20.6f}, {.lane = 1, .spawnTime = 20.75f}, {.lane = 2, .spawnTime = 20.9f}, {.lane = 3, .spawnTime = 21.05f},
+    {.lane = 4, .spawnTime = 21.2f},
+    {.lane = 1, .spawnTime = 21.35f}, {.lane = 0, .spawnTime = 21.5f}, {.lane = 2, .spawnTime = 21.65f}, {.lane = 3, .spawnTime = 21.8f},
+    {.lane = 4, .spawnTime = 22.0f}, {.lane = 2, .spawnTime = 22.45f}, {.lane = 4, .spawnTime = 22.9f},
+    {.lane = 1, .spawnTime = 23.5f}, {.lane = 3, .spawnTime = 23.75f},
+    {.lane = 4, .spawnTime = 24.0f}, {.lane = 2, .spawnTime = 24.45f}, {.lane = 4, .spawnTime = 24.9f},
+    {.lane = 0, .spawnTime = 25.5f}, {.lane = 1, .spawnTime = 25.75f},
+    {.lane = 4, .spawnTime = 26.0f}, {.lane = 2, .spawnTime = 26.45f},
+    {.lane = 2, .spawnTime = 27.0f}, {.lane = 3, .spawnTime = 27.1f}, {.lane = 2, .spawnTime = 27.2f}, {.lane = 3, .spawnTime = 27.3f},
+    {.lane = 1, .spawnTime = 27.4f}, {.lane = 0, .spawnTime = 27.5f}, {.lane = 4, .spawnTime = 27.6f},
+    {.lane = 2, .spawnTime = 28.0f}, {.lane = 4, .spawnTime = 28.45f}, {.lane = 2, .spawnTime = 28.9f},
+    {.lane = 0, .spawnTime = 30.0f}, {.lane = 2, .spawnTime = 30.0f}, {.lane = 4, .spawnTime = 30.0f},
+    {.lane = 1, .spawnTime = 30.25f}, {.lane = 3, .spawnTime = 30.25f},
+    {.lane = 0, .spawnTime = 30.5f}, {.lane = 2, .spawnTime = 30.65f}, {.lane = 1, .spawnTime = 30.8f}, {.lane = 3, .spawnTime = 30.95f},
+    {.lane = 4, .spawnTime = 31.5f},
+    {.lane = 1, .spawnTime = 32.0f}, {.lane = 2, .spawnTime = 32.1f}, {.lane = 1, .spawnTime = 32.2f}, {.lane = 3, .spawnTime = 32.3f},
+    {.lane = 2, .spawnTime = 32.4f}, {.lane = 3, .spawnTime = 32.5f}, {.lane = 2, .spawnTime = 32.6f}, {.lane = 4, .spawnTime = 32.7f},
+    {.lane = 0, .spawnTime = 33.0f}, {.lane = 2, .spawnTime = 33.15f}, {.lane = 1, .spawnTime = 33.3f}, {.lane = 3, .spawnTime = 33.45f},
+    {.lane = 0, .spawnTime = 34.0f}, {.lane = 1, .spawnTime = 34.15f}, {.lane = 2, .spawnTime = 34.3f}, {.lane = 3, .spawnTime = 34.45f},
+    {.lane = 4, .spawnTime = 34.6f},
+    {.lane = 2, .spawnTime = 35.0f}, {.lane = 4, .spawnTime = 35.45f}, {.lane = 2, .spawnTime = 35.9f},
+    {.lane = 1, .spawnTime = 36.5f}, {.lane = 3, .spawnTime = 36.75f},
+    {.lane = 4, .spawnTime = 37.0f}, {.lane = 2, .spawnTime = 37.45f}, {.lane = 4, .spawnTime = 37.9f},
+    {.lane = 0, .spawnTime = 38.5f}, {.lane = 1, .spawnTime = 38.75f},
+    {.lane = 4, .spawnTime = 39.0f}, {.lane = 2, .spawnTime = 39.45f}, {.lane = 4, .spawnTime = 39.9f},
+    {.lane = 1, .spawnTime = 40.5f}, {.lane = 3, .spawnTime = 40.75f},
+    {.lane = 4, .spawnTime = 41.0f}, {.lane = 2, .spawnTime = 41.45f},
+    {.lane = 0, .spawnTime = 42.0f}, {.lane = 1, .spawnTime = 42.125f}, {.lane = 2, .spawnTime = 42.25f}, {.lane = 3, .spawnTime = 42.375f},
+    {.lane = 4, .spawnTime = 42.5f}, {.lane = 3, .spawnTime = 42.625f}, {.lane = 2, .spawnTime = 42.75f}, {.lane = 1, .spawnTime = 42.875f},
+    {.lane = 4, .spawnTime = 43.1f}, {.lane = 2, .spawnTime = 43.5f}, {.lane = 4, .spawnTime = 44.0f},
+    {.lane = 1, .spawnTime = 44.5f}, {.lane = 0, .spawnTime = 44.7f}, {.lane = 4, .spawnTime = 45.1f},
+    {.lane = 2, .spawnTime = 45.5f}, {.lane = 4, .spawnTime = 46.0f}, {.lane = 3, .spawnTime = 46.5f},
+    {.lane = 2, .spawnTime = 46.7f}, {.lane = 4, .spawnTime = 47.1f}, {.lane = 2, .spawnTime = 47.5f},
+    {.lane = 4, .spawnTime = 48.0f}, {.lane = 0, .spawnTime = 48.5f}, {.lane = 1, .spawnTime = 48.7f},
+    {.lane = 4, .spawnTime = 49.1f}, {.lane = 2, .spawnTime = 49.5f},
+    {.lane = 0, .spawnTime = 50.0f}, {.lane = 4, .spawnTime = 50.0f},
     {.lane = 1, .spawnTime = 50.15f},
-    {.lane = 2, .spawnTime = 50.3f},
+    {.lane = 2, .spawnTime = 50.3f}, {.lane = 4, .spawnTime = 50.3f},
     {.lane = 3, .spawnTime = 50.45f},
-
-    {.lane = 0, .spawnTime = 51.0f},
-    {.lane = 2, .spawnTime = 51.15f},
-    {.lane = 1, .spawnTime = 51.3f},
-    {.lane = 3, .spawnTime = 51.45f},
-
-    {.lane = 0, .spawnTime = 52.0f},
-    {.lane = 1, .spawnTime = 52.1f},
-    {.lane = 2, .spawnTime = 52.2f},
-    {.lane = 3, .spawnTime = 52.3f},
-
-    {.lane = 0, .spawnTime = 52.4f},
-    {.lane = 1, .spawnTime = 52.5f},
-    {.lane = 2, .spawnTime = 52.6f},
-    {.lane = 3, .spawnTime = 52.7f},
-
-    // Entra novo trecho com groove
-    {.lane = 1, .spawnTime = 53.0f},
-    {.lane = 3, .spawnTime = 53.2f},
-    {.lane = 0, .spawnTime = 53.4f},
-    {.lane = 2, .spawnTime = 53.6f},
-
-    // Notas pontuais
-    {.lane = 0, .spawnTime = 54.0f},
-    {.lane = 3, .spawnTime = 54.5f},
-    {.lane = 1, .spawnTime = 55.0f},
-    {.lane = 2, .spawnTime = 55.5f},
-
-    // Mini solo
-    {.lane = 0, .spawnTime = 56.0f},
-    {.lane = 1, .spawnTime = 56.1f},
-    {.lane = 2, .spawnTime = 56.2f},
-    {.lane = 3, .spawnTime = 56.3f},
-    {.lane = 2, .spawnTime = 56.5f},
-    {.lane = 3, .spawnTime = 56.7f},
-    {.lane = 1, .spawnTime = 56.9f},
-
-    // Retorno ao riff
-    {.lane = 0, .spawnTime = 57.5f},
-    {.lane = 1, .spawnTime = 57.65f},
-    {.lane = 2, .spawnTime = 57.8f},
-    {.lane = 3, .spawnTime = 57.95f},
-
-    {.lane = 1, .spawnTime = 58.1f},
-    {.lane = 2, .spawnTime = 58.25f},
-    {.lane = 3, .spawnTime = 58.4f},
-    {.lane = 0, .spawnTime = 58.55f},
-
-    // Alternância rápida
-    {.lane = 0, .spawnTime = 59.0f},
-    {.lane = 1, .spawnTime = 59.1f},
-    {.lane = 2, .spawnTime = 59.2f},
-    {.lane = 3, .spawnTime = 59.3f},
-    {.lane = 1, .spawnTime = 59.4f},
-    {.lane = 2, .spawnTime = 59.5f},
-    {.lane = 0, .spawnTime = 59.6f},
-    {.lane = 3, .spawnTime = 59.7f},
-
-    // Parte com variação melódica
-    {.lane = 1, .spawnTime = 60.2f},
-    {.lane = 2, .spawnTime = 60.4f},
-    {.lane = 3, .spawnTime = 60.6f},
-    {.lane = 0, .spawnTime = 60.8f},
-
-    {.lane = 2, .spawnTime = 61.0f},
-    {.lane = 3, .spawnTime = 61.15f},
-    {.lane = 2, .spawnTime = 61.3f},
-    {.lane = 3, .spawnTime = 61.45f},
-
-    {.lane = 0, .spawnTime = 62.0f},
-    {.lane = 1, .spawnTime = 62.15f},
-    {.lane = 2, .spawnTime = 62.3f},
-    {.lane = 3, .spawnTime = 62.45f},
-
-    // Pausa dramática
+    {.lane = 0, .spawnTime = 50.6f}, {.lane = 4, .spawnTime = 50.6f},
+    {.lane = 2, .spawnTime = 51.0f}, {.lane = 4, .spawnTime = 51.45f}, {.lane = 2, .spawnTime = 51.9f},
+    {.lane = 1, .spawnTime = 52.5f}, {.lane = 3, .spawnTime = 52.75f},
+    {.lane = 4, .spawnTime = 53.0f}, {.lane = 2, .spawnTime = 53.45f}, {.lane = 4, .spawnTime = 53.9f},
+    {.lane = 0, .spawnTime = 54.5f}, {.lane = 1, .spawnTime = 54.75f},
+    {.lane = 4, .spawnTime = 55.0f}, {.lane = 2, .spawnTime = 55.45f},
+    {.lane = 0, .spawnTime = 56.0f}, {.lane = 1, .spawnTime = 56.1f}, {.lane = 2, .spawnTime = 56.2f}, {.lane = 3, .spawnTime = 56.3f},
+    {.lane = 4, .spawnTime = 56.4f},
+    {.lane = 3, .spawnTime = 56.55f}, {.lane = 2, .spawnTime = 56.7f}, {.lane = 1, .spawnTime = 56.85f},
+    {.lane = 4, .spawnTime = 57.2f}, {.lane = 3, .spawnTime = 57.5f}, {.lane = 2, .spawnTime = 57.65f}, {.lane = 1, .spawnTime = 57.8f},
+    {.lane = 0, .spawnTime = 58.0f},
+    {.lane = 4, .spawnTime = 58.4f}, {.lane = 2, .spawnTime = 58.8f},
+    {.lane = 4, .spawnTime = 59.2f}, {.lane = 2, .spawnTime = 59.6f},
+    {.lane = 4, .spawnTime = 60.0f}, {.lane = 1, .spawnTime = 60.4f},
+    {.lane = 4, .spawnTime = 60.8f}, {.lane = 0, .spawnTime = 61.2f},
     {.lane = 2, .spawnTime = 63.0f},
-    {.lane = 3, .spawnTime = 63.5f},
-    {.lane = 1, .spawnTime = 64.0f},
-    {.lane = 0, .spawnTime = 64.5f},
+    {.lane = 1, .spawnTime = 63.5f},
+    {.lane = 0, .spawnTime = 64.0f}, {.lane = 4, .spawnTime = 64.0f},
+    {.lane = 0, .spawnTime = 65.0f}, {.lane = 2, .spawnTime = 65.0f},
+    {.lane = 1, .spawnTime = 65.25f}, {.lane = 3, .spawnTime = 65.25f},
+    {.lane = 0, .spawnTime = 65.5f}, {.lane = 2, .spawnTime = 65.5f}, {.lane = 4, .spawnTime = 65.5f},
+    {.lane = 1, .spawnTime = 66.0f}, {.lane = 4, .spawnTime = 66.45f}, {.lane = 2, .spawnTime = 66.9f},
+    {.lane = 0, .spawnTime = 67.5f}, {.lane = 3, .spawnTime = 67.75f},
+    {.lane = 4, .spawnTime = 68.0f}, {.lane = 2, .spawnTime = 68.45f}, {.lane = 4, .spawnTime = 68.9f},
 
-    // Acordes de impacto
-    {.lane = 0, .spawnTime = 65.0f},
-    {.lane = 1, .spawnTime = 65.0f},
-    {.lane = 2, .spawnTime = 65.25f},
-    {.lane = 3, .spawnTime = 65.25f},
+    // === SEGUNDA PARTE (A PARTIR DE 70s) - INTENSIDADE EQUILIBRADA ===
+    // Transição para o segundo verso
+    {.lane = 0, .spawnTime = 70.0f}, {.lane = 2, .spawnTime = 70.2f}, {.lane = 4, .spawnTime = 70.4f},
+    {.lane = 1, .spawnTime = 70.6f}, {.lane = 3, .spawnTime = 70.8f},
 
-    {.lane = 0, .spawnTime = 65.5f},
-    {.lane = 1, .spawnTime = 65.5f},
-    {.lane = 2, .spawnTime = 65.75f},
-    {.lane = 3, .spawnTime = 65.75f},
+    // Riff contínuo com espaçamento melhorado
+    {.lane = 1, .spawnTime = 71.0f}, {.lane = 2, .spawnTime = 71.2f},
+    {.lane = 4, .spawnTime = 71.4f}, {.lane = 0, .spawnTime = 71.6f},
 
-    // Clímax da seção
-    {.lane = 0, .spawnTime = 66.0f},
-    {.lane = 1, .spawnTime = 66.1f},
-    {.lane = 2, .spawnTime = 66.2f},
-    {.lane = 3, .spawnTime = 66.3f},
-    {.lane = 1, .spawnTime = 66.4f},
-    {.lane = 2, .spawnTime = 66.5f},
-    {.lane = 0, .spawnTime = 66.6f},
-    {.lane = 3, .spawnTime = 66.7f},
+    // Padrão de bateria equilibrado
+    {.lane = 0, .spawnTime = 72.0f}, {.lane = 4, .spawnTime = 72.0f},
+    {.lane = 1, .spawnTime = 72.3f}, {.lane = 2, .spawnTime = 72.6f},
+    {.lane = 4, .spawnTime = 72.9f},
 
-    // Sustenta intensidade
-    {.lane = 1, .spawnTime = 67.2f},
-    {.lane = 2, .spawnTime = 67.35f},
-    {.lane = 3, .spawnTime = 67.5f},
-    {.lane = 0, .spawnTime = 67.65f},
+    {.lane = 1, .spawnTime = 73.2f}, {.lane = 3, .spawnTime = 73.5f},
+    {.lane = 4, .spawnTime = 73.8f},
 
-    {.lane = 2, .spawnTime = 68.0f},
-    {.lane = 3, .spawnTime = 68.2f},
-    {.lane = 1, .spawnTime = 68.4f},
-    {.lane = 0, .spawnTime = 68.6f},
+    // Sequência de transição
+    {.lane = 0, .spawnTime = 74.0f}, {.lane = 2, .spawnTime = 74.3f},
+    {.lane = 4, .spawnTime = 74.6f}, {.lane = 1, .spawnTime = 74.9f},
 
-    // Refrão instrumental
-    {.lane = 0, .spawnTime = 69.0f},
-    {.lane = 1, .spawnTime = 69.0f},
-    {.lane = 2, .spawnTime = 69.3f},
-    {.lane = 3, .spawnTime = 69.3f},
+    // Padrão frenético moderado
+    {.lane = 1, .spawnTime = 75.0f}, {.lane = 2, .spawnTime = 75.2f},
+    {.lane = 4, .spawnTime = 75.4f}, {.lane = 0, .spawnTime = 75.6f},
 
-    {.lane = 0, .spawnTime = 70.0f},
-    {.lane = 2, .spawnTime = 70.2f},
-    {.lane = 1, .spawnTime = 70.4f},
-    {.lane = 3, .spawnTime = 70.6f},
+    {.lane = 4, .spawnTime = 76.0f}, {.lane = 1, .spawnTime = 76.3f},
+    {.lane = 2, .spawnTime = 76.6f}, {.lane = 3, .spawnTime = 76.9f},
 
-    // Parte final do trecho (construção para os 80s)
-    {.lane = 1, .spawnTime = 71.0f},
-    {.lane = 2, .spawnTime = 71.15f},
-    {.lane = 3, .spawnTime = 71.3f},
-    {.lane = 0, .spawnTime = 71.45f},
+    // Construção para o refrão
+    {.lane = 1, .spawnTime = 77.0f}, {.lane = 3, .spawnTime = 77.3f},
+    {.lane = 4, .spawnTime = 77.6f}, {.lane = 0, .spawnTime = 77.9f},
 
-    {.lane = 1, .spawnTime = 72.0f},
-    {.lane = 2, .spawnTime = 72.1f},
-    {.lane = 3, .spawnTime = 72.2f},
-    {.lane = 0, .spawnTime = 72.3f},
+    // Segundo refrão - intenso mas jogável
+    {.lane = 0, .spawnTime = 78.0f}, {.lane = 2, .spawnTime = 78.0f}, {.lane = 4, .spawnTime = 78.0f},
+    {.lane = 1, .spawnTime = 78.5f}, {.lane = 3, .spawnTime = 78.5f},
 
-    {.lane = 2, .spawnTime = 73.0f},
-    {.lane = 3, .spawnTime = 73.15f},
-    {.lane = 1, .spawnTime = 73.3f},
-    {.lane = 0, .spawnTime = 73.45f},
+    {.lane = 4, .spawnTime = 79.0f}, {.lane = 0, .spawnTime = 79.2f},
+    {.lane = 2, .spawnTime = 79.4f}, {.lane = 1, .spawnTime = 79.6f},
 
-    // Última sequência do trecho
-    {.lane = 0, .spawnTime = 74.0f},
-    {.lane = 1, .spawnTime = 74.1f},
-    {.lane = 2, .spawnTime = 74.2f},
-    {.lane = 3, .spawnTime = 74.3f},
+    {.lane = 0, .spawnTime = 79.8f}, {.lane = 2, .spawnTime = 79.8f}, {.lane = 4, .spawnTime = 79.8f},
 
-    {.lane = 1, .spawnTime = 75.0f},
-    {.lane = 3, .spawnTime = 75.25f},
-    {.lane = 0, .spawnTime = 75.5f},
-    {.lane = 2, .spawnTime = 75.75f},
+    // Continuação do refrão
+    {.lane = 0, .spawnTime = 80.0f}, {.lane = 2, .spawnTime = 80.0f}, {.lane = 4, .spawnTime = 80.0f},
+    {.lane = 1, .spawnTime = 80.3f}, {.lane = 3, .spawnTime = 80.3f},
 
-    {.lane = 1, .spawnTime = 76.0f},
-    {.lane = 2, .spawnTime = 76.15f},
-    {.lane = 3, .spawnTime = 76.3f},
-    {.lane = 0, .spawnTime = 76.45f},
+    {.lane = 0, .spawnTime = 80.6f}, {.lane = 2, .spawnTime = 80.6f},
+    {.lane = 1, .spawnTime = 80.9f}, {.lane = 3, .spawnTime = 80.9f},
 
-    {.lane = 0, .spawnTime = 77.0f},
-    {.lane = 1, .spawnTime = 77.2f},
-    {.lane = 2, .spawnTime = 77.4f},
-    {.lane = 3, .spawnTime = 77.6f},
+    // Ponte com riffs
+    {.lane = 1, .spawnTime = 82.0f}, {.lane = 2, .spawnTime = 82.2f},
+    {.lane = 4, .spawnTime = 82.4f}, {.lane = 0, .spawnTime = 82.6f},
 
-    {.lane = 1, .spawnTime = 78.0f},
-    {.lane = 2, .spawnTime = 78.1f},
-    {.lane = 3, .spawnTime = 78.2f},
-    {.lane = 0, .spawnTime = 78.3f},
+    {.lane = 0, .spawnTime = 83.0f}, {.lane = 2, .spawnTime = 83.3f},
+    {.lane = 4, .spawnTime = 83.6f}, {.lane = 1, .spawnTime = 83.9f},
 
-    {.lane = 2, .spawnTime = 79.0f},
-    {.lane = 3, .spawnTime = 79.2f},
-    {.lane = 1, .spawnTime = 79.4f},
-    {.lane = 0, .spawnTime = 79.6f},
+    // Padrões complexos moderados
+    {.lane = 1, .spawnTime = 84.0f}, {.lane = 3, .spawnTime = 84.3f},
+    {.lane = 4, .spawnTime = 84.6f}, {.lane = 0, .spawnTime = 84.9f},
 
-    {.lane = -1} // Terminador
+    {.lane = 4, .spawnTime = 85.0f}, {.lane = 2, .spawnTime = 85.3f},
+    {.lane = 1, .spawnTime = 85.6f}, {.lane = 0, .spawnTime = 85.9f},
+
+    // Ponte para o solo
+    {.lane = 2, .spawnTime = 86.0f}, {.lane = 3, .spawnTime = 86.2f},
+    {.lane = 1, .spawnTime = 86.4f}, {.lane = 4, .spawnTime = 86.6f},
+
+    {.lane = 0, .spawnTime = 87.0f}, {.lane = 2, .spawnTime = 87.3f},
+    {.lane = 4, .spawnTime = 87.6f}, {.lane = 1, .spawnTime = 87.9f},
+
+    // === PREPARAÇÃO PARA O SOLO (88s - 110s) ===
+    {.lane = 0, .spawnTime = 88.0f}, {.lane = 2, .spawnTime = 88.2f},
+    {.lane = 4, .spawnTime = 88.4f}, {.lane = 1, .spawnTime = 88.6f},
+    {.lane = 3, .spawnTime = 88.8f},
+
+    {.lane = 1, .spawnTime = 89.0f}, {.lane = 2, .spawnTime = 89.2f},
+    {.lane = 4, .spawnTime = 89.4f}, {.lane = 0, .spawnTime = 89.6f},
+    {.lane = 3, .spawnTime = 89.8f},
+
+    // Construção de tensão
+    {.lane = 0, .spawnTime = 90.0f}, {.lane = 4, .spawnTime = 90.0f},
+    {.lane = 1, .spawnTime = 90.3f}, {.lane = 2, .spawnTime = 90.6f},
+    {.lane = 3, .spawnTime = 90.9f},
+
+    {.lane = 4, .spawnTime = 91.2f}, {.lane = 0, .spawnTime = 91.5f},
+    {.lane = 2, .spawnTime = 91.8f}, {.lane = 1, .spawnTime = 92.1f},
+
+    // Riffs intermediários
+    {.lane = 1, .spawnTime = 92.5f}, {.lane = 2, .spawnTime = 92.7f},
+    {.lane = 4, .spawnTime = 92.9f}, {.lane = 0, .spawnTime = 93.1f},
+
+    {.lane = 3, .spawnTime = 93.5f}, {.lane = 2, .spawnTime = 93.7f},
+    {.lane = 1, .spawnTime = 93.9f}, {.lane = 4, .spawnTime = 94.1f},
+
+    // Padrão rítmico
+    {.lane = 0, .spawnTime = 94.5f}, {.lane = 4, .spawnTime = 94.5f},
+    {.lane = 1, .spawnTime = 94.8f}, {.lane = 2, .spawnTime = 95.1f},
+    {.lane = 3, .spawnTime = 95.4f},
+
+    {.lane = 4, .spawnTime = 95.7f}, {.lane = 0, .spawnTime = 96.0f},
+    {.lane = 2, .spawnTime = 96.3f}, {.lane = 1, .spawnTime = 96.6f},
+
+    // Verso com variações
+    {.lane = 1, .spawnTime = 97.0f}, {.lane = 2, .spawnTime = 97.2f},
+    {.lane = 4, .spawnTime = 97.4f}, {.lane = 0, .spawnTime = 97.6f},
+
+    {.lane = 3, .spawnTime = 98.0f}, {.lane = 2, .spawnTime = 98.2f},
+    {.lane = 1, .spawnTime = 98.4f}, {.lane = 4, .spawnTime = 98.6f},
+
+    {.lane = 0, .spawnTime = 99.0f}, {.lane = 1, .spawnTime = 99.3f},
+    {.lane = 2, .spawnTime = 99.6f}, {.lane = 3, .spawnTime = 99.9f},
+
+    // Ponte para o clímax
+    {.lane = 4, .spawnTime = 100.0f}, {.lane = 0, .spawnTime = 100.2f},
+    {.lane = 2, .spawnTime = 100.4f}, {.lane = 1, .spawnTime = 100.6f},
+
+    {.lane = 3, .spawnTime = 101.0f}, {.lane = 4, .spawnTime = 101.2f},
+    {.lane = 2, .spawnTime = 101.4f}, {.lane = 0, .spawnTime = 101.6f},
+
+    // Acumulação de intensidade
+    {.lane = 1, .spawnTime = 102.0f}, {.lane = 2, .spawnTime = 102.0f},
+    {.lane = 4, .spawnTime = 102.0f}, {.lane = 0, .spawnTime = 102.3f},
+    {.lane = 3, .spawnTime = 102.3f},
+
+    {.lane = 4, .spawnTime = 102.6f}, {.lane = 2, .spawnTime = 102.9f},
+    {.lane = 1, .spawnTime = 103.2f}, {.lane = 0, .spawnTime = 103.5f},
+
+    // Riffs acelerados
+    {.lane = 1, .spawnTime = 104.0f}, {.lane = 2, .spawnTime = 104.1f},
+    {.lane = 1, .spawnTime = 104.2f}, {.lane = 2, .spawnTime = 104.3f},
+    {.lane = 4, .spawnTime = 104.4f},
+
+    {.lane = 0, .spawnTime = 104.6f}, {.lane = 3, .spawnTime = 104.8f},
+    {.lane = 2, .spawnTime = 105.0f}, {.lane = 1, .spawnTime = 105.2f},
+
+    // Pré-solo
+    {.lane = 4, .spawnTime = 105.5f}, {.lane = 0, .spawnTime = 105.8f},
+    {.lane = 2, .spawnTime = 106.1f}, {.lane = 1, .spawnTime = 106.4f},
+
+    {.lane = 3, .spawnTime = 106.7f}, {.lane = 4, .spawnTime = 107.0f},
+    {.lane = 2, .spawnTime = 107.3f}, {.lane = 0, .spawnTime = 107.6f},
+
+    // Construção final antes do solo
+    {.lane = 1, .spawnTime = 108.0f}, {.lane = 2, .spawnTime = 108.0f},
+    {.lane = 3, .spawnTime = 108.0f}, {.lane = 4, .spawnTime = 108.0f},
+
+    {.lane = 0, .spawnTime = 108.5f}, {.lane = 4, .spawnTime = 108.5f},
+    {.lane = 1, .spawnTime = 108.8f}, {.lane = 2, .spawnTime = 109.1f},
+
+    {.lane = 3, .spawnTime = 109.4f}, {.lane = 0, .spawnTime = 109.7f},
+    {.lane = 4, .spawnTime = 109.9f},
+
+    // === SOLO DE GUITARRA PRINCIPAL (110s - 129s) - DENSIDADE EQUILIBRADA ===
+    {.lane = 2, .spawnTime = 110.0f}, {.lane = 1, .spawnTime = 110.2f},
+    {.lane = 3, .spawnTime = 110.4f}, {.lane = 0, .spawnTime = 110.6f},
+
+    {.lane = 4, .spawnTime = 111.0f}, {.lane = 2, .spawnTime = 111.3f},
+    {.lane = 1, .spawnTime = 111.6f}, {.lane = 0, .spawnTime = 111.9f},
+
+    {.lane = 3, .spawnTime = 112.0f}, {.lane = 2, .spawnTime = 112.2f},
+    {.lane = 4, .spawnTime = 112.4f}, {.lane = 1, .spawnTime = 112.6f},
+
+    {.lane = 2, .spawnTime = 113.0f}, {.lane = 0, .spawnTime = 113.3f},
+    {.lane = 4, .spawnTime = 113.6f}, {.lane = 3, .spawnTime = 113.9f},
+
+    // Sequência sweep moderada
+    {.lane = 0, .spawnTime = 115.0f}, {.lane = 2, .spawnTime = 115.2f},
+    {.lane = 4, .spawnTime = 115.4f}, {.lane = 3, .spawnTime = 115.6f},
+
+    {.lane = 2, .spawnTime = 116.0f}, {.lane = 1, .spawnTime = 116.3f},
+    {.lane = 4, .spawnTime = 116.6f}, {.lane = 0, .spawnTime = 116.9f},
+
+    {.lane = 4, .spawnTime = 117.0f}, {.lane = 2, .spawnTime = 117.2f},
+    {.lane = 1, .spawnTime = 117.4f}, {.lane = 3, .spawnTime = 117.6f},
+
+    // Trills equilibrados
+    {.lane = 2, .spawnTime = 118.0f}, {.lane = 3, .spawnTime = 118.2f},
+    {.lane = 1, .spawnTime = 118.4f}, {.lane = 4, .spawnTime = 118.6f},
+
+    {.lane = 3, .spawnTime = 119.0f}, {.lane = 2, .spawnTime = 119.3f},
+    {.lane = 1, .spawnTime = 119.6f}, {.lane = 0, .spawnTime = 119.9f},
+
+    // Padrões rítmicos
+    {.lane = 1, .spawnTime = 120.0f}, {.lane = 4, .spawnTime = 120.3f},
+    {.lane = 0, .spawnTime = 120.6f}, {.lane = 3, .spawnTime = 120.9f},
+
+    {.lane = 1, .spawnTime = 121.0f}, {.lane = 2, .spawnTime = 121.3f},
+    {.lane = 4, .spawnTime = 121.6f}, {.lane = 0, .spawnTime = 121.9f},
+
+    {.lane = 1, .spawnTime = 122.0f}, {.lane = 3, .spawnTime = 122.3f},
+    {.lane = 4, .spawnTime = 122.6f}, {.lane = 2, .spawnTime = 122.9f},
+
+    // Final do solo com acordes
+    {.lane = 0, .spawnTime = 123.0f}, {.lane = 2, .spawnTime = 123.0f}, {.lane = 4, .spawnTime = 123.0f},
+    {.lane = 1, .spawnTime = 123.5f}, {.lane = 3, .spawnTime = 123.5f},
+
+    {.lane = 0, .spawnTime = 124.0f}, {.lane = 2, .spawnTime = 124.0f},
+    {.lane = 4, .spawnTime = 124.3f}, {.lane = 1, .spawnTime = 124.6f},
+
+    {.lane = 0, .spawnTime = 125.0f}, {.lane = 2, .spawnTime = 125.0f},
+    {.lane = 4, .spawnTime = 125.3f}, {.lane = 1, .spawnTime = 125.6f},
+
+    {.lane = 0, .spawnTime = 126.0f}, {.lane = 2, .spawnTime = 126.3f},
+    {.lane = 4, .spawnTime = 126.6f}, {.lane = 1, .spawnTime = 126.9f},
+
+    {.lane = 4, .spawnTime = 127.0f}, {.lane = 2, .spawnTime = 127.2f},
+    {.lane = 0, .spawnTime = 127.4f}, {.lane = 1, .spawnTime = 127.6f},
+
+    {.lane = 1, .spawnTime = 128.0f}, {.lane = 0, .spawnTime = 128.3f},
+    {.lane = 4, .spawnTime = 128.6f}, {.lane = 2, .spawnTime = 128.9f},
+
+    // === Finalização Apoteótica (130s - 160s) - CLÍMAX EQUILIBRADO ===
+    {.lane = 1, .spawnTime = 130.0f}, {.lane = 2, .spawnTime = 130.2f},
+    {.lane = 4, .spawnTime = 130.4f}, {.lane = 0, .spawnTime = 130.6f},
+
+    {.lane = 1, .spawnTime = 131.0f}, {.lane = 2, .spawnTime = 131.3f},
+    {.lane = 4, .spawnTime = 131.6f}, {.lane = 3, .spawnTime = 131.9f},
+
+    {.lane = 1, .spawnTime = 132.0f}, {.lane = 3, .spawnTime = 132.3f},
+    {.lane = 4, .spawnTime = 132.6f}, {.lane = 0, .spawnTime = 132.9f},
+
+    {.lane = 1, .spawnTime = 133.0f}, {.lane = 2, .spawnTime = 133.3f},
+    {.lane = 4, .spawnTime = 133.6f}, {.lane = 0, .spawnTime = 133.9f},
+
+    {.lane = 0, .spawnTime = 134.0f}, {.lane = 2, .spawnTime = 134.2f},
+    {.lane = 4, .spawnTime = 134.4f}, {.lane = 1, .spawnTime = 134.6f},
+
+    {.lane = 1, .spawnTime = 135.0f}, {.lane = 2, .spawnTime = 135.3f},
+    {.lane = 4, .spawnTime = 135.6f}, {.lane = 0, .spawnTime = 135.9f},
+
+    // Construção final
+    {.lane = 0, .spawnTime = 136.0f}, {.lane = 2, .spawnTime = 136.3f},
+    {.lane = 4, .spawnTime = 136.6f}, {.lane = 1, .spawnTime = 136.9f},
+
+    {.lane = 0, .spawnTime = 137.0f}, {.lane = 4, .spawnTime = 137.2f},
+    {.lane = 1, .spawnTime = 137.4f}, {.lane = 3, .spawnTime = 137.6f},
+
+    {.lane = 4, .spawnTime = 138.0f}, {.lane = 0, .spawnTime = 138.3f},
+    {.lane = 2, .spawnTime = 138.6f}, {.lane = 1, .spawnTime = 138.9f},
+
+    {.lane = 0, .spawnTime = 139.0f}, {.lane = 2, .spawnTime = 139.3f},
+    {.lane = 4, .spawnTime = 139.6f}, {.lane = 1, .spawnTime = 139.9f},
+
+    // Clímax final
+    {.lane = 0, .spawnTime = 140.0f}, {.lane = 2, .spawnTime = 140.0f}, {.lane = 4, .spawnTime = 140.0f},
+    {.lane = 1, .spawnTime = 140.5f}, {.lane = 3, .spawnTime = 140.5f},
+
+    {.lane = 4, .spawnTime = 141.0f}, {.lane = 4, .spawnTime = 141.2f},
+    {.lane = 0, .spawnTime = 141.4f}, {.lane = 2, .spawnTime = 141.6f},
+
+    {.lane = 0, .spawnTime = 142.0f}, {.lane = 2, .spawnTime = 142.0f}, {.lane = 4, .spawnTime = 142.0f},
+    {.lane = 1, .spawnTime = 142.5f}, {.lane = 3, .spawnTime = 142.5f},
+
+    // Última sequência
+    {.lane = 0, .spawnTime = 150.0f}, {.lane = 2, .spawnTime = 150.2f},
+    {.lane = 4, .spawnTime = 150.4f}, {.lane = 1, .spawnTime = 150.6f},
+
+    {.lane = 0, .spawnTime = 151.0f}, {.lane = 2, .spawnTime = 151.0f},
+    {.lane = 4, .spawnTime = 151.3f}, {.lane = 1, .spawnTime = 151.6f},
+
+    // Acordes finais
+    {.lane = 0, .spawnTime = 155.0f}, {.lane = 2, .spawnTime = 155.0f}, {.lane = 4, .spawnTime = 155.0f},
+    {.lane = 1, .spawnTime = 155.5f}, {.lane = 3, .spawnTime = 155.5f},
+
+    {.lane = 0, .spawnTime = 156.0f}, {.lane = 1, .spawnTime = 156.0f}, {.lane = 2, .spawnTime = 156.0f}, {.lane = 3, .spawnTime = 156.0f},
+    {.lane = 4, .spawnTime = 156.5f},
+
+    {.lane = 0, .spawnTime = 158.0f}, {.lane = 4, .spawnTime = 158.0f},
+    {.lane = 1, .spawnTime = 158.3f}, {.lane = 2, .spawnTime = 158.6f},
+
+    {.lane = 2, .spawnTime = 159.0f}, {.lane = 1, .spawnTime = 159.2f},
+    {.lane = 0, .spawnTime = 159.4f}, {.lane = 4, .spawnTime = 159.6f},
+
+    // Nota final épica - TODAS AS LANES SIMULTANEAMENTE
+    {.lane = 0, .spawnTime = 159.9f}, {.lane = 1, .spawnTime = 159.9f}, {.lane = 2, .spawnTime = 159.9f}, {.lane = 3, .spawnTime = 159.9f}, {.lane = 4, .spawnTime = 159.9f},
+    {.lane = -1} // Terminador do chart
 };
 
 Note SweetChildOMine[CHART_SIZE] = {
